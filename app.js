@@ -36,7 +36,6 @@ function filtrarClientes() {
     });
 }
 
-
 // PRODUCTOS
 document.getElementById("form-producto").addEventListener("submit", guardarProducto);
 document.getElementById("producto-limpiar").addEventListener("click", limpiarFormularioProducto);
