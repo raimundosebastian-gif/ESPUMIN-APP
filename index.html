@@ -641,48 +641,35 @@ document.addEventListener("DOMContentLoaded", () => {
     <button class="btn-secondary" onclick="enviarWhatsApp()">Enviar por WhatsApp</button>
   </section>
 
-  <!-- CLIENTES -->
-  <section id="clientes" class="section">
-    <h2>Clientes</h2>
+<!-- CLIENTES -->
+<section id="clientes" class="section" style="display: none;">
+  <h2>Clientes</h2>
 
-<h2>Clientes</h2>
+  <div class="cliente-card">
+    <label>Nombre del cliente</label>
+    <input type="text" id="cliente-nombre">
 
-<div class="cliente-card">
-  <label>Nombre del cliente</label>
-  <input type="text" id="cliente-nombre">
+    <label>Teléfono</label>
+    <input type="text" id="cliente-telefono">
 
-  <label>Teléfono</label>
-  <input type="text" id="cliente-telefono">
+    <button onclick="agregarCliente(
+      document.getElementById('cliente-nombre').value,
+      document.getElementById('cliente-telefono').value
+    )">Agregar cliente</button>
+  </div>
 
-  <button onclick="agregarCliente(
-    document.getElementById('cliente-nombre').value,
-    document.getElementById('cliente-telefono').value
-  )">Agregar cliente</button>
-</div>
+  <h3>Lista de clientes</h3>
 
-<h3>Lista de clientes</h3>
-
-<table>
-  <thead>
-    <tr>
-      <th>Nombre</th>
-      <th>Teléfono</th>
-    </tr>
-  </thead>
-  <tbody id="tabla-clientes"></tbody>
-</table>
-
-    <input id="clienteId" type="hidden">
-    <input id="clienteNombre" placeholder="Nombre">
-    <input id="clienteTelefono" placeholder="Teléfono">
-    <input id="clienteExtra" placeholder="Campo opcional">
-
-    <button class="btn-primary" onclick="guardarCliente()">Guardar cliente</button>
-    <button class="btn-secondary" onclick="limpiarClienteForm()">Limpiar</button>
-
-    <h3>Listado</h3>
-    <div id="clientesLista"></div>
-  </section>
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Teléfono</th>
+      </tr>
+    </thead>
+    <tbody id="tabla-clientes"></tbody>
+  </table>
+</section>
 
   <!-- PRODUCTOS -->
   <section id="productos" class="section">
@@ -1346,4 +1333,3 @@ function guardarOrden() {
   let cliente = clientes.find(c => c.telefono == telefono);
   if (!cliente) {
     const nuevoId = clientes.length ? Math.max(...clientes.map(c => c.id)) + 1 : 
-
