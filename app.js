@@ -36,6 +36,7 @@ function filtrarClientes() {
     });
 }
 
+
 // PRODUCTOS
 document.getElementById("form-producto").addEventListener("submit", guardarProducto);
 document.getElementById("producto-limpiar").addEventListener("click", limpiarFormularioProducto);
@@ -187,7 +188,7 @@ function cargarProductosEnTabla() {
     tr.innerHTML = `
       <td>${prod.nombre}</td>
       <td>${prod.tipo || ""}</td>
-      <td>$${formatearPrecioMiles(prod.precio)}</td>
+      <td class="col-precio">${formatearPrecioMiles(prod.precio)}</td>
       <td>
         <button onclick="editarProducto('${prod.id}')">Editar</button>
         <button onclick="eliminarProducto('${prod.id}')">Eliminar</button>
