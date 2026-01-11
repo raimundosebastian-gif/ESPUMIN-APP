@@ -188,7 +188,7 @@ function cargarProductosEnTabla() {
     tr.innerHTML = `
       <td>${prod.nombre}</td>
       <td>${prod.tipo || ""}</td>
-      <td class="col-precio">${formatearPrecioMiles(prod.precio)}</td>
+      <td class="col-precio-left">${formatearPrecioMiles(prod.precio)}</td>
       <td>
         <button onclick="editarProducto('${prod.id}')">Editar</button>
         <button onclick="eliminarProducto('${prod.id}')">Eliminar</button>
