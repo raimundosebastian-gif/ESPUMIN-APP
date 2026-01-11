@@ -2,53 +2,31 @@
 document.addEventListener("DOMContentLoaded", () => {
   const navButtons = document.querySelectorAll(".main-nav button");
   const views = document.querySelectorAll(".view");
-// CLIENTES
-document.getElementById("form-cliente").addEventListener("submit", guardarCliente);
-document.getElementById("cliente-limpiar").addEventListener("click", limpiarFormularioCliente);
-document.getElementById("cliente-busqueda").addEventListener("input", filtrarClientes);
-document.getElementById("btn-agregar-item").addEventListener("click", agregarItemOrden);
 
-// ORDENES
-document.getElementById("form-orden").addEventListener("submit", guardarOrden);
-document.getElementById("btn-agregar-item").addEventListener("click", agregarItemOrden);
+  // CLIENTES
+  document.getElementById("form-cliente").addEventListener("submit", guardarCliente);
+  document.getElementById("cliente-limpiar").addEventListener("click", limpiarFormularioCliente);
+  document.getElementById("cliente-busqueda").addEventListener("input", filtrarClientes);
 
-cargarOrdenesEnTabla();
+  // PRODUCTOS
+  document.getElementById("form-producto").addEventListener("submit", guardarProducto);
+  document.getElementById("producto-limpiar").addEventListener("click", limpiarFormularioProducto);
 
-cargarClientesEnTabla();
-cargarClientesEnSelects();
-function filtrarClientes() {
-  const texto = document.getElementById("cliente-busqueda").value.toLowerCase();
-  const clientes = JSON.parse(localStorage.getItem("clientes")) || [];
-  const tbody = document.querySelector("#tabla-clientes tbody");
+  // ORDENES (solo si existen los elementos)
+  const formOrden = document.getElementById("form-orden");
+  if (formOrden) {
+    formOrden.addEventListener("submit", guardarOrden);
+  }
 
-  tbody.innerHTML = "";
+  const btnAgregarItem = document.getElementById("btn-agregar-item");
+  if (btnAgregarItem) {
+    btnAgregarItem.addEventListener("click", agregarItemOrden);
+  }
 
-  clientes
-    .filter(c =>
-      c.nombre.toLowerCase().includes(texto) ||
-      (c.telefono || "").toLowerCase().includes(texto)
-    )
-    .forEach(cli => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${cli.nombre}</td>
-        <td>${cli.telefono || ""}</td>
-        <td>${cli.direccion || ""}</td>
-        <td>
-          <button onclick="editarCliente('${cli.id}')">Editar</button>
-          <button onclick="eliminarCliente('${cli.id}')">Eliminar</button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-}
-
-
-// PRODUCTOS
-document.getElementById("form-producto").addEventListener("submit", guardarProducto);
-document.getElementById("producto-limpiar").addEventListener("click", limpiarFormularioProducto);
-
-cargarProductosEnTabla();
+  cargarClientesEnTabla();
+  cargarClientesEnSelects();
+  cargarProductosEnTabla();
+  cargarOrdenesEnTabla();
 
   navButtons.forEach(btn => {
     btn.addEventListener("click", () => {
@@ -58,13 +36,11 @@ cargarProductosEnTabla();
     });
   });
 
-  // Inicialización básica de estructuras en localStorage si no existen
   ensureStorageArray("clientes");
   ensureStorageArray("productos");
   ensureStorageArray("ordenes");
-
-  // Más adelante: cargar tablas, combos, etc.
 });
+
 
 function ensureStorageArray(key) {
   const existing = localStorage.getItem(key);
@@ -273,19 +249,21 @@ function limpiarFormularioProducto() {
 function cargarOrdenesEnTabla() {
   const ordenes = JSON.parse(localStorage.getItem("ordenes")) || [];
   const tbody = document.querySelector("#tabla-ordenes tbody");
+  if (!tbody) return; // si la tabla no existe, no rompemos
+
   tbody.innerHTML = "";
 
   ordenes.forEach(ord => {
     const cliente = obtenerNombreCliente(ord.clienteId);
-    const total = formatearPrecioMiles(ord.total);
+    const total = formatearPrecioMiles(ord.total || 0);
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${ord.id}</td>
       <td>${cliente}</td>
-      <td>${ord.fecha}</td>
-      <td>${ord.estadoPago}</td>
-      <td>${ord.estadoEntrega}</td>
+      <td>${ord.fecha || ""}</td>
+      <td>${ord.estadoPago || ""}</td>
+      <td>${ord.estadoEntrega || ""}</td>
       <td class="col-precio">${total}</td>
       <td>
         <button onclick="editarOrden('${ord.id}')">Editar</button>
@@ -358,11 +336,13 @@ function editarOrden(id) {
 
 function cargarItemsEnEdicion(items) {
   const tbody = document.querySelector("#tabla-items-orden tbody");
+  if (!tbody) return; // si no existe la tabla, salimos
+
   tbody.innerHTML = "";
 
   const productos = JSON.parse(localStorage.getItem("productos")) || [];
 
-  items.forEach(item => {
+  (items || []).forEach(item => {
     const tr = document.createElement("tr");
     const prod = productos.find(p => p.id === item.productoId);
     const precio = prod ? prod.precio : 0;
@@ -431,9 +411,10 @@ function limpiarFormularioOrden() {
 // =========================
 
 function agregarItemOrden() {
-  const productos = JSON.parse(localStorage.getItem("productos")) || [];
   const tbody = document.querySelector("#tabla-items-orden tbody");
+  if (!tbody) return; // si no existe la tabla, no hacemos nada
 
+  const productos = JSON.parse(localStorage.getItem("productos")) || [];
   const tr = document.createElement("tr");
 
   tr.innerHTML = `
@@ -491,20 +472,31 @@ function actualizarItem(e) {
 }
 
 function recalcularTotalOrden() {
-  const filas = document.querySelectorAll("#tabla-items-orden tbody tr");
+  const tbody = document.querySelector("#tabla-items-orden tbody");
+  if (!tbody) return;
+
+  const filas = tbody.querySelectorAll("tr");
   let total = 0;
 
   filas.forEach(fila => {
-    const subtotalTexto = fila.querySelector(".item-subtotal").textContent.replace(/\./g, "");
+    const subtotalTexto = fila
+      .querySelector(".item-subtotal")
+      .textContent.replace(/\./g, "");
     const subtotal = parseInt(subtotalTexto) || 0;
     total += subtotal;
   });
 
-  document.getElementById("orden-total").textContent = formatearPrecioMiles(total);
+  const totalSpan = document.getElementById("orden-total");
+  if (totalSpan) {
+    totalSpan.textContent = formatearPrecioMiles(total);
+  }
 }
 
 function obtenerItemsDeOrden() {
-  const filas = document.querySelectorAll("#tabla-items-orden tbody tr");
+  const tbody = document.querySelector("#tabla-items-orden tbody");
+  if (!tbody) return [];
+
+  const filas = tbody.querySelectorAll("tr");
   const items = [];
 
   filas.forEach(fila => {
@@ -518,3 +510,4 @@ function obtenerItemsDeOrden() {
 
   return items;
 }
+
