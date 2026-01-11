@@ -1,12 +1,14 @@
-const CACHE_NAME = "espumin-cache-v4";
+const CACHE_NAME = "espumin-cache-v5";
+
+const BASE = "/ESPUMIN-APP/refs/heads/main/";
 
 const FILES_TO_CACHE = [
-  "./",
-  "./index.html",
-  "./manifest.json",
-  "./service-worker.js",
-  "./icon-512.png",
-  "./logo.png"
+  BASE,
+  BASE + "index.html",
+  BASE + "manifest.json",
+  BASE + "service-worker.js",
+  BASE + "icon-512.png",
+  BASE + "logo.png"
 ];
 
 self.addEventListener("install", event => {
