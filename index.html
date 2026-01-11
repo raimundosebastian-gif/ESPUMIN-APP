@@ -140,8 +140,203 @@
       background: var(--azul);
       color: var(--blanco);
     }
+
+    .orden-card {
+      border: 1px solid #aaa;
+      padding: 12px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      background: #f8f8f8;
+    }
+
+    .orden-card button {
+      margin-right: 8px;
+      margin-top: 6px;
+    }
+
   </style>
 </head>
+
+<script>
+// ----------------------
+// LocalStorage
+// ----------------------
+function cargarOrdenes() {
+  return JSON.parse(localStorage.getItem("ordenes")) || [];
+}
+
+function guardarOrdenes(ordenes) {
+  localStorage.setItem("ordenes", JSON.stringify(ordenes));
+}
+
+// ----------------------
+// Crear estructura de orden
+// ----------------------
+function crearEstructuraOrden(cliente, prendas, pagoInicial = 0) {
+  const total = prendas.reduce((sum, p) => sum + p.precio, 0);
+
+  return {
+    id: "ORD-" + Date.now(),
+    cliente,
+    prendas,
+    total,
+    pagado: pagoInicial,
+    estadoPago:
+      pagoInicial >= total ? "pagado" :
+      pagoInicial > 0 ? "parcial" : "no_pagado",
+    estadoTrabajo: "pendiente",
+    fechaIngreso: new Date().toISOString().split("T")[0],
+    fechaTerminado: null,
+    fechaEntrega: null
+  };
+}
+
+// ----------------------
+// Obtener prendas seleccionadas
+// ----------------------
+function obtenerPrendasSeleccionadas() {
+  const checks = document.querySelectorAll("#selector-prendas input[type='checkbox']:checked");
+  const prendas = [];
+
+  checks.forEach(chk => {
+    prendas.push({
+      tipo: chk.value,
+      precio: Number(chk.dataset.precio)
+    });
+  });
+
+  return prendas;
+}
+
+// ----------------------
+// Crear nueva orden
+// ----------------------
+function crearNuevaOrden() {
+  const cliente = document.getElementById("cliente-nombre").value;
+  const prendas = obtenerPrendasSeleccionadas();
+  const pagoInicial = Number(document.getElementById("pagoInicial").value || 0);
+
+  if (!cliente) {
+    alert("Debe ingresar un nombre de cliente.");
+    return;
+  }
+
+  if (prendas.length === 0) {
+    alert("Debe seleccionar al menos una prenda.");
+    return;
+  }
+
+  const orden = crearEstructuraOrden(cliente, prendas, pagoInicial);
+
+  const ordenes = cargarOrdenes();
+  ordenes.push(orden);
+  guardarOrdenes(ordenes);
+
+  renderOrdenes();
+  alert("Orden creada correctamente.");
+}
+
+// ----------------------
+// Registrar pago
+// ----------------------
+function registrarPago(orden, monto) {
+  orden.pagado += monto;
+
+  if (orden.pagado >= orden.total) {
+    orden.estadoPago = "pagado";
+  } else if (orden.pagado > 0) {
+    orden.estadoPago = "parcial";
+  } else {
+    orden.estadoPago = "no_pagado";
+  }
+}
+
+// ----------------------
+// Marcar trabajo terminado
+// ----------------------
+function marcarTerminado(orden) {
+  orden.estadoTrabajo = "terminada";
+  orden.fechaTerminado = new Date().toISOString().split("T")[0];
+}
+
+// ----------------------
+// Entregar orden
+// ----------------------
+function entregarOrden(orden) {
+  if (orden.estadoPago !== "pagado") {
+    alert("Para entregar la ropa, la orden debe estar pagada en su totalidad.");
+    return false;
+  }
+
+  orden.estadoTrabajo = "entregada";
+  orden.fechaEntrega = new Date().toISOString().split("T")[0];
+  return true;
+}
+
+// ----------------------
+// Botones de acción
+// ----------------------
+function btnTerminar(id) {
+  const ordenes = cargarOrdenes();
+  const orden = ordenes.find(o => o.id === id);
+
+  marcarTerminado(orden);
+  guardarOrdenes(ordenes);
+  renderOrdenes();
+}
+
+function btnPagar(id) {
+  const monto = Number(prompt("Monto recibido:"));
+  if (!monto) return;
+
+  const ordenes = cargarOrdenes();
+  const orden = ordenes.find(o => o.id === id);
+
+  registrarPago(orden, monto);
+  guardarOrdenes(ordenes);
+  renderOrdenes();
+}
+
+function btnEntregar(id) {
+  const ordenes = cargarOrdenes();
+  const orden = ordenes.find(o => o.id === id);
+
+  if (entregarOrden(orden)) {
+    guardarOrdenes(ordenes);
+    renderOrdenes();
+  }
+}
+
+// ----------------------
+// Render de órdenes
+// ----------------------
+function renderOrdenes() {
+  const ordenes = cargarOrdenes();
+  const contenedor = document.getElementById("lista-ordenes");
+  contenedor.innerHTML = "";
+
+  ordenes.forEach(orden => {
+    const div = document.createElement("div");
+    div.className = "orden-card";
+
+    div.innerHTML = `
+      <h3>${orden.cliente}</h3>
+      <p><strong>Estado:</strong> ${orden.estadoTrabajo}</p>
+      <p><strong>Pago:</strong> $${orden.pagado} / $${orden.total}</p>
+      <button onclick="btnTerminar('${orden.id}')">Marcar terminado</button>
+      <button onclick="btnPagar('${orden.id}')">Registrar pago</button>
+      <button onclick="btnEntregar('${orden.id}')">Entregar</button>
+    `;
+
+    contenedor.appendChild(div);
+  });
+}
+
+// ----------------------
+// Inicializar al cargar
+// ----------------------
+document.addEventListener("DOMContentLoaded", renderOrdenes);
+</script>
 
 <body>
 
@@ -162,7 +357,31 @@
 
   <!-- ORDENES -->
   <section id="ordenes" class="section active">
-    <h2>Nueva orden</h2>
+    <h2>Nueva Orden</h2>
+
+    <label>Cliente:</label>
+    <select id="cliente">
+      <option value="">-- Sin seleccionar --</option>
+    </select>
+
+    <label>Nombre del cliente</label>
+    <input type="text" id="cliente-nombre" placeholder="Nombre del cliente">
+
+    <label>Teléfono (opcional)</label>
+    <input type="text" id="cliente-telefono" placeholder="Teléfono">
+
+    <label>Prendas:</label>
+    <div id="selector-prendas">
+      <label><input type="checkbox" value="Camisa" data-precio="1500"> Camisa ($1500)</label><br>
+      <label><input type="checkbox" value="Pantalón" data-precio="2000"> Pantalón ($2000)</label><br>
+      <label><input type="checkbox" value="Saco" data-precio="3000"> Saco ($3000)</label><br>
+    </div>
+
+    <label>Pago inicial:</label>
+    <input type="number" id="pagoInicial" placeholder="0">
+
+    <button onclick="crearNuevaOrden()">Crear Orden</button>
+
 
     <h3>Cliente</h3>
 
@@ -223,6 +442,7 @@
   <section id="historial" class="section">
     <h2>Historial de órdenes</h2>
     <div id="historialLista"></div>
+    <div id="lista-ordenes"></div>
   </section>
 
 </main>
