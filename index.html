@@ -408,44 +408,27 @@ function obtenerPrendasSeleccionadas() {
 // ----------------------
 // Crear nueva orden
 // ----------------------
-function crearNuevaOrden() {
-  const selectorCliente = document.getElementById("cliente").value;
-  const nombreManual = document.getElementById("cliente-nombre").value;
-  const telefonoManual = document.getElementById("cliente-telefono").value;
+<!-- NUEVA ORDEN -->
+<section id="nueva-orden" class="section" style="display: none;">
+  <h2>Nueva Orden</h2>
 
-  let clienteNombre = "";
-  let clienteTelefono = "";
+  <h3>Cliente</h3>
+  <select id="cliente">
+    <option value="">-- Sin seleccionar --</option>
+  </select>
 
-  if (selectorCliente) {
-    const clientes = cargarClientes();
-    const cli = clientes.find(c => c.id === selectorCliente);
-    clienteNombre = cli.nombre;
-    clienteTelefono = cli.telefono;
-  } else {
-    if (!nombreManual) {
-      alert("Debe seleccionar o ingresar un cliente.");
-      return;
-    }
-    agregarCliente(nombreManual, telefonoManual);
-    clienteNombre = nombreManual;
-    clienteTelefono = telefonoManual;
-  }
+  <h3>Prendas</h3>
+  <div id="selector-prendas"></div>
 
-  const prendas = obtenerPrendasSeleccionadas();
-  if (prendas.length === 0) {
-    alert("Debe seleccionar al menos una prenda.");
-    return;
-  }
+  <h3>Pago inicial</h3>
+  <input type="number" id="pagoInicial" placeholder="0">
 
-  const pagoInicial = Number(document.getElementById("pagoInicial").value || 0);
+  <button onclick="crearNuevaOrden()">Crear Orden</button>
 
-  const orden = crearEstructuraOrden(clienteNombre, prendas, pagoInicial);
+  <h3>Total:</h3>
+  <p id="totalOrden">$0</p>
+</section>
 
-  const ordenes = cargarOrdenes();
-  ordenes.push(orden);
-  guardarOrdenes(ordenes);
-
-  renderOrdenes();
 
 // =========================
 // Filtros por estado
