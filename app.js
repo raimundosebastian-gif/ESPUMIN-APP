@@ -311,21 +311,18 @@ function guardarOrden(e) {
   const estadoPago = document.getElementById("orden-pago").value;
   const estadoEntrega = document.getElementById("orden-entrega").value;
 
-  // Regla clave: NO entregar si no está pagado
   if (estadoEntrega === "Entregado" && estadoPago !== "Pagado") {
     alert("No se puede marcar como ENTREGADO si la orden no está PAGADA.");
     return;
   }
 
-  // El total se calcula en el Bloque 2 (items dinámicos)
   const total = calcularTotalOrden();
-
   let ordenes = JSON.parse(localStorage.getItem("ordenes")) || [];
 
   if (id) {
     ordenes = ordenes.map(o =>
       o.id === id
-        ? { ...o, clienteId, fecha, estadoPago, estadoEntrega, total }
+        ? { ...o, clienteId, fecha, estadoPago, estadoEntrega, total, items: obtenerItemsDeOrden() }
         : o
     );
   } else {
@@ -336,7 +333,7 @@ function guardarOrden(e) {
       estadoPago,
       estadoEntrega,
       total,
-      items: obtenerItemsDeOrden() // Bloque 2
+      items: obtenerItemsDeOrden()
     });
   }
 
@@ -356,10 +353,8 @@ function editarOrden(id) {
   document.getElementById("orden-pago").value = ord.estadoPago;
   document.getElementById("orden-entrega").value = ord.estadoEntrega;
 
-  // Cargar ítems
   cargarItemsEnEdicion(ord.items);
 }
-
 
 function cargarItemsEnEdicion(items) {
   const tbody = document.querySelector("#tabla-items-orden tbody");
@@ -369,7 +364,6 @@ function cargarItemsEnEdicion(items) {
 
   items.forEach(item => {
     const tr = document.createElement("tr");
-
     const prod = productos.find(p => p.id === item.productoId);
     const precio = prod ? prod.precio : 0;
     const subtotal = precio * item.cantidad;
@@ -394,7 +388,6 @@ function cargarItemsEnEdicion(items) {
       </td>
 
       <td class="col-precio item-precio">${formatearPrecioMiles(precio)}</td>
-
       <td class="col-precio item-subtotal">${formatearPrecioMiles(subtotal)}</td>
 
       <td>
@@ -404,7 +397,6 @@ function cargarItemsEnEdicion(items) {
 
     tbody.appendChild(tr);
 
-    // Eventos del item
     tr.querySelector(".item-producto").addEventListener("change", actualizarItem);
     tr.querySelector(".item-cantidad").addEventListener("input", actualizarItem);
     tr.querySelector(".item-eliminar").addEventListener("click", () => {
@@ -414,9 +406,6 @@ function cargarItemsEnEdicion(items) {
   });
 
   recalcularTotalOrden();
-}
-
-  // Items dinámicos se cargan en el Bloque 2
 }
 
 function eliminarOrden(id) {
@@ -433,26 +422,10 @@ function limpiarFormularioOrden() {
   document.getElementById("orden-pago").value = "Pendiente";
   document.getElementById("orden-entrega").value = "No entregado";
 
-  // Limpiar tabla de ítems
   document.querySelector("#tabla-items-orden tbody").innerHTML = "";
-
-  // Reiniciar total
   document.getElementById("orden-total").textContent = "0";
 }
 
-
-  // Items dinámicos se limpian en el Bloque 2
-}
-
-function calcularTotalOrden() {
-  // Esta función se completa en el Bloque 2
-  return 0;
-}
-
-function obtenerItemsDeOrden() {
-  // Esta función se completa en el Bloque 2
-  return [];
-}
 // =========================
 // ORDENES - ITEMS DINÁMICOS
 // =========================
@@ -476,7 +449,6 @@ function agregarItemOrden() {
     </td>
 
     <td class="col-precio item-precio">0</td>
-
     <td class="col-precio item-subtotal">0</td>
 
     <td>
@@ -486,7 +458,6 @@ function agregarItemOrden() {
 
   tbody.appendChild(tr);
 
-  // Eventos del item
   tr.querySelector(".item-producto").addEventListener("change", actualizarItem);
   tr.querySelector(".item-cantidad").addEventListener("input", actualizarItem);
   tr.querySelector(".item-eliminar").addEventListener("click", () => {
