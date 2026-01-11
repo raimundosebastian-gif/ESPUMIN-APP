@@ -8,6 +8,12 @@ document.getElementById("cliente-limpiar").addEventListener("click", limpiarForm
 document.getElementById("cliente-busqueda").addEventListener("input", filtrarClientes);
 document.getElementById("btn-agregar-item").addEventListener("click", agregarItemOrden);
 
+// ORDENES
+document.getElementById("form-orden").addEventListener("submit", guardarOrden);
+document.getElementById("btn-agregar-item").addEventListener("click", agregarItemOrden);
+
+cargarOrdenesEnTabla();
+
 cargarClientesEnTabla();
 cargarClientesEnSelects();
 function filtrarClientes() {
@@ -350,6 +356,66 @@ function editarOrden(id) {
   document.getElementById("orden-pago").value = ord.estadoPago;
   document.getElementById("orden-entrega").value = ord.estadoEntrega;
 
+  // Cargar ítems
+  cargarItemsEnEdicion(ord.items);
+}
+
+
+function cargarItemsEnEdicion(items) {
+  const tbody = document.querySelector("#tabla-items-orden tbody");
+  tbody.innerHTML = "";
+
+  const productos = JSON.parse(localStorage.getItem("productos")) || [];
+
+  items.forEach(item => {
+    const tr = document.createElement("tr");
+
+    const prod = productos.find(p => p.id === item.productoId);
+    const precio = prod ? prod.precio : 0;
+    const subtotal = precio * item.cantidad;
+
+    tr.innerHTML = `
+      <td>
+        <select class="item-producto">
+          <option value="">Seleccione...</option>
+          ${productos
+            .map(
+              p =>
+                `<option value="${p.id}" ${
+                  p.id === item.productoId ? "selected" : ""
+                }>${p.nombre}</option>`
+            )
+            .join("")}
+        </select>
+      </td>
+
+      <td>
+        <input type="number" class="item-cantidad" value="${item.cantidad}" min="1">
+      </td>
+
+      <td class="col-precio item-precio">${formatearPrecioMiles(precio)}</td>
+
+      <td class="col-precio item-subtotal">${formatearPrecioMiles(subtotal)}</td>
+
+      <td>
+        <button type="button" class="item-eliminar">X</button>
+      </td>
+    `;
+
+    tbody.appendChild(tr);
+
+    // Eventos del item
+    tr.querySelector(".item-producto").addEventListener("change", actualizarItem);
+    tr.querySelector(".item-cantidad").addEventListener("input", actualizarItem);
+    tr.querySelector(".item-eliminar").addEventListener("click", () => {
+      tr.remove();
+      recalcularTotalOrden();
+    });
+  });
+
+  recalcularTotalOrden();
+}
+
   // Items dinámicos se cargan en el Bloque 2
 }
 
@@ -366,6 +432,14 @@ function limpiarFormularioOrden() {
   document.getElementById("orden-fecha").value = "";
   document.getElementById("orden-pago").value = "Pendiente";
   document.getElementById("orden-entrega").value = "No entregado";
+
+  // Limpiar tabla de ítems
+  document.querySelector("#tabla-items-orden tbody").innerHTML = "";
+
+  // Reiniciar total
+  document.getElementById("orden-total").textContent = "0";
+}
+
 
   // Items dinámicos se limpian en el Bloque 2
 }
