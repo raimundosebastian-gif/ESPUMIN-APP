@@ -441,6 +441,22 @@ function crearNuevaOrden() {
   guardarOrdenes(ordenes);
 
   renderOrdenes();
+
+// =========================
+// Filtros por estado
+// =========================
+
+function filtrarOrdenes(estado) {
+  const ordenes = cargarOrdenes();
+  let filtradas = ordenes;
+
+  if (estado !== "todas") {
+    filtradas = ordenes.filter(o => o.estadoTrabajo === estado);
+  }
+
+  renderOrdenes(filtradas);
+}
+
   alert("Orden creada correctamente.");
 }
 
@@ -518,8 +534,8 @@ function btnEntregar(id) {
 // ----------------------
 // Render de órdenes
 // ----------------------
-function renderOrdenes() {
-  const ordenes = cargarOrdenes();
+function renderOrdenes(lista = null) {
+  const ordenes = lista || cargarOrdenes();
   const contenedor = document.getElementById("lista-ordenes");
   contenedor.innerHTML = "";
 
@@ -654,6 +670,13 @@ document.addEventListener("DOMContentLoaded", () => {
   </section>
 
   <!-- HISTORIAL -->
+<div style="margin-bottom: 15px;">
+  <button onclick="filtrarOrdenes('todas')">Todas</button>
+  <button onclick="filtrarOrdenes('pendiente')">Pendientes</button>
+  <button onclick="filtrarOrdenes('terminada')">Terminadas</button>
+  <button onclick="filtrarOrdenes('entregada')">Entregadas</button>
+</div>
+
   <section id="historial" class="section">
     <h2>Historial de órdenes</h2>
     <div id="historialLista"></div>
