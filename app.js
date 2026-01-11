@@ -13,6 +13,11 @@ function filtrarClientes() {
   const texto = document.getElementById("cliente-busqueda").value.toLowerCase();
   const clientes = JSON.parse(localStorage.getItem("clientes")) || [];
   const tbody = document.querySelector("#tabla-clientes tbody");
+// PRODUCTOS
+document.getElementById("form-producto").addEventListener("submit", guardarProducto);
+document.getElementById("producto-limpiar").addEventListener("click", limpiarFormularioProducto);
+
+cargarProductosEnTabla();
 
   tbody.innerHTML = "";
 
@@ -35,11 +40,6 @@ function filtrarClientes() {
       tbody.appendChild(tr);
     });
 }
-// PRODUCTOS
-document.getElementById("form-producto").addEventListener("submit", guardarProducto);
-document.getElementById("producto-limpiar").addEventListener("click", limpiarFormularioProducto);
-
-cargarProductosEnTabla();
 
   navButtons.forEach(btn => {
     btn.addEventListener("click", () => {
