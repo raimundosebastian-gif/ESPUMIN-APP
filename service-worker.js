@@ -1,17 +1,17 @@
-const CACHE_NAME = "espumin-cache-v1";
+const CACHE_NAME = "espumin-cache-v3";
+
 const FILES_TO_CACHE = [
-  "/ESPUMIN-APP/",
   "/ESPUMIN-APP/index.html",
   "/ESPUMIN-APP/manifest.json",
-  "/ESPUMIN-APP/icon-512.png"
+  "/ESPUMIN-APP/service-worker.js",
+  "/ESPUMIN-APP/icon-512.png",
+  "/ESPUMIN-APP/logo.png"
 ];
 
 // Instalar y guardar archivos
 self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(FILES_TO_CACHE);
-    })
+    caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
   );
   self.skipWaiting();
 });
@@ -19,13 +19,9 @@ self.addEventListener("install", event => {
 // Activar y limpiar caches viejas
 self.addEventListener("activate", event => {
   event.waitUntil(
-    caches.keys().then(keys => {
-      return Promise.all(
-        keys.map(key => {
-          if (key !== CACHE_NAME) return caches.delete(key);
-        })
-      );
-    })
+    caches.keys().then(keys =>
+      Promise.all(keys.map(key => key !== CACHE_NAME && caches.delete(key)))
+    )
   );
   self.clients.claim();
 });
@@ -33,8 +29,6 @@ self.addEventListener("activate", event => {
 // Interceptar peticiones
 self.addEventListener("fetch", event => {
   event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request);
-    })
+    caches.match(event.request).then(response => response || fetch(event.request))
   );
 });
