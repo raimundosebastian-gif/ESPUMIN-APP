@@ -1346,3 +1346,4 @@ function guardarOrden() {
   let cliente = clientes.find(c => c.telefono == telefono);
   if (!cliente) {
     const nuevoId = clientes.length ? Math.max(...clientes.map(c => c.id)) + 1 : 
+
