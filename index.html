@@ -216,6 +216,132 @@ h2 {
 </head>
 
 <script>
+
+// =========================
+// CLIENTES
+// =========================
+
+function cargarClientes() {
+  return JSON.parse(localStorage.getItem("clientes")) || [];
+}
+
+function guardarClientes(clientes) {
+  localStorage.setItem("clientes", JSON.stringify(clientes));
+}
+
+function agregarCliente(nombre, telefono) {
+  const clientes = cargarClientes();
+
+  const nuevo = {
+    id: "CLI-" + Date.now(),
+    nombre,
+    telefono
+  };
+
+  clientes.push(nuevo);
+  guardarClientes(clientes);
+  renderClientes();
+  actualizarSelectorClientes();
+}
+
+function renderClientes() {
+  const clientes = cargarClientes();
+  const tabla = document.getElementById("tabla-clientes");
+
+  if (!tabla) return;
+
+  tabla.innerHTML = "";
+
+  clientes.forEach(c => {
+    const fila = document.createElement("tr");
+    fila.innerHTML = `
+      <td>${c.nombre}</td>
+      <td>${c.telefono}</td>
+    `;
+    tabla.appendChild(fila);
+  });
+}
+
+function actualizarSelectorClientes() {
+  const clientes = cargarClientes();
+  const selector = document.getElementById("cliente");
+
+  if (!selector) return;
+
+  selector.innerHTML = `<option value="">-- Sin seleccionar --</option>`;
+
+  clientes.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c.id;
+    opt.textContent = c.nombre;
+    selector.appendChild(opt);
+  });
+}
+
+// =========================
+// PRODUCTOS
+// =========================
+
+function cargarProductos() {
+  return JSON.parse(localStorage.getItem("productos")) || [];
+}
+
+function guardarProductos(productos) {
+  localStorage.setItem("productos", JSON.stringify(productos));
+}
+
+function agregarProducto(nombre, precio) {
+  const productos = cargarProductos();
+
+  const nuevo = {
+    id: "PRO-" + Date.now(),
+    nombre,
+    precio: Number(precio)
+  };
+
+  productos.push(nuevo);
+  guardarProductos(productos);
+  renderProductos();
+  actualizarSelectorPrendas();
+}
+
+function renderProductos() {
+  const productos = cargarProductos();
+  const tabla = document.getElementById("tabla-productos");
+
+  if (!tabla) return;
+
+  tabla.innerHTML = "";
+
+  productos.forEach(p => {
+    const fila = document.createElement("tr");
+    fila.innerHTML = `
+      <td>${p.nombre}</td>
+      <td>$${p.precio}</td>
+    `;
+    tabla.appendChild(fila);
+  });
+}
+
+function actualizarSelectorPrendas() {
+  const productos = cargarProductos();
+  const contenedor = document.getElementById("selector-prendas");
+
+  if (!contenedor) return;
+
+  contenedor.innerHTML = "";
+
+  productos.forEach(p => {
+    const item = document.createElement("label");
+    item.innerHTML = `
+      <input type="checkbox" value="${p.nombre}" data-precio="${p.precio}">
+      ${p.nombre} ($${p.precio})
+      <br>
+    `;
+    contenedor.appendChild(item);
+  });
+}
+
 // ----------------------
 // LocalStorage
 // ----------------------
@@ -409,15 +535,6 @@ function renderOrdenes() {
 // ----------------------
 // Inicializar al cargar
 // ----------------------
-document.addEventListener("DOMContentLoaded", renderOrdenes);
-document.addEventListener("DOMContentLoaded", () => {
-  renderClientes();
-  renderProductos();
-  actualizarSelectorClientes();
-  actualizarSelectorPrendas();
-  renderOrdenes();
-});
-
 document.addEventListener("DOMContentLoaded", () => {
   renderClientes();
   renderProductos();
@@ -1140,6 +1257,3 @@ function guardarOrden() {
   let cliente = clientes.find(c => c.telefono == telefono);
   if (!cliente) {
     const nuevoId = clientes.length ? Math.max(...clientes.map(c => c.id)) + 1 : 
-
-
-
