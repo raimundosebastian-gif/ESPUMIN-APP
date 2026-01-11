@@ -114,3 +114,9 @@ th {
   color: #555;
 }
 
+.col-precio {
+  text-align: right;
+  padding-right: 8px;
+  width: 120px;
+}
+
