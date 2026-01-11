@@ -62,6 +62,10 @@ function ensureStorageArray(key) {
   if (!existing) {
     localStorage.setItem(key, JSON.stringify([]));
   }
+
+}
+function formatearPrecioMiles(valor) {
+  return valor.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
 function generarId() {
@@ -182,7 +186,7 @@ function cargarProductosEnTabla() {
     tr.innerHTML = `
       <td>${prod.nombre}</td>
       <td>${prod.tipo || ""}</td>
-      <td>$${prod.precio.toFixed(2)}</td>
+      <td>$${formatearPrecioMiles(prod.precio)}</td>
       <td>
         <button onclick="editarProducto('${prod.id}')">Editar</button>
         <button onclick="eliminarProducto('${prod.id}')">Eliminar</button>
