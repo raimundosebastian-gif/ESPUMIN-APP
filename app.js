@@ -47,8 +47,8 @@ function ensureStorageArray(key) {
   if (!existing) {
     localStorage.setItem(key, JSON.stringify([]));
   }
-
 }
+
 function formatearPrecioMiles(valor) {
   return valor.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
@@ -56,6 +56,7 @@ function formatearPrecioMiles(valor) {
 function generarId() {
   return Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
 }
+
 // =========================
 // CLIENTES
 // =========================
@@ -112,12 +113,10 @@ function guardarCliente(e) {
   let clientes = JSON.parse(localStorage.getItem("clientes")) || [];
 
   if (id) {
-    // editar
     clientes = clientes.map(c =>
       c.id === id ? { ...c, nombre, telefono, direccion } : c
     );
   } else {
-    // nuevo
     clientes.push({
       id: generarId(),
       nombre,
@@ -157,6 +156,7 @@ function limpiarFormularioCliente() {
   document.getElementById("cliente-telefono").value = "";
   document.getElementById("cliente-direccion").value = "";
 }
+
 // =========================
 // PRODUCTOS
 // =========================
@@ -179,14 +179,6 @@ function cargarProductosEnTabla() {
     `;
     tbody.appendChild(tr);
   });
-}
-
-function cargarProductosEnSelectOrden() {
-  const productos = JSON.parse(localStorage.getItem("productos")) || [];
-  const cont = document.getElementById("orden-productos-container");
-
-  // No cargamos acá porque este módulo solo llena selects cuando se agregan items
-  // La función de órdenes se encargará de generar filas dinámicas
 }
 
 function guardarProducto(e) {
@@ -249,7 +241,7 @@ function limpiarFormularioProducto() {
 function cargarOrdenesEnTabla() {
   const ordenes = JSON.parse(localStorage.getItem("ordenes")) || [];
   const tbody = document.querySelector("#tabla-ordenes tbody");
-  if (!tbody) return; // si la tabla no existe, no rompemos
+  if (!tbody) return;
 
   tbody.innerHTML = "";
 
@@ -336,7 +328,7 @@ function editarOrden(id) {
 
 function cargarItemsEnEdicion(items) {
   const tbody = document.querySelector("#tabla-items-orden tbody");
-  if (!tbody) return; // si no existe la tabla, salimos
+  if (!tbody) return;
 
   tbody.innerHTML = "";
 
@@ -404,6 +396,8 @@ function limpiarFormularioOrden() {
 
   document.querySelector("#tabla-items-orden tbody").innerHTML = "";
   document.getElementById("orden-total").textContent = "0";
+
+  actualizarResumenOrden();
 }
 
 // =========================
@@ -412,7 +406,7 @@ function limpiarFormularioOrden() {
 
 function agregarItemOrden() {
   const tbody = document.querySelector("#tabla-items-orden tbody");
-  if (!tbody) return; // si no existe la tabla, no hacemos nada
+  if (!tbody) return;
 
   const productos = JSON.parse(localStorage.getItem("productos")) || [];
   const tr = document.createElement("tr");
@@ -445,6 +439,8 @@ function agregarItemOrden() {
     tr.remove();
     recalcularTotalOrden();
   });
+
+  actualizarResumenOrden();
 }
 
 function actualizarItem(e) {
@@ -490,7 +486,42 @@ function recalcularTotalOrden() {
   if (totalSpan) {
     totalSpan.textContent = formatearPrecioMiles(total);
   }
+
+  actualizarResumenOrden();
 }
+
+// =========================
+// NUEVA FUNCIÓN: TOTAL + BOTÓN
+// =========================
+
+function actualizarResumenOrden() {
+  const tbody = document.querySelector("#tabla-items-orden tbody");
+  if (!tbody) return;
+
+  const filas = tbody.querySelectorAll("tr");
+
+  if (filas.length === 0) {
+    document.getElementById("resumenOrden").style.display = "none";
+    return;
+  }
+
+  let total = 0;
+  filas.forEach(fila => {
+    const subtotalTexto = fila
+      .querySelector(".item-subtotal")
+      .textContent.replace(/\./g, "");
+    total += parseInt(subtotalTexto) || 0;
+  });
+
+  document.getElementById("totalOrden").textContent =
+    formatearPrecioMiles(total);
+
+  document.getElementById("resumenOrden").style.display = "flex";
+}
+
+// =========================
+// OBTENER ITEMS
+// =========================
 
 function obtenerItemsDeOrden() {
   const tbody = document.querySelector("#tabla-items-orden tbody");
@@ -504,10 +535,4 @@ function obtenerItemsDeOrden() {
     const cantidad = parseInt(fila.querySelector(".item-cantidad").value);
 
     if (productoId && cantidad > 0) {
-      items.push({ productoId, cantidad });
-    }
-  });
-
-  return items;
-}
-
+      items
