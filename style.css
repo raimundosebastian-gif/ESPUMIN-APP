@@ -8,12 +8,15 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  background: #222;
-  color: white;
   padding: 10px 15px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  /* Degradado verde → azul */
+  background: linear-gradient(90deg, #00b347, #0077ff);
+
+  color: white;
 }
 
 .topbar nav a {
@@ -26,3 +29,4 @@ body {
 main {
   padding: 80px 20px; /* espacio para el banner fijo */
 }
+
