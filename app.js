@@ -8,21 +8,21 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("cliente-limpiar").addEventListener("click", limpiarFormularioCliente);
   document.getElementById("cliente-busqueda").addEventListener("input", filtrarClientes);
   document.getElementById("cliente-actualizar").addEventListener("click", () => {
-  cargarClientesEnTabla();
-  cargarClientesEnSelects();
-});
+    cargarClientesEnTabla();
+    cargarClientesEnSelects();
+  });
 
   // PRODUCTOS
   document.getElementById("form-producto").addEventListener("submit", guardarProducto);
   document.getElementById("producto-limpiar").addEventListener("click", limpiarFormularioProducto);
 
-  // ORDENES (solo si existen los elementos)
+  // ORDENES
   const formOrden = document.getElementById("form-orden");
   if (formOrden) {
     formOrden.addEventListener("submit", guardarOrden);
   }
 
-  const btnAgregarItem = document.getElementById("btn-agregar-item");
+  const btnAgregarItem = document.getElementById("orden-agregar-item");
   if (btnAgregarItem) {
     btnAgregarItem.addEventListener("click", agregarItemOrden);
   }
@@ -44,7 +44,6 @@ document.addEventListener("DOMContentLoaded", () => {
   ensureStorageArray("productos");
   ensureStorageArray("ordenes");
 });
-
 
 function ensureStorageArray(key) {
   const existing = localStorage.getItem(key);
@@ -161,6 +160,21 @@ function limpiarFormularioCliente() {
   document.getElementById("cliente-direccion").value = "";
 }
 
+function filtrarClientes() {
+  const texto = document.getElementById("cliente-busqueda").value.toLowerCase();
+  const filas = document.querySelectorAll("#tabla-clientes tbody tr");
+
+  filas.forEach(fila => {
+    const nombre = fila.children[0].textContent.toLowerCase();
+    const telefono = fila.children[1].textContent.toLowerCase();
+
+    fila.style.display =
+      nombre.includes(texto) || telefono.includes(texto)
+        ? ""
+        : "none";
+  });
+}
+
 // =========================
 // PRODUCTOS
 // =========================
@@ -255,12 +269,12 @@ function cargarOrdenesEnTabla() {
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${ord.id}</td>
+      <td>${ord.fecha}</td>
       <td>${cliente}</td>
-      <td>${ord.fecha || ""}</td>
-      <td>${ord.estadoPago || ""}</td>
-      <td>${ord.estadoEntrega || ""}</td>
-      <td class="col-precio">${total}</td>
+      <td>${ord.items?.length || 0}</td>
+      <td>${total}</td>
+      <td>${ord.estadoPago}</td>
+      <td>${ord.estadoEntrega}</td>
       <td>
         <button onclick="editarOrden('${ord.id}')">Editar</button>
         <button onclick="eliminarOrden('${ord.id}')">Eliminar</button>
@@ -281,11 +295,11 @@ function guardarOrden(e) {
 
   const id = document.getElementById("orden-id").value;
   const clienteId = document.getElementById("orden-cliente").value;
-  const fecha = document.getElementById("orden-fecha").value;
-  const estadoPago = document.getElementById("orden-pago").value;
-  const estadoEntrega = document.getElementById("orden-entrega").value;
+  const fecha = document.getElementById("orden-fecha-ingreso").value;
+  const estadoPago = document.getElementById("orden-estado-pago").value;
+  const estadoEntrega = document.getElementById("orden-estado-entrega").value;
 
-  if (estadoEntrega === "Entregado" && estadoPago !== "Pagado") {
+  if (estadoEntrega === "entregado" && estadoPago !== "pagado") {
     alert("No se puede marcar como ENTREGADO si la orden no está PAGADA.");
     return;
   }
@@ -323,9 +337,9 @@ function editarOrden(id) {
 
   document.getElementById("orden-id").value = ord.id;
   document.getElementById("orden-cliente").value = ord.clienteId;
-  document.getElementById("orden-fecha").value = ord.fecha;
-  document.getElementById("orden-pago").value = ord.estadoPago;
-  document.getElementById("orden-entrega").value = ord.estadoEntrega;
+  document.getElementById("orden-fecha-ingreso").value = ord.fecha;
+  document.getElementById("orden-estado-pago").value = ord.estadoPago;
+  document.getElementById("orden-estado-entrega").value = ord.estadoEntrega;
 
   cargarItemsEnEdicion(ord.items);
 }
@@ -394,12 +408,12 @@ function eliminarOrden(id) {
 function limpiarFormularioOrden() {
   document.getElementById("orden-id").value = "";
   document.getElementById("orden-cliente").value = "";
-  document.getElementById("orden-fecha").value = "";
-  document.getElementById("orden-pago").value = "Pendiente";
-  document.getElementById("orden-entrega").value = "No entregado";
+  document.getElementById("orden-fecha-ingreso").value = "";
+  document.getElementById("orden-estado-pago").value = "pendiente";
+  document.getElementById("orden-estado-entrega").value = "no_entregado";
 
   document.querySelector("#tabla-items-orden tbody").innerHTML = "";
-  document.getElementById("orden-total").textContent = "0";
+  document.getElementById("orden-total").value = "0";
 
   actualizarResumenOrden();
 }
@@ -486,9 +500,9 @@ function recalcularTotalOrden() {
     total += subtotal;
   });
 
-  const totalSpan = document.getElementById("orden-total");
-  if (totalSpan) {
-    totalSpan.textContent = formatearPrecioMiles(total);
+  const totalInput = document.getElementById("orden-total");
+  if (totalInput) {
+    totalInput.value = formatearPrecioMiles(total);
   }
 
   actualizarResumenOrden();
@@ -502,41 +516,4 @@ function actualizarResumenOrden() {
   const tbody = document.querySelector("#tabla-items-orden tbody");
   if (!tbody) return;
 
-  const filas = tbody.querySelectorAll("tr");
-
-  if (filas.length === 0) {
-    document.getElementById("resumenOrden").style.display = "none";
-    return;
-  }
-
-  let total = 0;
-  filas.forEach(fila => {
-    const subtotalTexto = fila
-      .querySelector(".item-subtotal")
-      .textContent.replace(/\./g, "");
-    total += parseInt(subtotalTexto) || 0;
-  });
-
-  document.getElementById("totalOrden").textContent =
-    formatearPrecioMiles(total);
-
-  document.getElementById("resumenOrden").style.display = "flex";
-}
-
-// =========================
-// OBTENER ITEMS
-// =========================
-
-function obtenerItemsDeOrden() {
-  const tbody = document.querySelector("#tabla-items-orden tbody");
-  if (!tbody) return [];
-
-  const filas = tbody.querySelectorAll("tr");
-  const items = [];
-
-  filas.forEach(fila => {
-    const productoId = fila.querySelector(".item-producto").value;
-    const cantidad = parseInt(fila.querySelector(".item-cantidad").value);
-
-    if (productoId && cantidad > 0) {
-      items
+  const filas = tbody.querySelectorAll
