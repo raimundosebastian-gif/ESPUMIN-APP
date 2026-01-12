@@ -187,3 +187,5 @@ function borrarTodosEmpleados() {
   guardarEmpleados();
   renderEmpleados();
 }
+
+
