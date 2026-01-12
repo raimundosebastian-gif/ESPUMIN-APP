@@ -1,122 +1,184 @@
+/* ============================
+   RESET BÁSICO
+============================ */
 * {
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
+  font-family: Arial, sans-serif;
 }
 
 body {
-  margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background: #f4f4f4;
-  color: #222;
+  color: #333;
+  padding-bottom: 50px;
 }
 
+/* ============================
+   HEADER Y NAVEGACIÓN
+============================ */
 .app-header {
-  background: #1b4965;
-  color: #fff;
-  padding: 0.75rem 1rem;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.app-header h1 {
-  margin: 0;
-  font-size: 1.2rem;
+  background: #2c3e50;
+  color: white;
+  padding: 15px;
+  text-align: center;
 }
 
 .main-nav {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+  margin-top: 10px;
 }
 
 .main-nav button {
-  background: #fff;
-  color: #1b4965;
+  background: #34495e;
+  color: white;
   border: none;
-  padding: 0.4rem 0.8rem;
-  border-radius: 4px;
+  padding: 10px 15px;
+  margin: 5px;
   cursor: pointer;
-  font-size: 0.9rem;
+  border-radius: 4px;
 }
 
 .main-nav button:hover {
-  background: #f0f0f0;
+  background: #3d566e;
 }
 
-main {
-  padding: 1rem;
-}
-
+/* ============================
+   VISTAS
+============================ */
 .view {
   display: none;
+  padding: 20px;
 }
 
 .view.active {
   display: block;
 }
 
+/* ============================
+   PANEL
+============================ */
 .panel {
-  background: #fff;
+  background: white;
+  padding: 15px;
+  margin: 15px 0;
   border-radius: 6px;
-  padding: 0.75rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.form-row {
+/* ============================
+   FORMULARIOS
+============================ */
+form {
   display: flex;
   flex-direction: column;
-  margin-bottom: 0.5rem;
+  gap: 10px;
 }
 
-.form-row label {
-  font-size: 0.85rem;
-  margin-bottom: 0.15rem;
+label {
+  font-weight: bold;
 }
 
-.form-row input,
-.form-row select {
-  padding: 0.35rem;
-  font-size: 0.9rem;
+input, select, button {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
 button {
-  font-size: 0.9rem;
+  cursor: pointer;
 }
 
+button:hover {
+  opacity: 0.9;
+}
+
+/* Botones principales */
+button[type="submit"] {
+  background: #27ae60;
+  color: white;
+  border: none;
+}
+
+button[type="button"] {
+  background: #3498db;
+  color: white;
+  border: none;
+}
+
+/* ============================
+   TABLAS
+============================ */
 table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.85rem;
+  margin-top: 10px;
 }
 
-th, td {
-  border-bottom: 1px solid #ddd;
-  padding: 0.4rem;
-  text-align: left;
+table thead {
+  background: #2c3e50;
+  color: white;
 }
 
-th {
-  background: #f0f0f0;
+table th, table td {
+  padding: 10px;
+  border: 1px solid #ddd;
 }
 
+table tbody tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+table button {
+  padding: 5px 8px;
+  font-size: 12px;
+}
+
+/* ============================
+   RESUMEN DE ORDEN
+============================ */
+#resumenOrden {
+  display: none;
+  background: #ecf0f1;
+  padding: 15px;
+  border-radius: 6px;
+  margin-top: 15px;
+}
+
+#resumenOrden h3 {
+  margin-bottom: 10px;
+}
+
+#btnCerrarOrden {
+  background: #e67e22;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+/* ============================
+   FOOTER
+============================ */
 .app-footer {
   text-align: center;
-  padding: 0.5rem;
-
-  .col-precio {
-  text-align: right;
-  width: 120px;
+  padding: 15px;
+  background: #2c3e50;
+  color: white;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
 }
 
-  font-size: 0.75rem;
-  color: #555;
-}
+/* ============================
+   RESPONSIVE
+============================ */
+@media (max-width: 600px) {
+  table th, table td {
+    font-size: 12px;
+    padding: 6px;
+  }
 
-.col-precio {
-  text-align: right;
-  padding-right: 8px;
-  width: 120px;
+  button {
+    padding: 8px;
+  }
 }
-
