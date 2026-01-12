@@ -25,8 +25,34 @@ body {
   text-decoration: none;
   font-weight: bold;
 }
+.topbar nav a {
+  color: white;
+  margin-left: 15px;
+  text-decoration: none;
+  font-weight: bold;
+  position: relative;
+  padding-bottom: 3px;
+}
+
+/* Línea animada */
+.topbar nav a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0%;
+  height: 2px;
+  background: white;
+  transition: width 0.3s ease;
+}
+
+/* Efecto hover */
+.topbar nav a:hover::after {
+  width: 100%;
+}
 
 main {
   padding: 80px 20px; /* espacio para el banner fijo */
 }
+
 
