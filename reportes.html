@@ -8,6 +8,7 @@
 <body>
 
   <div id="header-container"></div>
+  <div id="reportes-menu-container"></div>
 
   <main>
     <h2>Reportes</h2>
@@ -17,3 +18,12 @@
   <script src="app.js"></script>
 </body>
 </html>
+
+<script>
+  fetch("reportes-menu.html")
+    .then(r => r.text())
+    .then(html => {
+      document.getElementById("reportes-menu-container").innerHTML = html;
+    });
+</script>
+
