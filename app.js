@@ -7,6 +7,10 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("form-cliente").addEventListener("submit", guardarCliente);
   document.getElementById("cliente-limpiar").addEventListener("click", limpiarFormularioCliente);
   document.getElementById("cliente-busqueda").addEventListener("input", filtrarClientes);
+  document.getElementById("cliente-actualizar").addEventListener("click", () => {
+  cargarClientesEnTabla();
+  cargarClientesEnSelects();
+});
 
   // PRODUCTOS
   document.getElementById("form-producto").addEventListener("submit", guardarProducto);
