@@ -11,9 +11,41 @@
 
   <main>
     <h2>Clientes</h2>
-    <p>Sección de clientes (vacía por ahora).</p>
+
+    <!-- Búsqueda -->
+    <input type="text" id="buscarCliente" placeholder="Buscar cliente..." class="input-buscar">
+
+    <!-- Formulario -->
+    <form id="formCliente" class="form">
+      <label>Nombre:</label>
+      <input type="text" id="nombreCliente" required>
+
+      <label>Teléfono (10 dígitos):</label>
+      <input type="text" id="telefonoCliente" required>
+
+      <button type="submit">Agregar Cliente</button>
+    </form>
+
+    <!-- Tabla -->
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th onclick="ordenarPorNombre()" style="cursor:pointer">Nombre ⬍</th>
+          <th>Teléfono</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="listaClientes"></tbody>
+    </table>
+
+    <!-- Botones extra -->
+    <button onclick="exportarClientes()" class="btn-exportar">Exportar a Excel</button>
+    <button onclick="borrarTodo()" class="btn-borrar-todo">Borrar todos los clientes</button>
+
   </main>
 
   <script src="app.js"></script>
+  <script src="clientes.js"></script>
 </body>
 </html>
+
