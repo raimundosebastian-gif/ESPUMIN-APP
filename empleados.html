@@ -20,37 +20,37 @@
 
     <!-- Formulario -->
     <div class="card">
-      <h3>Agregar Empleado</h3>
+      <h3 id="tituloFormEmpleado">Agregar Empleado</h3>
 
-      <form id="formEmpleado" class="form">
+      <form id="formEmpleado" class="form form-dos-columnas">
 
-        <label>Nombre:</label>
-        <input type="text" id="nombreEmpleado" required>
+        <!-- COLUMNA IZQUIERDA -->
+        <div class="columna">
+          <label>Nombre:</label>
+          <input type="text" id="nombreEmpleado" required>
 
-        <label>Teléfono (10 dígitos):</label>
-        <input type="text" id="telefonoEmpleado" required>
+          <label>Teléfono (10 dígitos):</label>
+          <input type="text" id="telefonoEmpleado" required>
 
-        <label>Email:</label>
-        <input type="email" id="emailEmpleado" placeholder="empleado@empresa.com">
+          <label>Email (opcional):</label>
+          <input type="email" id="emailEmpleado" placeholder="empleado@empresa.com">
+        </div>
 
-        <label>Rol:</label>
-        <select id="rolEmpleado" required>
-          <option value="">Seleccionar...</option>
-          <option value="Administrador">Administrador</option>
-          <option value="Operador">Operador</option>
-          <option value="Repartidor">Repartidor</option>
-        </select>
+        <!-- COLUMNA DERECHA -->
+        <div class="columna">
+          <label>Tipo de empleado:</label>
+          <select id="tipoEmpleado" required>
+            <option value="">Seleccionar...</option>
+            <option value="Administrativo">Administrativo</option>
+            <option value="Operativo">Operativo</option>
+            <option value="Reparto">Reparto</option>
+          </select>
 
-        <label>Estado:</label>
-        <select id="estadoEmpleado" required>
-          <option value="Activo">Activo</option>
-          <option value="Inactivo">Inactivo</option>
-        </select>
+          <label>Observaciones:</label>
+          <textarea id="obsEmpleado"></textarea>
+        </div>
 
-        <label>Observaciones:</label>
-        <textarea id="obsEmpleado"></textarea>
-
-        <button type="submit">Agregar Empleado</button>
+        <button type="submit" class="btn-guardar">Guardar Empleado</button>
       </form>
     </div>
 
@@ -61,11 +61,10 @@
       <table class="tabla">
         <thead>
           <tr>
-            <th onclick="ordenarPorNombreEmpleado()" style="cursor:pointer">Nombre ⬍</th>
+            <th onclick="ordenarPorNombre()" style="cursor:pointer">Nombre ⬍</th>
             <th>Teléfono</th>
             <th>Email</th>
-            <th>Rol</th>
-            <th>Estado</th>
+            <th>Tipo</th>
             <th>Alta</th>
             <th>Acciones</th>
           </tr>
@@ -74,7 +73,7 @@
       </table>
 
       <button onclick="exportarEmpleados()" class="btn-exportar">Exportar a Excel</button>
-      <button onclick="borrarTodosEmpleados()" class="btn-borrar-todo">Borrar todos los empleados</button>
+      <button onclick="borrarTodoEmpleados()" class="btn-borrar-todo">Borrar todos los empleados</button>
     </div>
 
   </main>
@@ -83,4 +82,3 @@
   <script src="empleados.js"></script>
 </body>
 </html>
-
