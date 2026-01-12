@@ -7,13 +7,19 @@
 </head>
 <body>
 
-  <!-- actualización -->
+  <!-- actualización forzada -->
 
   <!-- Banner principal -->
   <div id="header-container"></div>
 
-  <!-- Banner secundario (submenú de reportes) -->
-  <div id="reportes-menu-container"></div>
+  <!-- SUB‑BANNER incrustado -->
+  <nav class="subbanner">
+    <button class="tab-btn activo" data-seccion="mensual">Reporte Mensual</button>
+    <button class="tab-btn" data-seccion="anual">Reporte Anual</button>
+    <button class="tab-btn" data-seccion="cliente">Por Cliente</button>
+    <button class="tab-btn" data-seccion="empleado">Por Empleado</button>
+    <button class="tab-btn" data-seccion="exportar">Exportar</button>
+  </nav>
 
   <main class="contenedor">
 
@@ -111,13 +117,21 @@
       });
   </script>
 
-  <!-- Cargar banner secundario -->
+  <!-- Lógica del sub‑banner incrustado -->
   <script>
-    fetch("reportes-menu.html")
-      .then(r => r.text())
-      .then(html => {
-        document.getElementById("reportes-menu-container").innerHTML = html;
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("activo"));
+          btn.classList.add("activo");
+
+          const seccion = btn.dataset.seccion;
+
+          document.querySelectorAll(".seccion-reporte").forEach(div => div.style.display = "none");
+          document.getElementById("seccion-" + seccion).style.display = "block";
+        });
       });
+    });
   </script>
 
   <script src="reportes.js"></script>
