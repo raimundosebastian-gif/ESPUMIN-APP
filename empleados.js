@@ -1,191 +1,84 @@
-// --- EMPLEADOS ---
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Empleados</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-let empleados = JSON.parse(localStorage.getItem("empleados")) || [];
-let editIndexEmpleado = null;
+  <div id="header-container"></div>
 
-// Render inicial
-renderEmpleados();
+  <main class="contenedor">
 
-// Búsqueda en vivo
-document.getElementById("buscarEmpleado").addEventListener("input", function() {
-  const texto = this.value.toLowerCase();
+    <h2>Empleados</h2>
 
-  const filtrados = empleados.filter(emp =>
-    emp.nombre.toLowerCase().includes(texto) ||
-    emp.telefono.includes(texto) ||
-    emp.email.toLowerCase().includes(texto) ||
-    emp.rol.toLowerCase().includes(texto) ||
-    emp.estado.toLowerCase().includes(texto)
-  );
+    <!-- Búsqueda -->
+    <div class="card">
+      <input type="text" id="buscarEmpleado" placeholder="Buscar empleado..." class="input-buscar">
+    </div>
 
-  renderEmpleados(filtrados);
-});
+    <!-- Formulario -->
+    <div class="card">
+      <h3 id="tituloFormEmpleado">Agregar Empleado</h3>
 
-// Submit del formulario
-document.getElementById("formEmpleado").addEventListener("submit", function(e) {
-  e.preventDefault();
+      <form id="formEmpleado" class="form form-dos-columnas">
 
-  const nombre = document.getElementById("nombreEmpleado").value.trim();
-  const telefono = document.getElementById("telefonoEmpleado").value.trim();
-  const email = document.getElementById("emailEmpleado").value.trim();
-  const rol = document.getElementById("rolEmpleado").value;
-  const estado = document.getElementById("estadoEmpleado").value;
-  const obs = document.getElementById("obsEmpleado").value.trim();
+        <!-- COLUMNA IZQUIERDA -->
+        <div class="columna">
+          <label>Nombre:</label>
+          <input type="text" id="nombreEmpleado" required>
 
-  // Validación: campos obligatorios
-  if (nombre === "" || telefono === "" || email === "" || rol === "" || estado === "") {
-    alert("Completar por favor para poder continuar");
-    return;
-  }
+          <label>Teléfono (10 dígitos):</label>
+          <input type="text" id="telefonoEmpleado" required>
 
-  // Validación: teléfono debe tener exactamente 10 dígitos
-  const soloNumeros = /^[0-9]{10}$/;
-  if (!soloNumeros.test(telefono)) {
-    alert("El teléfono debe tener exactamente 10 dígitos");
-    return;
-  }
+          <label>Email (opcional):</label>
+          <input type="email" id="emailEmpleado" placeholder="empleado@empresa.com">
+        </div>
 
-  // Validación duplicados (excepto el que se edita)
-  const duplicado = empleados.some((emp, idx) =>
-    (emp.nombre.toLowerCase() === nombre.toLowerCase() ||
-     emp.email.toLowerCase() === email.toLowerCase()) &&
-    idx !== editIndexEmpleado
-  );
+        <!-- COLUMNA DERECHA -->
+        <div class="columna">
+          <label>Tipo de empleado:</label>
+          <select id="tipoEmpleado" required>
+            <option value="">Seleccionar...</option>
+            <option value="Administrativo">Administrativo</option>
+            <option value="Operativo">Operativo</option>
+            <option value="Reparto">Reparto</option>
+          </select>
 
-  if (duplicado) {
-    alert("El empleado ya existe (nombre o email duplicado)");
-    return;
-  }
+          <label>Observaciones:</label>
+          <textarea id="obsEmpleado"></textarea>
+        </div>
 
-  // Fecha de alta automática
-  const fechaAlta = new Date().toLocaleDateString("es-AR");
+        <button type="submit" class="btn-guardar">Guardar Empleado</button>
+      </form>
+    </div>
 
-  // MODO EDITAR
-  if (editIndexEmpleado !== null) {
-    empleados[editIndexEmpleado] = {
-      ...empleados[editIndexEmpleado],
-      nombre,
-      telefono,
-      email,
-      rol,
-      estado,
-      obs
-    };
+    <!-- Tabla -->
+    <div class="card">
+      <h3>Listado de Empleados</h3>
 
-    editIndexEmpleado = null;
-    document.querySelector("#formEmpleado button").textContent = "Agregar Empleado";
-  } 
-  // MODO AGREGAR
-  else {
-    empleados.push({
-      nombre,
-      telefono,
-      email,
-      rol,
-      estado,
-      obs,
-      alta: fechaAlta
-    });
-  }
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th onclick="ordenarPorNombre()" style="cursor:pointer">Nombre ⬍</th>
+            <th>Teléfono</th>
+            <th>Email</th>
+            <th>Tipo</th>
+            <th>Alta</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="listaEmpleados"></tbody>
+      </table>
 
-  guardarEmpleados();
-  renderEmpleados();
-  this.reset();
-});
+      <button onclick="exportarEmpleados()" class="btn-exportar">Exportar a Excel</button>
+      <button onclick="borrarTodoEmpleados()" class="btn-borrar-todo">Borrar todos los empleados</button>
+    </div>
 
-// Guardar en localStorage
-function guardarEmpleados() {
-  localStorage.setItem("empleados", JSON.stringify(empleados));
-}
+  </main>
 
-// Renderizar tabla
-function renderEmpleados(lista = empleados) {
-  const tbody = document.getElementById("listaEmpleados");
-  tbody.innerHTML = "";
-
-  lista.forEach((emp, index) => {
-    const tr = document.createElement("tr");
-
-    tr.innerHTML = `
-      <td>${emp.nombre}</td>
-      <td>${emp.telefono}</td>
-      <td>${emp.email}</td>
-      <td>${emp.rol}</td>
-      <td>${emp.estado}</td>
-      <td>${emp.alta}</td>
-      <td>
-        <button class="btn-editar" onclick="editarEmpleado(${index})">Editar</button>
-        <button class="btn-eliminar" onclick="eliminarEmpleado(${index})">Eliminar</button>
-      </td>
-    `;
-
-    tbody.appendChild(tr);
-  });
-}
-
-// Editar empleado
-function editarEmpleado(i) {
-  const emp = empleados[i];
-
-  document.getElementById("nombreEmpleado").value = emp.nombre;
-  document.getElementById("telefonoEmpleado").value = emp.telefono;
-  document.getElementById("emailEmpleado").value = emp.email;
-  document.getElementById("rolEmpleado").value = emp.rol;
-  document.getElementById("estadoEmpleado").value = emp.estado;
-  document.getElementById("obsEmpleado").value = emp.obs;
-
-  editIndexEmpleado = i;
-
-  document.querySelector("#formEmpleado button").textContent = "Guardar Cambios";
-}
-
-// Eliminar empleado
-function eliminarEmpleado(i) {
-  if (!confirm("¿Seguro que deseas eliminar este empleado?")) return;
-
-  empleados.splice(i, 1);
-  guardarEmpleados();
-  renderEmpleados();
-}
-
-// Ordenar por nombre
-function ordenarPorNombreEmpleado() {
-  empleados.sort((a, b) => a.nombre.localeCompare(b.nombre));
-  guardarEmpleados();
-  renderEmpleados();
-}
-
-// Exportar a CSV
-function exportarEmpleados() {
-  if (empleados.length === 0) {
-    alert("No hay empleados para exportar");
-    return;
-  }
-
-  let csv = "Nombre,Telefono,Email,Rol,Estado,Alta,Observaciones\n";
-
-  empleados.forEach(e => {
-    csv += `${e.nombre},${e.telefono},${e.email},${e.rol},${e.estado},${e.alta},${e.obs}\n`;
-  });
-
-  const blob = new Blob([csv], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "empleados.csv";
-  a.click();
-
-  URL.revokeObjectURL(url);
-}
-
-// Borrar todos
-function borrarTodosEmpleados() {
-  if (!confirm("¿Seguro que deseas borrar TODOS los empleados?")) return;
-
-  empleados = [];
-  guardarEmpleados();
-  renderEmpleados();
-}
-
-
+  <script src="app.js"></script>
+  <script src="empleados.js"></script>
+</body>
+</html>
