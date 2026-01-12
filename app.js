@@ -522,3 +522,4 @@ function mostrarReporte(ordenes) {
   let totalMonto = 0;
 
   ordenes.forEach(o =>
+    
