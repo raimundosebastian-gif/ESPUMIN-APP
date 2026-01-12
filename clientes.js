@@ -12,7 +12,10 @@ document.getElementById("buscarCliente").addEventListener("input", function() {
 
   const filtrados = clientes.filter(cli =>
     cli.nombre.toLowerCase().includes(texto) ||
-    cli.telefono.includes(texto)
+    cli.telefono.includes(texto) ||
+    cli.direccion.toLowerCase().includes(texto) ||
+    cli.email.toLowerCase().includes(texto) ||
+    cli.tipo.toLowerCase().includes(texto)
   );
 
   renderClientes(filtrados);
@@ -24,9 +27,13 @@ document.getElementById("formCliente").addEventListener("submit", function(e) {
 
   const nombre = document.getElementById("nombreCliente").value.trim();
   const telefono = document.getElementById("telefonoCliente").value.trim();
+  const direccion = document.getElementById("direccionCliente").value.trim();
+  const email = document.getElementById("emailCliente").value.trim();
+  const tipo = document.getElementById("tipoCliente").value;
+  const obs = document.getElementById("obsCliente").value.trim();
 
-  // Validación: campos vacíos
-  if (nombre === "" || telefono === "") {
+  // Validación: campos obligatorios
+  if (nombre === "" || telefono === "" || tipo === "") {
     alert("Completar por favor para poder continuar");
     return;
   }
@@ -38,7 +45,7 @@ document.getElementById("formCliente").addEventListener("submit", function(e) {
     return;
   }
 
-  // Validación duplicados (excepto el que se está editando)
+  // Validación duplicados (excepto el que se edita)
   const duplicado = clientes.some((cli, idx) =>
     (cli.nombre.toLowerCase() === nombre.toLowerCase() ||
      cli.telefono === telefono) &&
@@ -50,17 +57,35 @@ document.getElementById("formCliente").addEventListener("submit", function(e) {
     return;
   }
 
+  // Fecha de alta automática
+  const fechaAlta = new Date().toLocaleDateString("es-AR");
+
   // MODO EDITAR
   if (editIndex !== null) {
-    clientes[editIndex].nombre = nombre;
-    clientes[editIndex].telefono = telefono;
+    clientes[editIndex] = {
+      ...clientes[editIndex],
+      nombre,
+      telefono,
+      direccion,
+      email,
+      tipo,
+      obs
+    };
 
     editIndex = null;
     document.querySelector("#formCliente button").textContent = "Agregar Cliente";
   } 
   // MODO AGREGAR
   else {
-    clientes.push({ nombre, telefono });
+    clientes.push({
+      nombre,
+      telefono,
+      direccion,
+      email,
+      tipo,
+      obs,
+      alta: fechaAlta
+    });
   }
 
   guardarClientes();
@@ -84,6 +109,10 @@ function renderClientes(lista = clientes) {
     tr.innerHTML = `
       <td>${cli.nombre}</td>
       <td>${cli.telefono}</td>
+      <td>${cli.direccion || "-"}</td>
+      <td>${cli.email || "-"}</td>
+      <td>${cli.tipo}</td>
+      <td>${cli.alta}</td>
       <td>
         <button class="btn-editar" onclick="editarCliente(${index})">Editar</button>
         <button class="btn-eliminar" onclick="eliminarCliente(${index})">Eliminar</button>
@@ -100,6 +129,10 @@ function editarCliente(i) {
 
   document.getElementById("nombreCliente").value = cli.nombre;
   document.getElementById("telefonoCliente").value = cli.telefono;
+  document.getElementById("direccionCliente").value = cli.direccion;
+  document.getElementById("emailCliente").value = cli.email;
+  document.getElementById("tipoCliente").value = cli.tipo;
+  document.getElementById("obsCliente").value = cli.obs;
 
   editIndex = i;
 
@@ -129,10 +162,10 @@ function exportarClientes() {
     return;
   }
 
-  let csv = "Nombre,Telefono\n";
+  let csv = "Nombre,Telefono,Direccion,Email,Tipo,Alta,Observaciones\n";
 
   clientes.forEach(c => {
-    csv += `${c.nombre},${c.telefono}\n`;
+    csv += `${c.nombre},${c.telefono},${c.direccion},${c.email},${c.tipo},${c.alta},${c.obs}\n`;
   });
 
   const blob = new Blob([csv], { type: "text/csv" });
