@@ -45,6 +45,9 @@
           <label>Buscar</label>
           <input type="text" id="cliente-busqueda" placeholder="Nombre o teléfono" />
         </div>
+        
+	<button type="button" id="cliente-actualizar">Actualizar lista</button>
+
         <table id="tabla-clientes">
           <thead>
             <tr>
@@ -187,7 +190,16 @@
 
 <button type="button" id="btn-agregar-item">Agregar producto</button>
 
-<h3>Total: <span id="orden-total">0</span></h3>
+<div id="resumenOrden" class="resumen-orden">
+  <div class="resumen-orden-contenido">
+    <div class="total-orden-texto">Total de la Orden:</div>
+    <div class="total-orden-valor">$<span id="totalOrden">0</span></div>
+  </div>
+
+  <button type="button" id="btnCerrarOrden" class="btn-principal">
+    Cerrar Orden
+  </button>
+</div>
 
     <!-- Sección REPORTES -->
     <section id="view-reportes" class="view">
@@ -247,6 +259,6 @@
     <small>Meñarg SAS – Gestión interna</small>
   </footer>
 
-  <script src="app.js"></script>
+  <script src="clientes.js"></script>
 </body>
 </html>
