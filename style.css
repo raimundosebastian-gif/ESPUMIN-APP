@@ -135,5 +135,32 @@ textarea {
   resize: vertical;
 }
 
+.label-resaltada {
+  font-weight: bold;
+  color: #d9534f;
+}
+
+.totales-orden {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.tabla-detalle th, .tabla-detalle td {
+  font-size: 0.9rem;
+}
+
+.preview-orden .orden-imprimible {
+  font-family: Arial, sans-serif;
+  background: white;
+  padding: 10px;
+  max-width: 400px;
+}
+
+.fecha-entrega-resaltada {
+  background: #fff3cd;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
 
 
