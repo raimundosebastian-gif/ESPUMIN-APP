@@ -162,5 +162,27 @@ textarea {
   border-radius: 4px;
 }
 
+.subbanner {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  background-color: #f0f0f0;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+.subbanner a {
+  text-decoration: none;
+  color: #333;
+  font-weight: bold;
+  padding: 6px 12px;
+  border-radius: 4px;
+}
+
+.subbanner a.activo {
+  background-color: #333;
+  color: white;
+}
+
 
 
