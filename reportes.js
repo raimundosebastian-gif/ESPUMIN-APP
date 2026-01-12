@@ -1,40 +1,21 @@
 // ===============================
-//   SUBMENÚ DE REPORTES
+//   SUBMENÚ DE REPORTES (NUEVO)
 // ===============================
 
 document.addEventListener("DOMContentLoaded", () => {
-  setTimeout(() => {
-    const botones = {
-      mensual: document.getElementById("btnMensual"),
-      anual: document.getElementById("btnAnual"),
-      cliente: document.getElementById("btnCliente"),
-      empleado: document.getElementById("btnEmpleado"),
-      exportar: document.getElementById("btnExportar")
-    };
+  document.querySelectorAll(".tab-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      // Activar botón
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("activo"));
+      btn.classList.add("activo");
 
-    if (!botones.mensual) return; // evita error si el menú aún no cargó
-
-    botones.mensual.addEventListener("click", () => activarSeccion("mensual"));
-    botones.anual.addEventListener("click", () => activarSeccion("anual"));
-    botones.cliente.addEventListener("click", () => activarSeccion("cliente"));
-    botones.empleado.addEventListener("click", () => activarSeccion("empleado"));
-    botones.exportar.addEventListener("click", () => activarSeccion("exportar"));
-  }, 200);
+      // Mostrar sección correspondiente
+      const seccion = btn.dataset.seccion;
+      document.querySelectorAll(".seccion-reporte").forEach(div => div.style.display = "none");
+      document.getElementById("seccion-" + seccion).style.display = "block";
+    });
+  });
 });
-
-function activarSeccion(seccion) {
-  document.querySelectorAll(".subbanner a").forEach(a => a.classList.remove("activo"));
-  document.getElementById("btn" + capitalizar(seccion)).classList.add("activo");
-
-  document.querySelectorAll(".seccion-reporte").forEach(div => div.style.display = "none");
-  document.getElementById("seccion-" + seccion).style.display = "block";
-}
-
-function capitalizar(txt) {
-  return txt.charAt(0).toUpperCase() + txt.slice(1);
-}
-
-
 
 // ===============================
 //   REPORTE MENSUAL
@@ -149,3 +130,4 @@ function exportarMensual() {
 
   URL.revokeObjectURL(url);
 }
+
