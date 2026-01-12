@@ -1,36 +1,48 @@
-// --- Navegación entre vistas ---
+// =====================================
+// INICIALIZACIÓN GENERAL
+// =====================================
+
 document.addEventListener("DOMContentLoaded", () => {
-  const navButtons = document.querySelectorAll(".main-nav button");
-  const views = document.querySelectorAll(".view");
+  inicializarNavegacion();
+  inicializarClientes();
+  inicializarProductos();
+  inicializarOrdenes();
+  inicializarReportes();
 
-  // CLIENTES
-  document.getElementById("form-cliente").addEventListener("submit", guardarCliente);
-  document.getElementById("cliente-limpiar").addEventListener("click", limpiarFormularioCliente);
-  document.getElementById("cliente-busqueda").addEventListener("input", filtrarClientes);
-  document.getElementById("cliente-actualizar").addEventListener("click", () => {
-    cargarClientesEnTabla();
-    cargarClientesEnSelects();
-  });
-
-  // PRODUCTOS
-  document.getElementById("form-producto").addEventListener("submit", guardarProducto);
-  document.getElementById("producto-limpiar").addEventListener("click", limpiarFormularioProducto);
-
-  // ORDENES
-  const formOrden = document.getElementById("form-orden");
-  if (formOrden) {
-    formOrden.addEventListener("submit", guardarOrden);
-  }
-
-  const btnAgregarItem = document.getElementById("orden-agregar-item");
-  if (btnAgregarItem) {
-    btnAgregarItem.addEventListener("click", agregarItemOrden);
-  }
+  ensureStorageArray("clientes");
+  ensureStorageArray("productos");
+  ensureStorageArray("ordenes");
 
   cargarClientesEnTabla();
   cargarClientesEnSelects();
   cargarProductosEnTabla();
   cargarOrdenesEnTabla();
+});
+
+// Garantiza que exista un array en localStorage
+function ensureStorageArray(key) {
+  if (!localStorage.getItem(key)) {
+    localStorage.setItem(key, JSON.stringify([]));
+  }
+}
+
+// Formateo de miles
+function formatearPrecioMiles(valor) {
+  return valor.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+// Generador de IDs únicos
+function generarId() {
+  return Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+}
+
+// =====================================
+// NAVEGACIÓN ENTRE VISTAS
+// =====================================
+
+function inicializarNavegacion() {
+  const navButtons = document.querySelectorAll(".main-nav button");
+  const views = document.querySelectorAll(".view");
 
   navButtons.forEach(btn => {
     btn.addEventListener("click", () => {
@@ -39,30 +51,21 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById(`view-${target}`).classList.add("active");
     });
   });
-
-  ensureStorageArray("clientes");
-  ensureStorageArray("productos");
-  ensureStorageArray("ordenes");
-});
-
-function ensureStorageArray(key) {
-  const existing = localStorage.getItem(key);
-  if (!existing) {
-    localStorage.setItem(key, JSON.stringify([]));
-  }
 }
 
-function formatearPrecioMiles(valor) {
-  return valor.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-}
-
-function generarId() {
-  return Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
-}
-
-// =========================
+// =====================================
 // CLIENTES
-// =========================
+// =====================================
+
+function inicializarClientes() {
+  document.getElementById("form-cliente").addEventListener("submit", guardarCliente);
+  document.getElementById("cliente-limpiar").addEventListener("click", limpiarFormularioCliente);
+  document.getElementById("cliente-busqueda").addEventListener("input", filtrarClientes);
+  document.getElementById("cliente-actualizar").addEventListener("click", () => {
+    cargarClientesEnTabla();
+    cargarClientesEnSelects();
+  });
+}
 
 function cargarClientesEnTabla() {
   const clientes = JSON.parse(localStorage.getItem("clientes")) || [];
@@ -175,9 +178,14 @@ function filtrarClientes() {
   });
 }
 
-// =========================
+// =====================================
 // PRODUCTOS
-// =========================
+// =====================================
+
+function inicializarProductos() {
+  document.getElementById("form-producto").addEventListener("submit", guardarProducto);
+  document.getElementById("producto-limpiar").addEventListener("click", limpiarFormularioProducto);
+}
 
 function cargarProductosEnTabla() {
   const productos = JSON.parse(localStorage.getItem("productos")) || [];
@@ -252,9 +260,15 @@ function limpiarFormularioProducto() {
   document.getElementById("producto-tipo").value = "";
 }
 
-// =========================
+// =====================================
 // ORDENES
-// =========================
+// =====================================
+
+function inicializarOrdenes() {
+  document.getElementById("form-orden").addEventListener("submit", guardarOrden);
+  document.getElementById("orden-limpiar").addEventListener("click", limpiarFormularioOrden);
+  document.getElementById("orden-agregar-item").addEventListener("click", agregarItemOrden);
+}
 
 function cargarOrdenesEnTabla() {
   const ordenes = JSON.parse(localStorage.getItem("ordenes")) || [];
@@ -282,12 +296,6 @@ function cargarOrdenesEnTabla() {
     `;
     tbody.appendChild(tr);
   });
-}
-
-function obtenerNombreCliente(id) {
-  const clientes = JSON.parse(localStorage.getItem("clientes")) || [];
-  const cli = clientes.find(c => c.id === id);
-  return cli ? cli.nombre : "—";
 }
 
 function guardarOrden(e) {
@@ -344,60 +352,6 @@ function editarOrden(id) {
   cargarItemsEnEdicion(ord.items);
 }
 
-function cargarItemsEnEdicion(items) {
-  const tbody = document.querySelector("#tabla-items-orden tbody");
-  if (!tbody) return;
-
-  tbody.innerHTML = "";
-
-  const productos = JSON.parse(localStorage.getItem("productos")) || [];
-
-  (items || []).forEach(item => {
-    const tr = document.createElement("tr");
-    const prod = productos.find(p => p.id === item.productoId);
-    const precio = prod ? prod.precio : 0;
-    const subtotal = precio * item.cantidad;
-
-    tr.innerHTML = `
-      <td>
-        <select class="item-producto">
-          <option value="">Seleccione...</option>
-          ${productos
-            .map(
-              p =>
-                `<option value="${p.id}" ${
-                  p.id === item.productoId ? "selected" : ""
-                }>${p.nombre}</option>`
-            )
-            .join("")}
-        </select>
-      </td>
-
-      <td>
-        <input type="number" class="item-cantidad" value="${item.cantidad}" min="1">
-      </td>
-
-      <td class="col-precio item-precio">${formatearPrecioMiles(precio)}</td>
-      <td class="col-precio item-subtotal">${formatearPrecioMiles(subtotal)}</td>
-
-      <td>
-        <button type="button" class="item-eliminar">X</button>
-      </td>
-    `;
-
-    tbody.appendChild(tr);
-
-    tr.querySelector(".item-producto").addEventListener("change", actualizarItem);
-    tr.querySelector(".item-cantidad").addEventListener("input", actualizarItem);
-    tr.querySelector(".item-eliminar").addEventListener("click", () => {
-      tr.remove();
-      recalcularTotalOrden();
-    });
-  });
-
-  recalcularTotalOrden();
-}
-
 function eliminarOrden(id) {
   let ordenes = JSON.parse(localStorage.getItem("ordenes")) || [];
   ordenes = ordenes.filter(o => o.id !== id);
@@ -418,17 +372,15 @@ function limpiarFormularioOrden() {
   actualizarResumenOrden();
 }
 
-// =========================
-// ORDENES - ITEMS DINÁMICOS
-// =========================
+// =====================================
+// ITEMS DINÁMICOS
+// =====================================
 
 function agregarItemOrden() {
   const tbody = document.querySelector("#tabla-items-orden tbody");
-  if (!tbody) return;
-
   const productos = JSON.parse(localStorage.getItem("productos")) || [];
-  const tr = document.createElement("tr");
 
+  const tr = document.createElement("tr");
   tr.innerHTML = `
     <td>
       <select class="item-producto">
@@ -441,8 +393,8 @@ function agregarItemOrden() {
       <input type="number" class="item-cantidad" value="1" min="1">
     </td>
 
-    <td class="col-precio item-precio">0</td>
-    <td class="col-precio item-subtotal">0</td>
+    <td class="item-precio">0</td>
+    <td class="item-subtotal">0</td>
 
     <td>
       <button type="button" class="item-eliminar">X</button>
@@ -486,34 +438,87 @@ function actualizarItem(e) {
 }
 
 function recalcularTotalOrden() {
-  const tbody = document.querySelector("#tabla-items-orden tbody");
-  if (!tbody) return;
-
-  const filas = tbody.querySelectorAll("tr");
+  const filas = document.querySelectorAll("#tabla-items-orden tbody tr");
   let total = 0;
 
   filas.forEach(fila => {
-    const subtotalTexto = fila
-      .querySelector(".item-subtotal")
-      .textContent.replace(/\./g, "");
-    const subtotal = parseInt(subtotalTexto) || 0;
-    total += subtotal;
+    const subtotalTexto = fila.querySelector(".item-subtotal").textContent.replace(/\./g, "");
+    total += parseInt(subtotalTexto) || 0;
   });
 
-  const totalInput = document.getElementById("orden-total");
-  if (totalInput) {
-    totalInput.value = formatearPrecioMiles(total);
-  }
-
+  document.getElementById("orden-total").value = formatearPrecioMiles(total);
   actualizarResumenOrden();
 }
 
-// =========================
-// NUEVA FUNCIÓN: TOTAL + BOTÓN
-// =========================
-
 function actualizarResumenOrden() {
-  const tbody = document.querySelector("#tabla-items-orden tbody");
-  if (!tbody) return;
+  const filas = document.querySelectorAll("#tabla-items-orden tbody tr");
+  const resumen = document.getElementById("resumenOrden");
 
-  const filas = tbody.querySelectorAll
+  if (filas.length === 0) {
+    resumen.style.display = "none";
+    return;
+  }
+
+  let total = 0;
+  filas.forEach(fila => {
+    const subtotalTexto = fila.querySelector(".item-subtotal").textContent.replace(/\./g, "");
+    total += parseInt(subtotalTexto) || 0;
+  });
+
+  document.getElementById("totalOrden").textContent = formatearPrecioMiles(total);
+  resumen.style.display = "block";
+}
+
+function obtenerItemsDeOrden() {
+  const filas = document.querySelectorAll("#tabla-items-orden tbody tr");
+  const items = [];
+
+  filas.forEach(fila => {
+    const productoId = fila.querySelector(".item-producto").value;
+    const cantidad = parseInt(fila.querySelector(".item-cantidad").value);
+
+    if (productoId && cantidad > 0) {
+      items.push({ productoId, cantidad });
+    }
+  });
+
+  return items;
+}
+
+// =====================================
+// REPORTES
+// =====================================
+
+function inicializarReportes() {
+  document.getElementById("reporte-aplicar").addEventListener("click", aplicarFiltrosReporte);
+}
+
+function aplicarFiltrosReporte() {
+  const desde = document.getElementById("reporte-desde").value;
+  const hasta = document.getElementById("reporte-hasta").value;
+  const clienteId = document.getElementById("reporte-cliente").value;
+  const estadoEntrega = document.getElementById("reporte-estado-entrega").value;
+
+  const ordenes = JSON.parse(localStorage.getItem("ordenes")) || [];
+
+  const filtradas = ordenes.filter(o => {
+    if (desde && o.fecha < desde) return false;
+    if (hasta && o.fecha > hasta) return false;
+    if (clienteId && o.clienteId !== clienteId) return false;
+    if (estadoEntrega && o.estadoEntrega !== estadoEntrega) return false;
+    return true;
+  });
+
+  mostrarReporte(filtradas);
+}
+
+function mostrarReporte(ordenes) {
+  const resumen = document.getElementById("reporte-resumen");
+  const tbody = document.querySelector("#tabla-reporte-ordenes tbody");
+
+  resumen.innerHTML = "";
+  tbody.innerHTML = "";
+
+  let totalMonto = 0;
+
+  ordenes.forEach(o =>
