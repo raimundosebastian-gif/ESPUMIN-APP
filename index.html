@@ -1,264 +1,524 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <title>Gestión Tintorería / Lavandería</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <header class="app-header">
-    <h1>Gestión Tintorería</h1>
-    <nav class="main-nav">
-      <button data-view="clientes">Clientes</button>
-      <button data-view="productos">Productos</button>
-      <button data-view="ordenes">Órdenes</button>
-      <button data-view="reportes">Reportes</button>
-    </nav>
-  </header>
+// =====================================
+// INICIALIZACIÓN GENERAL
+// =====================================
 
-  <main>
-    <!-- Sección CLIENTES -->
-    <section id="view-clientes" class="view active">
-      <h2>Clientes</h2>
-      <div class="panel">
-        <form id="form-cliente">
-          <input type="hidden" id="cliente-id" />
-          <div class="form-row">
-            <label>Nombre</label>
-            <input type="text" id="cliente-nombre" required />
-          </div>
-          <div class="form-row">
-            <label>Teléfono</label>
-            <input type="tel" id="cliente-telefono" />
-          </div>
-          <div class="form-row">
-            <label>Dirección</label>
-            <input type="text" id="cliente-direccion" />
-          </div>
-          <button type="submit">Guardar cliente</button>
-          <button type="button" id="cliente-limpiar">Limpiar</button>
-        </form>
-      </div>
-      <div class="panel">
-        <div class="form-row">
-          <label>Buscar</label>
-          <input type="text" id="cliente-busqueda" placeholder="Nombre o teléfono" />
-        </div>
-        
-	<button type="button" id="cliente-actualizar">Actualizar lista</button>
+document.addEventListener("DOMContentLoaded", () => {
+  inicializarNavegacion();
+  inicializarClientes();
+  inicializarProductos();
+  inicializarOrdenes();
+  inicializarReportes();
 
-        <table id="tabla-clientes">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Teléfono</th>
-              <th>Dirección</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </section>
+  ensureStorageArray("clientes");
+  ensureStorageArray("productos");
+  ensureStorageArray("ordenes");
 
-    <!-- Sección PRODUCTOS -->
-    <section id="view-productos" class="view">
-      <h2>Productos / Servicios</h2>
-      <div class="panel">
-        <form id="form-producto">
-          <input type="hidden" id="producto-id" />
-          <div class="form-row">
-            <label>Nombre</label>
-            <input type="text" id="producto-nombre" required />
-          </div>
-          <div class="form-row">
-            <label>Precio</label>
-            <input type="number" id="producto-precio" min="0" step="0.01" required />
-          </div>
-          <div class="form-row">
-            <label>Tipo (opcional)</label>
-            <input type="text" id="producto-tipo" placeholder="Lavado, Planchado, Tintorería..." />
-          </div>
-          <button type="submit">Guardar producto</button>
-          <button type="button" id="producto-limpiar">Limpiar</button>
-        </form>
-      </div>
-      <div class="panel">
-        <table id="tabla-productos">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Tipo</th>
-              <th>Precio</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </section>
+  cargarClientesEnTabla();
+  cargarClientesEnSelects();
+  cargarProductosEnTabla();
+  cargarOrdenesEnTabla();
+});
 
-    <!-- Sección ÓRDENES -->
-    <section id="view-ordenes" class="view">
-      <h2>Órdenes</h2>
-      <div class="panel">
-        <form id="form-orden">
-          <input type="hidden" id="orden-id" />
-          <div class="form-row">
-            <label>Cliente</label>
-            <select id="orden-cliente" required></select>
-          </div>
-          <div class="form-row">
-            <label>Productos</label>
-            <div id="orden-productos-container">
-              <!-- acá vamos a inyectar filas dinámicas de productos -->
-            </div>
-            <button type="button" id="orden-agregar-item">Agregar producto</button>
-          </div>
-          <div class="form-row">
-            <label>Fecha ingreso</label>
-            <input type="date" id="orden-fecha-ingreso" required />
-          </div>
-          <div class="form-row">
-            <label>Fecha entrega estimada</label>
-            <input type="date" id="orden-fecha-entrega" />
-          </div>
-          <div class="form-row">
-            <label>Total</label>
-            <input type="number" id="orden-total" readonly />
-          </div>
-          <div class="form-row">
-            <label>Estado pago</label>
-            <select id="orden-estado-pago">
-              <option value="pendiente">Pendiente</option>
-              <option value="pagado">Pagado</option>
-            </select>
-          </div>
-          <div class="form-row">
-            <label>Estado entrega</label>
-            <select id="orden-estado-entrega">
-              <option value="no_entregado">No entregado</option>
-              <option value="entregado">Entregado</option>
-            </select>
-          </div>
-          <button type="submit">Guardar orden</button>
-          <button type="button" id="orden-limpiar">Limpiar</button>
-        </form>
-      </div>
-      <div class="panel">
-        <div class="form-row">
-          <label>Filtrar por estado</label>
-          <select id="orden-filtro-estado">
-            <option value="">Todos</option>
-            <option value="pendiente_pago">Pendiente de pago</option>
-            <option value="pagado_no_entregado">Pagado / no entregado</option>
-            <option value="entregado">Entregado</option>
-          </select>
-        </div>
-        <table id="tabla-ordenes">
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Cliente</th>
-              <th>Items</th>
-              <th>Total</th>
-              <th>Pago</th>
-              <th>Entrega</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </section>
+// Garantiza que exista un array en localStorage
+function ensureStorageArray(key) {
+  if (!localStorage.getItem(key)) {
+    localStorage.setItem(key, JSON.stringify([]));
+  }
+}
 
-<h3>Productos de la orden</h3>
+// Formateo de miles
+function formatearPrecioMiles(valor) {
+  return valor.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
 
-<table id="tabla-items-orden">
-  <thead>
-    <tr>
-      <th>Producto</th>
-      <th>Cantidad</th>
-      <th>Precio</th>
-      <th>Subtotal</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
+// Generador de IDs únicos
+function generarId() {
+  return Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+}
 
-<button type="button" id="btn-agregar-item">Agregar producto</button>
+// =====================================
+// NAVEGACIÓN ENTRE VISTAS
+// =====================================
 
-<div id="resumenOrden" class="resumen-orden">
-  <div class="resumen-orden-contenido">
-    <div class="total-orden-texto">Total de la Orden:</div>
-    <div class="total-orden-valor">$<span id="totalOrden">0</span></div>
-  </div>
+function inicializarNavegacion() {
+  const navButtons = document.querySelectorAll(".main-nav button");
+  const views = document.querySelectorAll(".view");
 
-  <button type="button" id="btnCerrarOrden" class="btn-principal">
-    Cerrar Orden
-  </button>
-</div>
+  navButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const target = btn.getAttribute("data-view");
+      views.forEach(v => v.classList.remove("active"));
+      document.getElementById(`view-${target}`).classList.add("active");
+    });
+  });
+}
 
-    <!-- Sección REPORTES -->
-    <section id="view-reportes" class="view">
-      <h2>Reportes</h2>
-      <div class="panel">
-        <div class="form-row">
-          <label>Desde</label>
-          <input type="date" id="reporte-desde" />
-        </div>
-        <div class="form-row">
-          <label>Hasta</label>
-          <input type="date" id="reporte-hasta" />
-        </div>
-        <div class="form-row">
-          <label>Cliente</label>
-          <select id="reporte-cliente">
-            <option value="">Todos</option>
-          </select>
-        </div>
-        <div class="form-row">
-          <label>Estado entrega</label>
-          <select id="reporte-estado-entrega">
-            <option value="">Todos</option>
-            <option value="no_entregado">No entregado</option>
-            <option value="entregado">Entregado</option>
-          </select>
-        </div>
-        <button id="reporte-aplicar">Aplicar filtros</button>
-      </div>
+// =====================================
+// CLIENTES
+// =====================================
 
-      <div class="panel">
-        <h3>Resumen</h3>
-        <ul id="reporte-resumen">
-          <!-- Totales (cantidad órdenes, monto total, etc.) -->
-        </ul>
-      </div>
+function inicializarClientes() {
+  document.getElementById("form-cliente").addEventListener("submit", guardarCliente);
+  document.getElementById("cliente-limpiar").addEventListener("click", limpiarFormularioCliente);
+  document.getElementById("cliente-busqueda").addEventListener("input", filtrarClientes);
+  document.getElementById("cliente-actualizar").addEventListener("click", () => {
+    cargarClientesEnTabla();
+    cargarClientesEnSelects();
+  });
+}
 
-      <div class="panel">
-        <h3>Detalle de órdenes</h3>
-        <table id="tabla-reporte-ordenes">
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Cliente</th>
-              <th>Total</th>
-              <th>Pago</th>
-              <th>Entrega</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
+function cargarClientesEnTabla() {
+  const clientes = JSON.parse(localStorage.getItem("clientes")) || [];
+  const tbody = document.querySelector("#tabla-clientes tbody");
+  tbody.innerHTML = "";
 
-  <footer class="app-footer">
-    <small>Meñarg SAS – Gestión interna</small>
-  </footer>
+  clientes.forEach(cli => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${cli.nombre}</td>
+      <td>${cli.telefono || ""}</td>
+      <td>${cli.direccion || ""}</td>
+      <td>
+        <button onclick="editarCliente('${cli.id}')">Editar</button>
+        <button onclick="eliminarCliente('${cli.id}')">Eliminar</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
 
-  <script src="clientes.js"></script>
-</body>
-</html>
+function cargarClientesEnSelects() {
+  const clientes = JSON.parse(localStorage.getItem("clientes")) || [];
+  const selectOrden = document.getElementById("orden-cliente");
+  const selectReporte = document.getElementById("reporte-cliente");
+
+  selectOrden.innerHTML = "";
+  selectReporte.innerHTML = `<option value="">Todos</option>`;
+
+  clientes.forEach(cli => {
+    const opt1 = document.createElement("option");
+    opt1.value = cli.id;
+    opt1.textContent = cli.nombre;
+    selectOrden.appendChild(opt1);
+
+    const opt2 = document.createElement("option");
+    opt2.value = cli.id;
+    opt2.textContent = cli.nombre;
+    selectReporte.appendChild(opt2);
+  });
+}
+
+function guardarCliente(e) {
+  e.preventDefault();
+
+  const id = document.getElementById("cliente-id").value;
+  const nombre = document.getElementById("cliente-nombre").value.trim();
+  const telefono = document.getElementById("cliente-telefono").value.trim();
+  const direccion = document.getElementById("cliente-direccion").value.trim();
+
+  let clientes = JSON.parse(localStorage.getItem("clientes")) || [];
+
+  if (id) {
+    clientes = clientes.map(c =>
+      c.id === id ? { ...c, nombre, telefono, direccion } : c
+    );
+  } else {
+    clientes.push({
+      id: generarId(),
+      nombre,
+      telefono,
+      direccion
+    });
+  }
+
+  localStorage.setItem("clientes", JSON.stringify(clientes));
+  limpiarFormularioCliente();
+  cargarClientesEnTabla();
+  cargarClientesEnSelects();
+}
+
+function editarCliente(id) {
+  const clientes = JSON.parse(localStorage.getItem("clientes")) || [];
+  const cli = clientes.find(c => c.id === id);
+  if (!cli) return;
+
+  document.getElementById("cliente-id").value = cli.id;
+  document.getElementById("cliente-nombre").value = cli.nombre;
+  document.getElementById("cliente-telefono").value = cli.telefono;
+  document.getElementById("cliente-direccion").value = cli.direccion;
+}
+
+function eliminarCliente(id) {
+  let clientes = JSON.parse(localStorage.getItem("clientes")) || [];
+  clientes = clientes.filter(c => c.id !== id);
+  localStorage.setItem("clientes", JSON.stringify(clientes));
+  cargarClientesEnTabla();
+  cargarClientesEnSelects();
+}
+
+function limpiarFormularioCliente() {
+  document.getElementById("cliente-id").value = "";
+  document.getElementById("cliente-nombre").value = "";
+  document.getElementById("cliente-telefono").value = "";
+  document.getElementById("cliente-direccion").value = "";
+}
+
+function filtrarClientes() {
+  const texto = document.getElementById("cliente-busqueda").value.toLowerCase();
+  const filas = document.querySelectorAll("#tabla-clientes tbody tr");
+
+  filas.forEach(fila => {
+    const nombre = fila.children[0].textContent.toLowerCase();
+    const telefono = fila.children[1].textContent.toLowerCase();
+
+    fila.style.display =
+      nombre.includes(texto) || telefono.includes(texto)
+        ? ""
+        : "none";
+  });
+}
+
+// =====================================
+// PRODUCTOS
+// =====================================
+
+function inicializarProductos() {
+  document.getElementById("form-producto").addEventListener("submit", guardarProducto);
+  document.getElementById("producto-limpiar").addEventListener("click", limpiarFormularioProducto);
+}
+
+function cargarProductosEnTabla() {
+  const productos = JSON.parse(localStorage.getItem("productos")) || [];
+  const tbody = document.querySelector("#tabla-productos tbody");
+  tbody.innerHTML = "";
+
+  productos.forEach(prod => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${prod.nombre}</td>
+      <td>${prod.tipo || ""}</td>
+      <td class="col-precio">${formatearPrecioMiles(prod.precio)}</td>
+      <td>
+        <button onclick="editarProducto('${prod.id}')">Editar</button>
+        <button onclick="eliminarProducto('${prod.id}')">Eliminar</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function guardarProducto(e) {
+  e.preventDefault();
+
+  const id = document.getElementById("producto-id").value;
+  const nombre = document.getElementById("producto-nombre").value.trim();
+  const precio = parseFloat(document.getElementById("producto-precio").value);
+  const tipo = document.getElementById("producto-tipo").value.trim();
+
+  let productos = JSON.parse(localStorage.getItem("productos")) || [];
+
+  if (id) {
+    productos = productos.map(p =>
+      p.id === id ? { ...p, nombre, precio, tipo } : p
+    );
+  } else {
+    productos.push({
+      id: generarId(),
+      nombre,
+      precio,
+      tipo
+    });
+  }
+
+  localStorage.setItem("productos", JSON.stringify(productos));
+  limpiarFormularioProducto();
+  cargarProductosEnTabla();
+}
+
+function editarProducto(id) {
+  const productos = JSON.parse(localStorage.getItem("productos")) || [];
+  const prod = productos.find(p => p.id === id);
+  if (!prod) return;
+
+  document.getElementById("producto-id").value = prod.id;
+  document.getElementById("producto-nombre").value = prod.nombre;
+  document.getElementById("producto-precio").value = prod.precio;
+  document.getElementById("producto-tipo").value = prod.tipo;
+}
+
+function eliminarProducto(id) {
+  let productos = JSON.parse(localStorage.getItem("productos")) || [];
+  productos = productos.filter(p => p.id !== id);
+  localStorage.setItem("productos", JSON.stringify(productos));
+  cargarProductosEnTabla();
+}
+
+function limpiarFormularioProducto() {
+  document.getElementById("producto-id").value = "";
+  document.getElementById("producto-nombre").value = "";
+  document.getElementById("producto-precio").value = "";
+  document.getElementById("producto-tipo").value = "";
+}
+
+// =====================================
+// ORDENES
+// =====================================
+
+function inicializarOrdenes() {
+  document.getElementById("form-orden").addEventListener("submit", guardarOrden);
+  document.getElementById("orden-limpiar").addEventListener("click", limpiarFormularioOrden);
+  document.getElementById("orden-agregar-item").addEventListener("click", agregarItemOrden);
+}
+
+function cargarOrdenesEnTabla() {
+  const ordenes = JSON.parse(localStorage.getItem("ordenes")) || [];
+  const tbody = document.querySelector("#tabla-ordenes tbody");
+  if (!tbody) return;
+
+  tbody.innerHTML = "";
+
+  ordenes.forEach(ord => {
+    const cliente = obtenerNombreCliente(ord.clienteId);
+    const total = formatearPrecioMiles(ord.total || 0);
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${ord.fecha}</td>
+      <td>${cliente}</td>
+      <td>${ord.items?.length || 0}</td>
+      <td>${total}</td>
+      <td>${ord.estadoPago}</td>
+      <td>${ord.estadoEntrega}</td>
+      <td>
+        <button onclick="editarOrden('${ord.id}')">Editar</button>
+        <button onclick="eliminarOrden('${ord.id}')">Eliminar</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function guardarOrden(e) {
+  e.preventDefault();
+
+  const id = document.getElementById("orden-id").value;
+  const clienteId = document.getElementById("orden-cliente").value;
+  const fecha = document.getElementById("orden-fecha-ingreso").value;
+  const estadoPago = document.getElementById("orden-estado-pago").value;
+  const estadoEntrega = document.getElementById("orden-estado-entrega").value;
+
+  if (estadoEntrega === "entregado" && estadoPago !== "pagado") {
+    alert("No se puede marcar como ENTREGADO si la orden no está PAGADA.");
+    return;
+  }
+
+  const total = calcularTotalOrden();
+  let ordenes = JSON.parse(localStorage.getItem("ordenes")) || [];
+
+  if (id) {
+    ordenes = ordenes.map(o =>
+      o.id === id
+        ? { ...o, clienteId, fecha, estadoPago, estadoEntrega, total, items: obtenerItemsDeOrden() }
+        : o
+    );
+  } else {
+    ordenes.push({
+      id: generarId(),
+      clienteId,
+      fecha,
+      estadoPago,
+      estadoEntrega,
+      total,
+      items: obtenerItemsDeOrden()
+    });
+  }
+
+  localStorage.setItem("ordenes", JSON.stringify(ordenes));
+  limpiarFormularioOrden();
+  cargarOrdenesEnTabla();
+}
+
+function editarOrden(id) {
+  const ordenes = JSON.parse(localStorage.getItem("ordenes")) || [];
+  const ord = ordenes.find(o => o.id === id);
+  if (!ord) return;
+
+  document.getElementById("orden-id").value = ord.id;
+  document.getElementById("orden-cliente").value = ord.clienteId;
+  document.getElementById("orden-fecha-ingreso").value = ord.fecha;
+  document.getElementById("orden-estado-pago").value = ord.estadoPago;
+  document.getElementById("orden-estado-entrega").value = ord.estadoEntrega;
+
+  cargarItemsEnEdicion(ord.items);
+}
+
+function eliminarOrden(id) {
+  let ordenes = JSON.parse(localStorage.getItem("ordenes")) || [];
+  ordenes = ordenes.filter(o => o.id !== id);
+  localStorage.setItem("ordenes", JSON.stringify(ordenes));
+  cargarOrdenesEnTabla();
+}
+
+function limpiarFormularioOrden() {
+  document.getElementById("orden-id").value = "";
+  document.getElementById("orden-cliente").value = "";
+  document.getElementById("orden-fecha-ingreso").value = "";
+  document.getElementById("orden-estado-pago").value = "pendiente";
+  document.getElementById("orden-estado-entrega").value = "no_entregado";
+
+  document.querySelector("#tabla-items-orden tbody").innerHTML = "";
+  document.getElementById("orden-total").value = "0";
+
+  actualizarResumenOrden();
+}
+
+// =====================================
+// ITEMS DINÁMICOS
+// =====================================
+
+function agregarItemOrden() {
+  const tbody = document.querySelector("#tabla-items-orden tbody");
+  const productos = JSON.parse(localStorage.getItem("productos")) || [];
+
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td>
+      <select class="item-producto">
+        <option value="">Seleccione...</option>
+        ${productos.map(p => `<option value="${p.id}">${p.nombre}</option>`).join("")}
+      </select>
+    </td>
+
+    <td>
+      <input type="number" class="item-cantidad" value="1" min="1">
+    </td>
+
+    <td class="item-precio">0</td>
+    <td class="item-subtotal">0</td>
+
+    <td>
+      <button type="button" class="item-eliminar">X</button>
+    </td>
+  `;
+
+  tbody.appendChild(tr);
+
+  tr.querySelector(".item-producto").addEventListener("change", actualizarItem);
+  tr.querySelector(".item-cantidad").addEventListener("input", actualizarItem);
+  tr.querySelector(".item-eliminar").addEventListener("click", () => {
+    tr.remove();
+    recalcularTotalOrden();
+  });
+
+  actualizarResumenOrden();
+}
+
+function actualizarItem(e) {
+  const fila = e.target.closest("tr");
+  const productoId = fila.querySelector(".item-producto").value;
+  const cantidad = parseInt(fila.querySelector(".item-cantidad").value);
+
+  const productos = JSON.parse(localStorage.getItem("productos")) || [];
+  const prod = productos.find(p => p.id === productoId);
+
+  if (!prod) {
+    fila.querySelector(".item-precio").textContent = "0";
+    fila.querySelector(".item-subtotal").textContent = "0";
+    recalcularTotalOrden();
+    return;
+  }
+
+  const precio = prod.precio;
+  const subtotal = precio * cantidad;
+
+  fila.querySelector(".item-precio").textContent = formatearPrecioMiles(precio);
+  fila.querySelector(".item-subtotal").textContent = formatearPrecioMiles(subtotal);
+
+  recalcularTotalOrden();
+}
+
+function recalcularTotalOrden() {
+  const filas = document.querySelectorAll("#tabla-items-orden tbody tr");
+  let total = 0;
+
+  filas.forEach(fila => {
+    const subtotalTexto = fila.querySelector(".item-subtotal").textContent.replace(/\./g, "");
+    total += parseInt(subtotalTexto) || 0;
+  });
+
+  document.getElementById("orden-total").value = formatearPrecioMiles(total);
+  actualizarResumenOrden();
+}
+
+function actualizarResumenOrden() {
+  const filas = document.querySelectorAll("#tabla-items-orden tbody tr");
+  const resumen = document.getElementById("resumenOrden");
+
+  if (filas.length === 0) {
+    resumen.style.display = "none";
+    return;
+  }
+
+  let total = 0;
+  filas.forEach(fila => {
+    const subtotalTexto = fila.querySelector(".item-subtotal").textContent.replace(/\./g, "");
+    total += parseInt(subtotalTexto) || 0;
+  });
+
+  document.getElementById("totalOrden").textContent = formatearPrecioMiles(total);
+  resumen.style.display = "block";
+}
+
+function obtenerItemsDeOrden() {
+  const filas = document.querySelectorAll("#tabla-items-orden tbody tr");
+  const items = [];
+
+  filas.forEach(fila => {
+    const productoId = fila.querySelector(".item-producto").value;
+    const cantidad = parseInt(fila.querySelector(".item-cantidad").value);
+
+    if (productoId && cantidad > 0) {
+      items.push({ productoId, cantidad });
+    }
+  });
+
+  return items;
+}
+
+// =====================================
+// REPORTES
+// =====================================
+
+function inicializarReportes() {
+  document.getElementById("reporte-aplicar").addEventListener("click", aplicarFiltrosReporte);
+}
+
+function aplicarFiltrosReporte() {
+  const desde = document.getElementById("reporte-desde").value;
+  const hasta = document.getElementById("reporte-hasta").value;
+  const clienteId = document.getElementById("reporte-cliente").value;
+  const estadoEntrega = document.getElementById("reporte-estado-entrega").value;
+
+  const ordenes = JSON.parse(localStorage.getItem("ordenes")) || [];
+
+  const filtradas = ordenes.filter(o => {
+    if (desde && o.fecha < desde) return false;
+    if (hasta && o.fecha > hasta) return false;
+    if (clienteId && o.clienteId !== clienteId) return false;
+    if (estadoEntrega && o.estadoEntrega !== estadoEntrega) return false;
+    return true;
+  });
+
+  mostrarReporte(filtradas);
+}
+
+function mostrarReporte(ordenes) {
+  const resumen = document.getElementById("reporte-resumen");
+  const tbody = document.querySelector("#tabla-reporte-ordenes tbody");
+
+  resumen.innerHTML = "";
+  tbody.innerHTML = "";
+
+  let totalMonto = 0;
+
+  ordenes.forEach(o =>
