@@ -3,6 +3,7 @@ body {
   font-family: Arial, sans-serif;
 }
 
+/* Banner */
 .topbar {
   position: fixed;
   top: 0;
@@ -12,19 +13,10 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-
-  /* Degradado verde → azul */
   background: linear-gradient(90deg, #00b347, #0077ff);
-
   color: white;
 }
 
-.topbar nav a {
-  color: white;
-  margin-left: 10px;
-  text-decoration: none;
-  font-weight: bold;
-}
 .topbar nav a {
   color: white;
   margin-left: 15px;
@@ -34,7 +26,7 @@ body {
   padding-bottom: 3px;
 }
 
-/* Línea animada */
+/* Subrayado animado */
 .topbar nav a::after {
   content: "";
   position: absolute;
@@ -46,13 +38,83 @@ body {
   transition: width 0.3s ease;
 }
 
-/* Efecto hover */
 .topbar nav a:hover::after {
   width: 100%;
 }
 
 main {
-  padding: 80px 20px; /* espacio para el banner fijo */
+  padding: 80px 20px;
+}
+
+/* Formulario */
+.form {
+  display: flex;
+  flex-direction: column;
+  max-width: 300px;
+  margin-bottom: 20px;
+}
+
+.form input {
+  padding: 6px;
+  margin-bottom: 10px;
+}
+
+/* Tabla */
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla th, .tabla td {
+  border: 1px solid #ccc;
+  padding: 8px;
+}
+
+.tabla tr:hover {
+  background: #f2f2f2;
+}
+
+/* Botones */
+.btn-editar {
+  background: #0275d8;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+.btn-eliminar {
+  background: #d9534f;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.btn-exportar {
+  background: #5cb85c;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.btn-borrar-todo {
+  background: #d9534f;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+/* Búsqueda */
+.input-buscar {
+  padding: 8px;
+  width: 250px;
+  margin-bottom: 15px;
 }
 
 
