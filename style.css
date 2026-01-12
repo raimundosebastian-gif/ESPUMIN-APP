@@ -117,4 +117,23 @@ main {
   margin-bottom: 15px;
 }
 
+.contenedor {
+  max-width: 900px;
+  margin: auto;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+textarea {
+  min-height: 60px;
+  resize: vertical;
+}
+
+
 
