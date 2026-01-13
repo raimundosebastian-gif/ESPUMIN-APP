@@ -34,12 +34,12 @@ function guardarVentas(lista) {
 
 
 /* ============================================================
-   CLIENTES
+   CLIENTES (MEJORADO)
    ============================================================ */
 
 function guardarCliente() {
-    const nombre = document.getElementById("cliente-nombre").value.trim();
-    const apellido = document.getElementById("cliente-apellido").value.trim();
+    let nombre = document.getElementById("cliente-nombre").value.trim();
+    let apellido = document.getElementById("cliente-apellido").value.trim();
     const telefono = document.getElementById("cliente-telefono").value.trim();
 
     if (!nombre || !apellido || telefono.length !== 10) {
@@ -47,7 +47,23 @@ function guardarCliente() {
         return;
     }
 
+    // Capitalizar
+    nombre = nombre.charAt(0).toUpperCase() + nombre.slice(1).toLowerCase();
+    apellido = apellido.charAt(0).toUpperCase() + apellido.slice(1).toLowerCase();
+
     const clientes = obtenerClientes();
+
+    // ❌ Verificar duplicados
+    const existe = clientes.some(c =>
+        c.nombre === nombre &&
+        c.apellido === apellido &&
+        c.telefono === telefono
+    );
+
+    if (existe) {
+        alert("Este cliente ya existe en el sistema.");
+        return;
+    }
 
     clientes.push({
         id: Date.now(),
@@ -67,7 +83,6 @@ function guardarCliente() {
     alert("Cliente guardado.");
 }
 
-// Versión mejorada: acepta lista opcional (para búsqueda) y ordena por apellido
 function mostrarClientes(lista = null) {
     const clientes = lista || obtenerClientes();
     const cont = document.getElementById("lista-clientes");
@@ -79,7 +94,6 @@ function mostrarClientes(lista = null) {
         return;
     }
 
-    // Ordenar por apellido
     clientes.sort((a, b) => a.apellido.localeCompare(b.apellido));
 
     cont.innerHTML = clientes.map(c => `
@@ -98,16 +112,12 @@ function mostrarClientes(lista = null) {
     `).join("");
 }
 
-function reiniciarClientes() {
-    if (confirm("¿Seguro que desea borrar todos los clientes?")) {
-        localStorage.removeItem("clientes");
-        mostrarClientes();
-    }
-}
-
-/* ---- NUEVAS FUNCIONES AVANZADAS DE CLIENTES ---- */
-
 function eliminarCliente(id) {
+    // ⚠ Confirmación antes de eliminar
+    if (!confirm("¿Seguro que desea eliminar este cliente? Esta acción no se puede deshacer.")) {
+        return;
+    }
+
     const clientes = obtenerClientes().filter(c => c.id !== id);
     guardarClientes(clientes);
     mostrarClientes();
@@ -118,12 +128,29 @@ function editarCliente(id) {
     const c = clientes.find(x => x.id === id);
     if (!c) return;
 
-    const nuevoNombre = prompt("Nuevo nombre:", c.nombre);
-    const nuevoApellido = prompt("Nuevo apellido:", c.apellido);
-    const nuevoTelefono = prompt("Nuevo teléfono (10 dígitos):", c.telefono);
+    let nuevoNombre = prompt("Nuevo nombre:", c.nombre);
+    let nuevoApellido = prompt("Nuevo apellido:", c.apellido);
+    let nuevoTelefono = prompt("Nuevo teléfono (10 dígitos):", c.telefono);
 
     if (!nuevoNombre || !nuevoApellido || !nuevoTelefono || nuevoTelefono.length !== 10) {
         alert("Datos inválidos.");
+        return;
+    }
+
+    // Capitalizar
+    nuevoNombre = nuevoNombre.charAt(0).toUpperCase() + nuevoNombre.slice(1).toLowerCase();
+    nuevoApellido = nuevoApellido.charAt(0).toUpperCase() + nuevoApellido.slice(1).toLowerCase();
+
+    // ❌ Evitar duplicados al editar
+    const existe = clientes.some(x =>
+        x.id !== id &&
+        x.nombre === nuevoNombre &&
+        x.apellido === nuevoApellido &&
+        x.telefono === nuevoTelefono
+    );
+
+    if (existe) {
+        alert("Ya existe otro cliente con esos datos.");
         return;
     }
 
@@ -150,6 +177,7 @@ function buscarClientes() {
 
     mostrarClientes(filtrados);
 }
+
 
 
 /* ============================================================
@@ -524,5 +552,6 @@ function generarReporteCliente() {
     document.getElementById("resultado-cliente").innerHTML =
         `<p>Total facturado por ${cliente.apellido}, ${cliente.nombre}: $${total}</p>`;
 }
+
 
 
