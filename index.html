@@ -2,120 +2,80 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>ESPUMIN APP - Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESPUMIN - Acceso</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 320px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .login-container h2 {
+            margin-bottom: 20px;
+            color: #2E7D32;
+        }
+
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            width: 95%;
+            padding: 10px;
+            background: #2E7D32;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #1B5E20;
+        }
+
+        #loginError {
+            color: red;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
 </head>
 
-<body style="
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
-    background: linear-gradient(135deg, #007bff, #00c851);
-    color: white;
-">
+<body>
 
-<h2 style="text-align:center;">DASHBOARD ADMIN</h2>
+    <div class="login-container">
+        <h2>ESPUMIN - Acceso</h2>
 
-<div style="text-align:center; margin-bottom:20px;">
-    <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
+        <form id="loginForm">
+            <input type="text" id="username" placeholder="Usuario" required>
+            <input type="password" id="password" placeholder="Contraseña" required>
+            <button type="submit">Ingresar</button>
+        </form>
 
-    <button onclick="cerrarSesion()" 
-        style="
-            padding:10px 20px;
-            background:white;
-            color:#007bff;
-            border:none;
-            border-radius:5px;
-            cursor:pointer;
-            font-size:16px;
-            font-weight:bold;
-            text-transform:uppercase;
-        ">
-        Cerrar sesión
-    </button>
-</div>
+        <p id="loginError">Usuario o contraseña incorrectos</p>
+    </div>
 
-<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
-
-
-<!-- MÉTRICAS PRINCIPALES -->
-<h3>Resumen General</h3>
-
-<div style="margin-top:20px; font-size:18px;">
-
-    <p><strong>Total de Clientes:</strong> <span id="dash-clientes"></span></p>
-
-    <p><strong>Productos Activos:</strong> <span id="dash-productos"></span></p>
-
-    <p><strong>Total de Ventas:</strong> <span id="dash-ventas"></span></p>
-
-    <p><strong>Facturación Total:</strong> $<span id="dash-facturacion"></span></p>
-
-</div>
-
-<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
-
-
-<!-- ÚLTIMAS VENTAS -->
-<h3>Últimas Ventas</h3>
-
-<div id="dash-ultimas" style="margin-top:10px;"></div>
-
-
-<!-- BOTÓN VOLVER AL MENÚ -->
-<button onclick="location.href='menu.html'"
-    style="
-        margin-top:30px;
-        padding:12px 20px;
-        background:white;
-        color:#007bff;
-        border:none;
-        border-radius:6px;
-        cursor:pointer;
-        font-size:16px;
-        font-weight:bold;
-        text-transform:uppercase;
-    ">
-    Volver al Menú
-</button>
-
-
-<script src="script.js"></script>
-
-<script>
-    verificarSesion();
-    aplicarPermisos();
-    document.getElementById("usuario-log").textContent = localStorage.getItem("usuario");
-
-    // Cargar datos
-    const clientes = obtenerClientes();
-    const productos = obtenerProductos().filter(p => p.estado === "Activo");
-    const ventas = obtenerVentas();
-
-    // Métricas
-    document.getElementById("dash-clientes").textContent = clientes.length;
-    document.getElementById("dash-productos").textContent = productos.length;
-    document.getElementById("dash-ventas").textContent = ventas.length;
-
-    const totalFacturado = ventas.reduce((t, v) => t + v.total, 0);
-    document.getElementById("dash-facturacion").textContent = totalFacturado;
-
-    // Últimas ventas
-    const ultimas = ventas.slice(-5).reverse();
-    const cont = document.getElementById("dash-ultimas");
-
-    if (ultimas.length === 0) {
-        cont.innerHTML = "<p>No hay ventas registradas.</p>";
-    } else {
-        cont.innerHTML = ultimas.map(v => {
-            const fecha = new Date(v.id).toLocaleDateString();
-            return `
-                <div style='margin-bottom:10px;'>
-                    <strong>${fecha}</strong> - ${v.cliente} - $${v.total}
-                </div>
-            `;
-        }).join("");
-    }
-</script>
+    <script src="js/login.js"></script>
 
 </body>
 </html>
