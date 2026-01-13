@@ -5,9 +5,10 @@ function loginEmpleado() {
     const error = document.getElementById("login-error");
 
     const empleados = [
-        { usuario: "admin", password: "1234", rol: "admin" },
-        { usuario: "empleado1", password: "abcd", rol: "empleado" }
-    ];
+    { usuario: "admin", password: "1234", rol: "admin" },
+    { usuario: "empleado1", password: "abcd", rol: "empleado" },
+    { usuario: "EU", password: "villatita", rol: "admin" } // NUEVO ADMIN
+];
 
     const encontrado = empleados.find(e => e.usuario === user && e.password === pass);
 
