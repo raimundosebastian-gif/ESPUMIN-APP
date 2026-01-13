@@ -181,37 +181,51 @@ function buscarClientes() {
 
 
 /* ============================================================
-   PRODUCTOS
+   PRODUCTOS (MEJORADO PARA LAVANDERÍA/TINTORERÍA)
    ============================================================ */
 
 function guardarProducto() {
-    const nombre = document.getElementById("prod-nombre").value.trim();
+    let nombre = document.getElementById("prod-nombre").value.trim();
     const precio = parseFloat(document.getElementById("prod-precio").value);
-    const unidad = document.getElementById("prod-unidad").value;
+    const categoria = document.getElementById("prod-categoria").value;
     const estado = document.getElementById("prod-estado").value;
 
-    if (!nombre || isNaN(precio)) {
+    if (!nombre || isNaN(precio) || !categoria) {
         alert("Complete todos los campos.");
         return;
     }
 
+    // 🔠 Nombre en MAYÚSCULAS
+    nombre = nombre.toUpperCase();
+
     const productos = obtenerProductos();
+
+    // ❌ Evitar duplicados por nombre
+    const existe = productos.some(p => p.nombre === nombre);
+    if (existe) {
+        alert("Este producto ya existe.");
+        return;
+    }
 
     productos.push({
         id: Date.now(),
         nombre,
         precio,
-        unidad,
+        categoria,
         estado
     });
 
     guardarProductos(productos);
+
+    document.getElementById("prod-nombre").value = "";
+    document.getElementById("prod-precio").value = "";
+
     mostrarProductos();
     alert("Producto guardado.");
 }
 
-function mostrarProductos() {
-    const productos = obtenerProductos();
+function mostrarProductos(lista = null) {
+    const productos = lista || obtenerProductos();
     const cont = document.getElementById("lista-productos");
 
     if (!cont) return;
@@ -221,12 +235,111 @@ function mostrarProductos() {
         return;
     }
 
-    cont.innerHTML = productos.map(p => `
-        <div style="margin-bottom:10px;">
-            <strong>${p.nombre}</strong> - $${p.precio} (${p.unidad}) - ${p.estado}
-        </div>
-    `).join("");
+    // 🧹 Ordenar por categoría → nombre → precio
+    const ordenCategorias = ["Lavandería", "Tintorería", "Acolchados", "Otros"];
+
+    productos.sort((a, b) => {
+        const idxA = ordenCategorias.indexOf(a.categoria);
+        const idxB = ordenCategorias.indexOf(b.categoria);
+
+        if (idxA !== idxB) return idxA - idxB;
+        if (a.nombre !== b.nombre) return a.nombre.localeCompare(b.nombre);
+        return a.precio - b.precio;
+    });
+
+    // 🧱 TABLA COMPLETA
+    cont.innerHTML = `
+        <table style="width:100%; border-collapse:collapse; background:rgba(255,255,255,0.15); border-radius:6px;">
+            <thead>
+                <tr style="background:rgba(255,255,255,0.25);">
+                    <th style="padding:8px; text-align:left;">Categoría</th>
+                    <th style="padding:8px; text-align:left;">Nombre</th>
+                    <th style="padding:8px; text-align:right;">Precio</th>
+                    <th style="padding:8px; text-align:left;">Estado</th>
+                    <th style="padding:8px; text-align:center;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${productos.map(p => `
+                    <tr>
+                        <td style="padding:8px;">${p.categoria}</td>
+                        <td style="padding:8px;">${p.nombre}</td>
+                        <td style="padding:8px; text-align:right;">${p.precio.toLocaleString("es-AR")}</td>
+                        <td style="padding:8px;">${p.estado}</td>
+                        <td style="padding:8px; text-align:center;">
+                            <button onclick="editarProducto(${p.id})"
+                                style="padding:5px 10px; background:white; color:#007bff; border:none; border-radius:4px; cursor:pointer;">
+                                Editar
+                            </button>
+                            <button onclick="eliminarProducto(${p.id})"
+                                style="padding:5px 10px; background:white; color:#ff4444; border:none; border-radius:4px; cursor:pointer;">
+                                Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                `).join("")}
+            </tbody>
+        </table>
+    `;
 }
+
+function eliminarProducto(id) {
+    if (!confirm("¿Seguro que desea eliminar este producto?")) return;
+
+    const productos = obtenerProductos().filter(p => p.id !== id);
+    guardarProductos(productos);
+    mostrarProductos();
+}
+
+function editarProducto(id) {
+    const productos = obtenerProductos();
+    const p = productos.find(x => x.id === id);
+    if (!p) return;
+
+    let nuevoNombre = prompt("Nuevo nombre:", p.nombre);
+    let nuevoPrecio = prompt("Nuevo precio:", p.precio);
+    let nuevaCategoria = prompt("Categoría (Lavandería / Tintorería / Acolchados / Otros):", p.categoria);
+    let nuevoEstado = prompt("Estado (Activo/Inactivo):", p.estado);
+
+    if (!nuevoNombre || !nuevoPrecio || !nuevaCategoria || !nuevoEstado) {
+        alert("Datos inválidos.");
+        return;
+    }
+
+    // 🔠 Nombre en MAYÚSCULAS
+    nuevoNombre = nuevoNombre.toUpperCase();
+
+    // ❌ Evitar duplicados al editar
+    const existe = productos.some(x =>
+        x.id !== id && x.nombre === nuevoNombre
+    );
+    if (existe) {
+        alert("Ya existe otro producto con ese nombre.");
+        return;
+    }
+
+    p.nombre = nuevoNombre.trim();
+    p.precio = parseFloat(nuevoPrecio);
+    p.categoria = nuevaCategoria.trim();
+    p.estado = nuevoEstado.trim();
+
+    guardarProductos(productos);
+    mostrarProductos();
+}
+
+function buscarProductos() {
+    const texto = document.getElementById("buscar-producto").value.toLowerCase();
+    const productos = obtenerProductos();
+
+    const filtrados = productos.filter(p =>
+        p.nombre.toLowerCase().includes(texto) ||
+        p.categoria.toLowerCase().includes(texto) ||
+        p.estado.toLowerCase().includes(texto)
+    );
+
+    mostrarProductos(filtrados);
+}
+
 
 
 /* ============================================================
@@ -552,6 +665,7 @@ function generarReporteCliente() {
     document.getElementById("resultado-cliente").innerHTML =
         `<p>Total facturado por ${cliente.apellido}, ${cliente.nombre}: $${total}</p>`;
 }
+
 
 
 
