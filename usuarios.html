@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Usuarios</title>
+</head>
+
+<body style="font-family: Arial; padding: 20px;">
+
+<!-- Protección -->
+<script>
+    const usuario = localStorage.getItem("loggedUser");
+    const rol = localStorage.getItem("userRole");
+
+    if (!usuario) {
+        window.location.href = "index.html";
+    }
+
+    if (rol !== "admin") {
+        alert("Acceso restringido: solo administradores");
+        window.location.href = "menu.html";
+    }
+</script>
+
+<h2>Gestión de Usuarios</h2>
+
+<div>
+    <h3>Crear Usuario</h3>
+    <input type="text" id="nuevoUser" placeholder="Usuario">
+    <input type="password" id="nuevoPass" placeholder="Contraseña">
+    <select id="nuevoRol">
+        <option value="operador">Operador</option>
+        <option value="admin">Administrador</option>
+    </select>
+    <button onclick="crearUsuario()">Crear</button>
+</div>
+
+<hr>
+
+<h3>Usuarios Registrados</h3>
+<table border="1" cellpadding="8">
+    <thead>
+        <tr>
+            <th>Usuario</th>
+            <th>Rol</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody id="tablaUsuarios"></tbody>
+</table>
+
+<script>
+    function cargarUsuarios() {
+        const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+        const tabla = document.getElementById("tablaUsuarios");
+        tabla.innerHTML = "";
+
+        usuarios.forEach((u, i) => {
+            tabla.innerHTML += `
+                <tr>
+                    <td>${u.username}</td>
+                    <td>${u.role}</td>
+                    <td>
+                        <button onclick="eliminarUsuario(${i})">Eliminar</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    function crearUsuario() {
+        const username = document.getElementById("nuevoUser").value.trim();
+        const password = document.getElementById("nuevoPass").value.trim();
+        const role = document.getElementById("nuevoRol").value;
+
+        if (!username || !password) {
+            alert("Complete todos los campos");
+            return;
+        }
+
+        const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+
+        usuarios.push({ username, password, role });
+
+        localStorage.setItem("usuarios", JSON.stringify(usuarios));
+
+        cargarUsuarios();
+        alert("Usuario creado");
+    }
+
+    function eliminarUsuario(i) {
+        const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+        usuarios.splice(i, 1);
+        localStorage.setItem("usuarios", JSON.stringify(usuarios));
+        cargarUsuarios();
+    }
+
+    cargarUsuarios();
+</script>
+
+</body>
+</html>
