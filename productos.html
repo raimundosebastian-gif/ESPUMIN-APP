@@ -33,10 +33,10 @@
         window.location.href = "index.html";
     }
 
-    // Capitalizar automáticamente
-    function capitalizar(texto) {
+    // Convertir a MAYÚSCULAS automáticamente
+    function mayus(texto) {
         if (!texto) return "";
-        return texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase();
+        return texto.toUpperCase();
     }
 </script>
 
@@ -69,17 +69,19 @@
     <h3>Nuevo Producto</h3>
 
     <input id="prod-nombre" type="text" placeholder="Nombre"
-        onblur="this.value = capitalizar(this.value)"
+        onblur="this.value = mayus(this.value)"
         style="padding:10px; width:220px; border:none; border-radius:5px; margin:5px;">
 
     <input id="prod-precio" type="number" placeholder="Precio"
         style="padding:10px; width:220px; border:none; border-radius:5px; margin:5px;">
 
-    <select id="prod-unidad"
+    <!-- NUEVA CATEGORÍA -->
+    <select id="prod-categoria"
         style="padding:10px; width:220px; border:none; border-radius:5px; margin:5px;">
-        <option value="Litros">Litros</option>
-        <option value="Kilos">Kilos</option>
-        <option value="Unidades">Unidades</option>
+        <option value="Lavandería">Lavandería</option>
+        <option value="Tintorería">Tintorería</option>
+        <option value="Acolchados">Acolchados</option>
+        <option value="Otros">Otros</option>
     </select>
 
     <select id="prod-estado"
