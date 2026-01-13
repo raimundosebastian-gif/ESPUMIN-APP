@@ -330,3 +330,52 @@ function mostrarVentas() {
         cont.appendChild(div);
     });
 }
+
+// =========================
+// GESTIÓN DE PRECIOS
+// =========================
+
+// Cargar productos en la pantalla de precios
+function cargarProductosParaPrecios() {
+    const cont = document.getElementById("lista-precios");
+    if (!cont) return;
+
+    const productos = obtenerProductos();
+
+    cont.innerHTML = "";
+
+    productos.forEach(prod => {
+        const div = document.createElement("div");
+        div.style.margin = "10px 0";
+
+        div.innerHTML = `
+            <strong>${prod.nombre}</strong><br>
+            Precio actual: $${prod.precio}<br>
+            <input id="precio-${prod.id}" type="number" value="${prod.precio}" style="margin:5px; width:100px;">
+            <button onclick="actualizarPrecio(${prod.id})">Actualizar</button>
+            <hr>
+        `;
+
+        cont.appendChild(div);
+    });
+}
+
+// Actualizar precio de un producto
+function actualizarPrecio(id) {
+    const lista = obtenerProductos();
+    const nuevoPrecio = Number(document.getElementById(`precio-${id}`).value);
+
+    if (!nuevoPrecio || nuevoPrecio <= 0) {
+        alert("Precio inválido");
+        return;
+    }
+
+    const prod = lista.find(p => p.id === id);
+    prod.precio = nuevoPrecio;
+
+    guardarListaProductos(lista);
+
+    alert("Precio actualizado");
+
+    cargarProductosParaPrecios();
+}
