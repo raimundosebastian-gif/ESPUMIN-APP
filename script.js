@@ -379,3 +379,114 @@ function actualizarPrecio(id) {
 
     cargarProductosParaPrecios();
 }
+
+// =========================
+// REPORTES
+// =========================
+
+// Cargar clientes en el select de reportes
+function cargarClientesEnReporte() {
+    const clientes = obtenerClientes();
+    const select = document.getElementById("reporte-cliente");
+
+    if (!select) return;
+
+    select.innerHTML = "";
+
+    clientes.forEach(c => {
+        const op = document.createElement("option");
+        op.value = c.id;
+        op.textContent = c.nombre;
+        select.appendChild(op);
+    });
+}
+
+// Obtener ventas
+function obtenerVentas() {
+    return JSON.parse(localStorage.getItem("ventas") || "[]");
+}
+
+
+
+// -------------------------
+// REPORTE MENSUAL
+// -------------------------
+function generarReporteMensual() {
+    const mes = Number(document.getElementById("reporte-mes").value);
+    const anio = Number(document.getElementById("reporte-anio-mes").value);
+    const cont = document.getElementById("resultado-mensual");
+
+    if (!anio) {
+        cont.innerHTML = "Debe ingresar un año.";
+        return;
+    }
+
+    const ventas = obtenerVentas();
+
+    const filtradas = ventas.filter(v => {
+        const fecha = new Date(v.id);
+        return fecha.getMonth() + 1 === mes && fecha.getFullYear() === anio;
+    });
+
+    const total = filtradas.reduce((t, v) => t + v.total, 0);
+
+    cont.innerHTML = `
+        <p><strong>Ventas del mes:</strong> ${filtradas.length}</p>
+        <p><strong>Total facturado:</strong> $${total}</p>
+    `;
+}
+
+
+
+// -------------------------
+// REPORTE ANUAL
+// -------------------------
+function generarReporteAnual() {
+    const anio = Number(document.getElementById("reporte-anio").value);
+    const cont = document.getElementById("resultado-anual");
+
+    if (!anio) {
+        cont.innerHTML = "Debe ingresar un año.";
+        return;
+    }
+
+    const ventas = obtenerVentas();
+
+    const filtradas = ventas.filter(v => {
+        const fecha = new Date(v.id);
+        return fecha.getFullYear() === anio;
+    });
+
+    const total = filtradas.reduce((t, v) => t + v.total, 0);
+
+    cont.innerHTML = `
+        <p><strong>Ventas del año:</strong> ${filtradas.length}</p>
+        <p><strong>Total facturado:</strong> $${total}</p>
+    `;
+}
+
+
+
+// -------------------------
+// REPORTE POR CLIENTE
+// -------------------------
+function generarReporteCliente() {
+    const clienteId = Number(document.getElementById("reporte-cliente").value);
+    const cont = document.getElementById("resultado-cliente");
+
+    const ventas = obtenerVentas();
+
+    const filtradas = ventas.filter(v => v.items && v.cliente && v.cliente !== "" && v.cliente !== null)
+                            .filter(v => {
+                                const clientes = obtenerClientes();
+                                const cliente = clientes.find(c => c.id === clienteId);
+                                return v.cliente === cliente.nombre;
+                            });
+
+    const total = filtradas.reduce((t, v) => t + v.total, 0);
+
+    cont.innerHTML = `
+        <p><strong>Ventas realizadas:</strong> ${filtradas.length}</p>
+        <p><strong>Total facturado:</strong> $${total}</p>
+    `;
+}
