@@ -14,6 +14,19 @@
     text-align: center;
 ">
 
+<script>
+    /* 🔐 Protección del menú */
+    if (!localStorage.getItem("loggedUser")) {
+        window.location.href = "index.html";
+    }
+
+    /* 🚪 Logout */
+    function cerrarSesion() {
+        localStorage.removeItem("loggedUser");
+        window.location.href = "index.html";
+    }
+</script>
+
 <h2>MENÚ PRINCIPAL</h2>
 
 <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
@@ -85,9 +98,12 @@
 <script src="script.js"></script>
 
 <script>
-    verificarSesion();
-    aplicarPermisos();
-    document.getElementById("usuario-log").textContent = localStorage.getItem("usuario");
+    /* Mostrar usuario logueado */
+    document.getElementById("usuario-log").textContent = localStorage.getItem("loggedUser");
+
+    /* Mantengo tus funciones si las usás internamente */
+    if (typeof verificarSesion === "function") verificarSesion();
+    if (typeof aplicarPermisos === "function") aplicarPermisos();
 </script>
 
 </body>
