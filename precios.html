@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>ESPUMIN APP - Gestión de Precios</title>
+</head>
+
+<body>
+
+<h2>Gestión de Precios</h2>
+
+<p>Usuario: <span id="usuario-log"></span></p>
+
+<button onclick="cerrarSesion()">Cerrar sesión</button>
+
+<hr>
+
+<!-- Solo admin puede ver esta página -->
+<div class="solo-admin">
+    <h3>Modificar Precios</h3>
+
+    <div id="lista-precios"></div>
+</div>
+
+<!-- Mensaje si un empleado intenta entrar -->
+<div class="solo-empleado" style="display:none;">
+    <p>No tienes permisos para acceder a esta sección.</p>
+</div>
+
+<script src="script.js"></script>
+
+<script>
+    verificarSesion();
+    aplicarPermisos();
+
+    document.getElementById("usuario-log").textContent = localStorage.getItem("usuario");
+
+    cargarProductosParaPrecios();
+</script>
+
+</body>
+</html>
