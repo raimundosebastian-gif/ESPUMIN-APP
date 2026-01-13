@@ -17,6 +17,7 @@
 <!-- 🔐 Protección del menú -->
 <script>
     const usuario = localStorage.getItem("loggedUser");
+    const rol = localStorage.getItem("userRole");
 
     if (!usuario) {
         window.location.href = "index.html";
@@ -67,7 +68,7 @@
 </div>
 
 
-<!-- OPCIONES SOLO ADMIN (estructura lista para roles futuros) -->
+<!-- OPCIONES SOLO ADMIN -->
 <div class="solo-admin" style="margin-top:30px;">
     <h3>Opciones de Administrador</h3>
 
@@ -93,15 +94,21 @@
 </div>
 
 
-<!-- 🚪 Función de logout -->
+<!-- 🚪 Función de logout + Aplicación de roles -->
 <script>
     function cerrarSesion() {
         localStorage.removeItem("loggedUser");
+        localStorage.removeItem("userRole");
         window.location.href = "index.html";
     }
 
     // Mostrar usuario logueado
     document.getElementById("usuario-log").textContent = usuario;
+
+    // Ocultar opciones de admin si no corresponde
+    if (rol !== "admin") {
+        document.querySelector(".solo-admin").style.display = "none";
+    }
 </script>
 
 </body>
