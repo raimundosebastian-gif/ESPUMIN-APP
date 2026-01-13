@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>ESPUMIN APP - Login</title>
+    <title>ESPUMIN APP - Dashboard</title>
 </head>
 
 <body style="
@@ -11,42 +11,111 @@
     padding: 20px;
     background: linear-gradient(135deg, #007bff, #00c851);
     color: white;
-    text-align: center;
 ">
 
-<h2>ESPUMIN APP</h2>
-<h3>Iniciar Sesión</h3>
+<h2 style="text-align:center;">DASHBOARD ADMIN</h2>
 
-<div style="margin-top: 30px;">
+<div style="text-align:center; margin-bottom:20px;">
+    <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
 
-    <input id="usuario" type="text" placeholder="Usuario"
-        style="padding:12px; width:240px; border:none; border-radius:6px; margin:5px;">
-
-    <br>
-
-    <input id="password" type="password" placeholder="Contraseña"
-        style="padding:12px; width:240px; border:none; border-radius:6px; margin:5px;">
-
-    <br><br>
-
-    <button onclick="iniciarSesion()"
+    <button onclick="cerrarSesion()" 
         style="
-            padding:12px 20px;
+            padding:10px 20px;
             background:white;
             color:#007bff;
             border:none;
-            border-radius:6px;
+            border-radius:5px;
             cursor:pointer;
             font-size:16px;
             font-weight:bold;
             text-transform:uppercase;
         ">
-        Ingresar
+        Cerrar sesión
     </button>
+</div>
+
+<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
+
+
+<!-- MÉTRICAS PRINCIPALES -->
+<h3>Resumen General</h3>
+
+<div style="margin-top:20px; font-size:18px;">
+
+    <p><strong>Total de Clientes:</strong> <span id="dash-clientes"></span></p>
+
+    <p><strong>Productos Activos:</strong> <span id="dash-productos"></span></p>
+
+    <p><strong>Total de Ventas:</strong> <span id="dash-ventas"></span></p>
+
+    <p><strong>Facturación Total:</strong> $<span id="dash-facturacion"></span></p>
 
 </div>
 
+<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
+
+
+<!-- ÚLTIMAS VENTAS -->
+<h3>Últimas Ventas</h3>
+
+<div id="dash-ultimas" style="margin-top:10px;"></div>
+
+
+<!-- BOTÓN VOLVER AL MENÚ -->
+<button onclick="location.href='menu.html'"
+    style="
+        margin-top:30px;
+        padding:12px 20px;
+        background:white;
+        color:#007bff;
+        border:none;
+        border-radius:6px;
+        cursor:pointer;
+        font-size:16px;
+        font-weight:bold;
+        text-transform:uppercase;
+    ">
+    Volver al Menú
+</button>
+
+
 <script src="script.js"></script>
+
+<script>
+    verificarSesion();
+    aplicarPermisos();
+    document.getElementById("usuario-log").textContent = localStorage.getItem("usuario");
+
+    // Cargar datos
+    const clientes = obtenerClientes();
+    const productos = obtenerProductos().filter(p => p.estado === "Activo");
+    const ventas = obtenerVentas();
+
+    // Métricas
+    document.getElementById("dash-clientes").textContent = clientes.length;
+    document.getElementById("dash-productos").textContent = productos.length;
+    document.getElementById("dash-ventas").textContent = ventas.length;
+
+    const totalFacturado = ventas.reduce((t, v) => t + v.total, 0);
+    document.getElementById("dash-facturacion").textContent = totalFacturado;
+
+    // Últimas ventas
+    const ultimas = ventas.slice(-5).reverse();
+    const cont = document.getElementById("dash-ultimas");
+
+    if (ultimas.length === 0) {
+        cont.innerHTML = "<p>No hay ventas registradas.</p>";
+    } else {
+        cont.innerHTML = ultimas.map(v => {
+            const fecha = new Date(v.id).toLocaleDateString();
+            return `
+                <div style='margin-bottom:10px;'>
+                    <strong>${fecha}</strong> - ${v.cliente} - $${v.total}
+                </div>
+            `;
+        }).join("");
+    }
+</script>
 
 </body>
 </html>
