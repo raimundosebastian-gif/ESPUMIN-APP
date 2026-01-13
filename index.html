@@ -1,20 +1,29 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>ESPUMIN - Inicio</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>ESPUMIN APP - Inicio</title>
 </head>
+
 <body>
 
-  <!-- Banner fijo -->
-  <div id="header-container"></div>
+<div style="padding: 30px; text-align: center; background: #007bff; color: white;">
+    <h1>ESPUMIN APP</h1>
+    <p>Bienvenido</p>
 
-  <main>
-    <h2>Inicio</h2>
-    <p>Bienvenido a ESPUMIN APP.</p>
-  </main>
+    <div style="margin-top: 20px;">
+        <input id="usuario" type="text" placeholder="Usuario" style="margin:5px; padding:8px; width:200px;"><br>
+        <input id="password" type="password" placeholder="Contraseña" style="margin:5px; padding:8px; width:200px;"><br>
 
-  <script src="app.js"></script>
+        <button onclick="loginEmpleado()" style="padding:8px 20px;">Ingresar</button>
+
+        <p id="login-error" style="color:red; display:none; margin-top:10px;">
+            Usuario o contraseña incorrectos
+        </p>
+    </div>
+</div>
+
+<script src="script.js"></script>
+
 </body>
 </html>
