@@ -90,17 +90,32 @@
 <div id="lista-clientes" style="margin-top:10px;"></div>
 
 
+<!-- BOTÓN VOLVER AL MENÚ -->
+<button onclick="location.href='menu.html'"
+    style="
+        margin-top:30px;
+        padding:12px 20px;
+        background:white;
+        color:#007bff;
+        border:none;
+        border-radius:6px;
+        cursor:pointer;
+        font-size:16px;
+        font-weight:bold;
+        text-transform:uppercase;
+    ">
+    Volver al Menú
+</button>
+
+
 <script src="script.js"></script>
 
 <script>
     verificarSesion();
     aplicarPermisos();
-
     document.getElementById("usuario-log").textContent = localStorage.getItem("usuario");
-
     mostrarClientes();
 </script>
 
 </body>
 </html>
-
