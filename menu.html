@@ -14,23 +14,21 @@
     text-align: center;
 ">
 
+<!-- 🔐 Protección del menú -->
 <script>
-    /* 🔐 Protección del menú */
-    if (!localStorage.getItem("loggedUser")) {
-        window.location.href = "index.html";
-    }
+    const usuario = localStorage.getItem("loggedUser");
 
-    /* 🚪 Logout */
-    function cerrarSesion() {
-        localStorage.removeItem("loggedUser");
+    if (!usuario) {
         window.location.href = "index.html";
     }
 </script>
 
 <h2>MENÚ PRINCIPAL</h2>
 
+<!-- 👤 Mostrar usuario logueado -->
 <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
 
+<!-- 🚪 Botón de cierre de sesión -->
 <button onclick="cerrarSesion()" 
     style="
         padding:10px 20px;
@@ -50,7 +48,7 @@
 <hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
 
 
-<!-- OPCIONES PARA TODOS -->
+<!-- OPCIONES PARA TODOS LOS USUARIOS -->
 <div>
     <button onclick="location.href='clientes.html'"
         style="padding:12px 20px; background:white; color:#007bff; border:none; border-radius:6px; cursor:pointer; font-size:16px; font-weight:bold; margin:10px;">
@@ -69,7 +67,7 @@
 </div>
 
 
-<!-- SOLO ADMIN -->
+<!-- OPCIONES SOLO ADMIN (estructura lista para roles futuros) -->
 <div class="solo-admin" style="margin-top:30px;">
     <h3>Opciones de Administrador</h3>
 
@@ -95,15 +93,15 @@
 </div>
 
 
-<script src="script.js"></script>
-
+<!-- 🚪 Función de logout -->
 <script>
-    /* Mostrar usuario logueado */
-    document.getElementById("usuario-log").textContent = localStorage.getItem("loggedUser");
+    function cerrarSesion() {
+        localStorage.removeItem("loggedUser");
+        window.location.href = "index.html";
+    }
 
-    /* Mantengo tus funciones si las usás internamente */
-    if (typeof verificarSesion === "function") verificarSesion();
-    if (typeof aplicarPermisos === "function") aplicarPermisos();
+    // Mostrar usuario logueado
+    document.getElementById("usuario-log").textContent = usuario;
 </script>
 
 </body>
