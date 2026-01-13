@@ -22,7 +22,6 @@
         window.location.href = "index.html";
     }
 
-    // Solo admin puede entrar
     if (rol !== "admin") {
         alert("Acceso restringido: solo administradores");
         window.location.href = "menu.html";
@@ -32,6 +31,12 @@
         localStorage.removeItem("loggedUser");
         localStorage.removeItem("userRole");
         window.location.href = "index.html";
+    }
+
+    // Capitalizar automáticamente
+    function capitalizar(texto) {
+        if (!texto) return "";
+        return texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase();
     }
 </script>
 
@@ -59,11 +64,12 @@
 <hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
 
 
-<!-- SOLO ADMIN -->
-<div class="solo-admin">
+<!-- FORMULARIO NUEVO PRODUCTO -->
+<div>
     <h3>Nuevo Producto</h3>
 
     <input id="prod-nombre" type="text" placeholder="Nombre"
+        onblur="this.value = capitalizar(this.value)"
         style="padding:10px; width:220px; border:none; border-radius:5px; margin:5px;">
 
     <input id="prod-precio" type="number" placeholder="Precio"
@@ -103,6 +109,17 @@
 
 <h3>Listado de Productos</h3>
 
+<!-- 🔍 BUSCADOR -->
+<input id="buscar-producto" type="text" placeholder="Buscar..."
+    onkeyup="buscarProductos()"
+    style="
+        padding:10px;
+        width:260px;
+        border:none;
+        border-radius:5px;
+        margin-bottom:15px;
+    ">
+
 <div id="lista-productos" style="margin-top:10px;"></div>
 
 
@@ -127,10 +144,8 @@
 <script src="script.js"></script>
 
 <script>
-    // Mostrar usuario logueado
     document.getElementById("usuario-log").textContent = usuario;
 
-    // Cargar listado si existe la función
     if (typeof mostrarProductos === "function") mostrarProductos();
 </script>
 
