@@ -192,5 +192,21 @@ function editarCliente(id) {
 
 
 // =========================
-// EL RESTO DEL SISTEMA SIGUE IGUAL
+// REINICIAR CLIENTES
 // =========================
+
+function reiniciarClientes() {
+    if (!confirm("¿Seguro que querés borrar todos los clientes y cargar los de ejemplo?")) return;
+
+    const clientesEjemplo = [
+        { id: Date.now(), nombre: "Juan", apellido: "Pérez", telefono: "1145678901" },
+        { id: Date.now() + 1, nombre: "María", apellido: "López", telefono: "1178901234" }
+    ];
+
+    localStorage.setItem("clientes", JSON.stringify(clientesEjemplo));
+    localStorage.removeItem("clienteEditando");
+
+    mostrarClientes();
+
+    alert("Clientes reiniciados correctamente.");
+}
