@@ -13,6 +13,19 @@
     color: white;
 ">
 
+<script>
+    /* 🔐 Protección de acceso */
+    if (!localStorage.getItem("loggedUser")) {
+        window.location.href = "index.html";
+    }
+
+    /* 🚪 Logout */
+    function cerrarSesion() {
+        localStorage.removeItem("loggedUser");
+        window.location.href = "index.html";
+    }
+</script>
+
 <h2 style="text-align:center;">VENTAS</h2>
 
 <div style="text-align:center; margin-bottom:20px;">
@@ -107,12 +120,16 @@
 <script src="script.js"></script>
 
 <script>
-    verificarSesion();
-    aplicarPermisos();
-    document.getElementById("usuario-log").textContent = localStorage.getItem("usuario");
+    /* Mostrar usuario logueado */
+    document.getElementById("usuario-log").textContent = localStorage.getItem("loggedUser");
 
-    cargarClientesEnVentas();
-    cargarProductosEnVentas();
+    /* Mantengo tus funciones si existen */
+    if (typeof verificarSesion === "function") verificarSesion();
+    if (typeof aplicarPermisos === "function") aplicarPermisos();
+
+    /* Cargar datos del formulario */
+    if (typeof cargarClientesEnVentas === "function") cargarClientesEnVentas();
+    if (typeof cargarProductosEnVentas === "function") cargarProductosEnVentas();
 </script>
 
 </body>
