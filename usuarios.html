@@ -2,12 +2,18 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Gestión de Usuarios</title>
+    <title>ESPUMIN APP - Usuarios</title>
 </head>
 
-<body style="font-family: Arial; padding: 20px;">
+<body style="
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #007bff, #00c851);
+    color: white;
+">
 
-<!-- Protección -->
+<!-- 🔐 Protección de acceso + rol -->
 <script>
     const usuario = localStorage.getItem("loggedUser");
     const rol = localStorage.getItem("userRole");
@@ -20,82 +26,124 @@
         alert("Acceso restringido: solo administradores");
         window.location.href = "menu.html";
     }
+
+    function cerrarSesion() {
+        localStorage.removeItem("loggedUser");
+        localStorage.removeItem("userRole");
+        window.location.href = "index.html";
+    }
 </script>
 
-<h2>Gestión de Usuarios</h2>
+<h2 style="text-align:center;">USUARIOS</h2>
 
-<div>
-    <h3>Crear Usuario</h3>
-    <input type="text" id="nuevoUser" placeholder="Usuario">
-    <input type="password" id="nuevoPass" placeholder="Contraseña">
-    <select id="nuevoRol">
-        <option value="operador">Operador</option>
-        <option value="admin">Administrador</option>
-    </select>
-    <button onclick="crearUsuario()">Crear</button>
+<div style="text-align:center; margin-bottom:20px;">
+    <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
+
+    <button onclick="cerrarSesion()" 
+        style="
+            padding:10px 20px;
+            background:white;
+            color:#007bff;
+            border:none;
+            border-radius:5px;
+            cursor:pointer;
+            font-size:16px;
+            font-weight:bold;
+            text-transform:uppercase;
+        ">
+        Cerrar sesión
+    </button>
 </div>
 
-<hr>
+<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
 
-<h3>Usuarios Registrados</h3>
-<table border="1" cellpadding="8">
-    <thead>
-        <tr>
-            <th>Usuario</th>
-            <th>Rol</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody id="tablaUsuarios"></tbody>
-</table>
+
+<!-- FORMULARIO NUEVO USUARIO -->
+<div>
+    <h3>Nuevo Usuario</h3>
+
+    <input id="user-nombre" type="text" placeholder="Nombre completo"
+        style="padding:10px; width:260px; border:none; border-radius:5px; margin:5px;">
+
+    <input id="user-usuario" type="text" placeholder="Usuario"
+        style="padding:10px; width:260px; border:none; border-radius:5px; margin:5px;">
+
+    <input id="user-pass" type="text" placeholder="Contraseña"
+        style="padding:10px; width:260px; border:none; border-radius:5px; margin:5px;">
+
+    <select id="user-rol"
+        style="padding:10px; width:260px; border:none; border-radius:5px; margin:5px;">
+        <option value="admin">Administrador</option>
+        <option value="operador">Operador</option>
+        <option value="cajero">Cajero</option>
+        <option value="supervisor">Supervisor</option>
+    </select>
+
+    <select id="user-estado"
+        style="padding:10px; width:260px; border:none; border-radius:5px; margin:5px;">
+        <option value="Activo">Activo</option>
+        <option value="Inactivo">Inactivo</option>
+    </select>
+
+    <button onclick="guardarUsuario()" 
+        style="
+            padding:12px 20px;
+            background:white;
+            color:#00c851;
+            border:none;
+            border-radius:6px;
+            cursor:pointer;
+            font-size:16px;
+            font-weight:bold;
+            text-transform:uppercase;
+        ">
+        Guardar
+    </button>
+</div>
+
+<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
+
+
+<h3>Listado de Usuarios</h3>
+
+<!-- 🔍 BUSCADOR -->
+<input id="buscar-usuario" type="text" placeholder="Buscar..."
+    onkeyup="buscarUsuarios()"
+    style="
+        padding:10px;
+        width:260px;
+        border:none;
+        border-radius:5px;
+        margin-bottom:15px;
+    ">
+
+<div id="lista-usuarios" style="margin-top:10px;"></div>
+
+
+<!-- BOTÓN VOLVER AL MENÚ -->
+<button onclick="location.href='menu.html'"
+    style="
+        margin-top:30px;
+        padding:12px 20px;
+        background:white;
+        color:#007bff;
+        border:none;
+        border-radius:6px;
+        cursor:pointer;
+        font-size:16px;
+        font-weight:bold;
+        text-transform:uppercase;
+    ">
+    Volver al Menú
+</button>
+
+
+<script src="script.js?v=2"></script>
 
 <script>
-    function cargarUsuarios() {
-        const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
-        const tabla = document.getElementById("tablaUsuarios");
-        tabla.innerHTML = "";
+    document.getElementById("usuario-log").textContent = usuario;
 
-        usuarios.forEach((u, i) => {
-            tabla.innerHTML += `
-                <tr>
-                    <td>${u.username}</td>
-                    <td>${u.role}</td>
-                    <td>
-                        <button onclick="eliminarUsuario(${i})">Eliminar</button>
-                    </td>
-                </tr>
-            `;
-        });
-    }
-
-    function crearUsuario() {
-        const username = document.getElementById("nuevoUser").value.trim();
-        const password = document.getElementById("nuevoPass").value.trim();
-        const role = document.getElementById("nuevoRol").value;
-
-        if (!username || !password) {
-            alert("Complete todos los campos");
-            return;
-        }
-
-        const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
-
-        usuarios.push({ username, password, role });
-
-        localStorage.setItem("usuarios", JSON.stringify(usuarios));
-
-        cargarUsuarios();
-        alert("Usuario creado");
-    }
-
-    function eliminarUsuario(i) {
-        const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
-        usuarios.splice(i, 1);
-        localStorage.setItem("usuarios", JSON.stringify(usuarios));
-        cargarUsuarios();
-    }
-
-    cargarUsuarios();
+    if (typeof mostrarUsuarios === "function") mostrarUsuarios();
 </script>
 
 </body>
