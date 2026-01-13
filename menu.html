@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>ESPUMIN APP - Menú</title>
+    <title>ESPUMIN APP - Menú Principal</title>
 </head>
 
 <body>
@@ -15,13 +15,22 @@
 
 <hr>
 
-<!-- Visible solo para admin -->
-<button class="solo-admin">Configurar Precios</button>
+<!-- Opciones visibles para todos -->
+<h3>Operaciones</h3>
+<button onclick="location.href='ventas.html'">Ventas</button>
+<button onclick="location.href='clientes.html'">Clientes</button>
+<button onclick="location.href='productos.html'">Productos</button>
+<button onclick="location.href='historial.html'">Historial por Cliente</button>
+<button onclick="location.href='reportes.html'">Reportes</button>
 
-<!-- Visible para todos -->
-<button>Ventas</button>
-<button>Clientes</button>
-<button>Productos</button>
+<hr>
+
+<!-- Opciones solo para admin -->
+<div class="solo-admin">
+    <h3>Administración</h3>
+    <button onclick="location.href='precios.html'">Gestión de Precios</button>
+    <button onclick="location.href='dashboard.html'">Dashboard Admin</button>
+</div>
 
 <script src="script.js"></script>
 
