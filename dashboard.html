@@ -1,142 +1,107 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>ESPUMIN APP - Dashboard</title>
-</head>
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
 
-<body style="
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
-    background: linear-gradient(135deg, #007bff, #00c851);
-    color: white;
-">
-
-<!-- 🔐 Protección de acceso + rol -->
-<script>
-    const usuario = localStorage.getItem("loggedUser");
-    const rol = localStorage.getItem("userRole");
-
-    if (!usuario) {
-        window.location.href = "index.html";
-    }
-
-    // Solo admin puede entrar
-    if (rol !== "admin") {
-        alert("Acceso restringido: solo administradores");
-        window.location.href = "menu.html";
-    }
-
-    function cerrarSesion() {
-        localStorage.removeItem("loggedUser");
-        localStorage.removeItem("userRole");
-        window.location.href = "index.html";
-    }
-</script>
-
-<h2 style="text-align:center;">DASHBOARD ADMIN</h2>
-
-<div style="text-align:center; margin-bottom:20px;">
-    <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
-
-    <button onclick="cerrarSesion()" 
-        style="
-            padding:10px 20px;
-            background:white;
-            color:#007bff;
-            border:none;
-            border-radius:5px;
-            cursor:pointer;
-            font-size:16px;
-            font-weight:bold;
-            text-transform:uppercase;
-        ">
-        Cerrar sesión
-    </button>
-</div>
-
-<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
-
-
-<!-- MÉTRICAS PRINCIPALES -->
-<h3>Resumen General</h3>
-
-<div style="margin-top:20px; font-size:18px;">
-
-    <p><strong>Total de Clientes:</strong> <span id="dash-clientes"></span></p>
-
-    <p><strong>Productos Activos:</strong> <span id="dash-productos"></span></p>
-
-    <p><strong>Total de Ventas:</strong> <span id="dash-ventas"></span></p>
-
-    <p><strong>Facturación Total:</strong> $<span id="dash-facturacion"></span></p>
-
-</div>
-
-<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
-
-
-<!-- ÚLTIMAS VENTAS -->
-<h3>Últimas Ventas</h3>
-
-<div id="dash-ultimas" style="margin-top:10px;"></div>
-
-
-<!-- BOTÓN VOLVER AL MENÚ -->
-<button onclick="location.href='menu.html'"
-    style="
-        margin-top:30px;
-        padding:12px 20px;
-        background:white;
-        color:#007bff;
-        border:none;
-        border-radius:6px;
-        cursor:pointer;
-        font-size:16px;
-        font-weight:bold;
-        text-transform:uppercase;
-    ">
-    Volver al Menú
-</button>
-
-
-<script src="script.js"></script>
-
-<script>
-    // Mostrar usuario logueado
-    document.getElementById("usuario-log").textContent = usuario;
-
-    // Cargar datos
-    const clientes = obtenerClientes();
-    const productos = obtenerProductos().filter(p => p.estado === "Activo");
+function calcularVentasHoy() {
     const ventas = obtenerVentas();
+    const hoy = new Date().toLocaleDateString();
 
-    // Métricas
-    document.getElementById("dash-clientes").textContent = clientes.length;
-    document.getElementById("dash-productos").textContent = productos.length;
-    document.getElementById("dash-ventas").textContent = ventas.length;
+    const ventasHoy = ventas.filter(v =>
+        new Date(v.id).toLocaleDateString() === hoy
+    );
 
-    const totalFacturado = ventas.reduce((t, v) => t + v.total, 0);
-    document.getElementById("dash-facturacion").textContent = totalFacturado;
+    const total = ventasHoy.reduce((t, v) => t + v.total, 0);
+
+    return { total, cantidad: ventasHoy.length };
+}
+
+function calcularVentasMes() {
+    const ventas = obtenerVentas();
+    const ahora = new Date();
+    const mes = ahora.getMonth();
+    const anio = ahora.getFullYear();
+
+    const ventasMes = ventas.filter(v => {
+        const f = new Date(v.id);
+        return f.getMonth() === mes && f.getFullYear() === anio;
+    });
+
+    const total = ventasMes.reduce((t, v) => t + v.total, 0);
+
+    return { total, cantidad: ventasMes.length };
+}
+
+function obtenerTopProductos() {
+    const ventas = obtenerVentas();
+    const conteo = {};
+
+    ventas.forEach(v => {
+        v.items.forEach(i => {
+            if (!conteo[i.producto]) conteo[i.producto] = { cantidad: 0, total: 0 };
+            conteo[i.producto].cantidad += i.cantidad;
+            conteo[i.producto].total += i.subtotal;
+        });
+    });
+
+    return Object.entries(conteo)
+        .map(([producto, datos]) => ({ producto, ...datos }))
+        .sort((a, b) => b.cantidad - a.cantidad)
+        .slice(0, 5);
+}
+
+function obtenerUltimasVentas() {
+    return obtenerVentas()
+        .sort((a, b) => b.id - a.id)
+        .slice(0, 5);
+}
+
+function contarClientes() {
+    return obtenerClientes().length;
+}
+
+function contarProductosActivos() {
+    return obtenerProductos().filter(p => p.estado === "Activo").length;
+}
+
+function cargarDashboard() {
+    // Ventas hoy
+    const hoy = calcularVentasHoy();
+    document.getElementById("ventas-hoy").innerHTML =
+        `$${hoy.total} — ${hoy.cantidad} ventas`;
+
+    // Ventas mes
+    const mes = calcularVentasMes();
+    document.getElementById("ventas-mes").innerHTML =
+        `$${mes.total} — ${mes.cantidad} ventas`;
+
+    // Clientes
+    document.getElementById("clientes-activos").innerHTML =
+        contarClientes();
+
+    // Productos activos
+    document.getElementById("productos-activos").innerHTML =
+        contarProductosActivos();
+
+    // Top productos
+    const top = obtenerTopProductos();
+    document.getElementById("top-productos").innerHTML =
+        top.length === 0
+            ? "<p>No hay ventas registradas.</p>"
+            : top.map(t => `
+                <div style="margin-bottom:10px;">
+                    <strong>${t.producto}</strong> — ${t.cantidad} unidades — $${t.total}
+                </div>
+            `).join("");
 
     // Últimas ventas
-    const ultimas = ventas.slice(-5).reverse();
-    const cont = document.getElementById("dash-ultimas");
-
-    if (ultimas.length === 0) {
-        cont.innerHTML = "<p>No hay ventas registradas.</p>";
-    } else {
-        cont.innerHTML = ultimas.map(v => {
-            const fecha = new Date(v.id).toLocaleDateString();
-            return `
-                <div style='margin-bottom:10px;'>
-                    <strong>${fecha}</strong> - ${v.cliente} - $${v.total}
+    const ult = obtenerUltimasVentas();
+    document.getElementById("ultimas-ventas").innerHTML =
+        ult.length === 0
+            ? "<p>No hay ventas registradas.</p>"
+            : ult.map(v => `
+                <div style="margin-bottom:10px;">
+                    <strong>${new Date(v.id).toLocaleDateString()}</strong> —
+                    ${v.cliente} — $${v.total}
                 </div>
-            `;
-        }).join("");
-    }
-</script>
-
-</body>
-</html>
+            `).join("");
+}
