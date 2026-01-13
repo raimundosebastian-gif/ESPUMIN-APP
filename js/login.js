@@ -4,21 +4,24 @@ document.getElementById("loginForm").addEventListener("submit", function(e) {
     const user = document.getElementById("username").value.trim();
     const pass = document.getElementById("password").value.trim();
 
-    // 🔐 Usuarios con roles
-    const validUsers = [
+    // Usuarios fijos
+    const baseUsers = [
         { username: "admin", password: "1234", role: "admin" },
         { username: "mena", password: "espumin", role: "operador" }
     ];
+
+    // Usuarios creados desde la app
+    const storedUsers = JSON.parse(localStorage.getItem("usuarios")) || [];
+
+    // Unimos ambas listas
+    const validUsers = [...baseUsers, ...storedUsers];
 
     // Buscar usuario válido
     const found = validUsers.find(u => u.username === user && u.password === pass);
 
     if (found) {
-        // Guardar sesión completa
         localStorage.setItem("loggedUser", found.username);
         localStorage.setItem("userRole", found.role);
-
-        // Redirigir al menú principal
         window.location.href = "menu.html";
     } else {
         document.getElementById("loginError").style.display = "block";
