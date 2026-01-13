@@ -13,6 +13,19 @@
     color: white;
 ">
 
+<script>
+    /* 🔐 Protección del dashboard */
+    if (!localStorage.getItem("loggedUser")) {
+        window.location.href = "index.html";
+    }
+
+    /* 🚪 Logout */
+    function cerrarSesion() {
+        localStorage.removeItem("loggedUser");
+        window.location.href = "index.html";
+    }
+</script>
+
 <h2 style="text-align:center;">DASHBOARD ADMIN</h2>
 
 <div style="text-align:center; margin-bottom:20px;">
@@ -82,9 +95,8 @@
 <script src="script.js"></script>
 
 <script>
-    verificarSesion();
-    aplicarPermisos();
-    document.getElementById("usuario-log").textContent = localStorage.getItem("usuario");
+    /* Mostrar usuario logueado */
+    document.getElementById("usuario-log").textContent = localStorage.getItem("loggedUser");
 
     // Cargar datos
     const clientes = obtenerClientes();
