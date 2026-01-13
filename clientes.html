@@ -1,84 +1,50 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Clientes</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>ESPUMIN APP - Clientes</title>
 </head>
+
 <body>
 
-  <div id="header-container"></div>
+<h2>Módulo de Clientes</h2>
 
-  <main class="contenedor">
+<p>Usuario: <span id="usuario-log"></span></p>
 
-    <h2>Clientes</h2>
+<button onclick="cerrarSesion()">Cerrar sesión</button>
 
-    <!-- Búsqueda -->
-    <div class="card">
-      <input type="text" id="buscarCliente" placeholder="Buscar cliente..." class="input-buscar">
-    </div>
+<hr>
 
-    <!-- Formulario -->
-    <div class="card">
-      <h3>Agregar Cliente</h3>
+<!-- Opciones visibles solo para admin -->
+<div class="solo-admin">
+    <h3>Administración de Clientes</h3>
 
-      <form id="formCliente" class="form">
+    <button onclick="nuevoCliente()">Nuevo Cliente</button>
+</div>
 
-        <label>Nombre:</label>
-        <input type="text" id="nombreCliente" required>
+<hr>
 
-        <label>Teléfono (10 dígitos):</label>
-        <input type="text" id="telefonoCliente" required>
+<h3>Listado de Clientes</h3>
 
-        <label>Dirección:</label>
-        <input type="text" id="direccionCliente">
+<div id="lista-clientes">
+    <!-- Aquí se mostrarán los clientes -->
+</div>
 
-        <label>Email:</label>
-        <input type="email" id="emailCliente">
+<script src="script.js"></script>
 
-        <label>Tipo de cliente:</label>
-        <select id="tipoCliente" required>
-          <option value="">Seleccionar...</option>
-          <option value="Particular">Particular</option>
-          <option value="Empresa">Empresa</option>
-        </select>
+<script>
+    // Proteger la página
+    verificarSesion();
+    aplicarPermisos();
 
-        <label>CUIT (opcional):</label>
-        <input type="text" id="cuitCliente">
+    // Mostrar usuario logueado
+    document.getElementById("usuario-log").textContent = localStorage.getItem("usuario");
 
-        <label>Observaciones:</label>
-        <textarea id="obsCliente"></textarea>
+    // Función placeholder para crear cliente
+    function nuevoCliente() {
+        alert("Función para crear cliente (aún no implementada)");
+    }
+</script>
 
-        <button type="submit">Agregar Cliente</button>
-      </form>
-    </div>
-
-    <!-- Tabla -->
-    <div class="card">
-      <h3>Listado de Clientes</h3>
-
-      <table class="tabla">
-        <thead>
-          <tr>
-            <th onclick="ordenarPorNombre()" style="cursor:pointer">Nombre ⬍</th>
-            <th>Teléfono</th>
-            <th>Dirección</th>
-            <th>Email</th>
-            <th>Tipo</th>
-            <th>CUIT</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody id="listaClientes"></tbody>
-      </table>
-
-      <button onclick="exportarClientes()" class="btn-exportar">Exportar a Excel</button>
-      <button onclick="borrarTodo()" class="btn-borrar-todo">Borrar todos los clientes</button>
-    </div>
-
-  </main>
-
-  <script src="app.js"></script>
-  <script src="clientes.js"></script>
 </body>
 </html>
