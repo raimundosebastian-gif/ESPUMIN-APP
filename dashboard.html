@@ -2,56 +2,119 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>ESPUMIN APP - Dashboard Admin</title>
+    <title>ESPUMIN APP - Dashboard</title>
 </head>
 
-<body>
+<body style="
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #007bff, #00c851);
+    color: white;
+">
 
-<h2>Dashboard Administrador</h2>
+<h2 style="text-align:center;">DASHBOARD ADMIN</h2>
 
-<p>Usuario: <span id="usuario-log"></span></p>
+<div style="text-align:center; margin-bottom:20px;">
+    <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
 
-<button onclick="cerrarSesion()">Cerrar sesión</button>
+    <button onclick="cerrarSesion()" 
+        style="
+            padding:10px 20px;
+            background:white;
+            color:#007bff;
+            border:none;
+            border-radius:5px;
+            cursor:pointer;
+            font-size:16px;
+            font-weight:bold;
+            text-transform:uppercase;
+        ">
+        Cerrar sesión
+    </button>
+</div>
 
-<hr>
+<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
 
-<!-- Solo admin puede ver el dashboard -->
-<div class="solo-admin">
 
-    <h3>Resumen General</h3>
+<!-- MÉTRICAS PRINCIPALES -->
+<h3>Resumen General</h3>
 
-    <p>Total de Clientes: <span id="dash-clientes">0</span></p>
-    <p>Total de Productos: <span id="dash-productos">0</span></p>
-    <p>Total de Ventas: <span id="dash-ventas">0</span></p>
-    <p>Total Facturado: $<span id="dash-facturado">0</span></p>
+<div style="margin-top:20px; font-size:18px;">
 
-    <hr>
+    <p><strong>Total de Clientes:</strong> <span id="dash-clientes"></span></p>
 
-    <h3>Accesos Directos</h3>
+    <p><strong>Productos Activos:</strong> <span id="dash-productos"></span></p>
 
-    <button onclick="location.href='clientes.html'">Clientes</button>
-    <button onclick="location.href='productos.html'">Productos</button>
-    <button onclick="location.href='ventas.html'">Ventas</button>
-    <button onclick="location.href='precios.html'">Gestión de Precios</button>
-    <button onclick="location.href='reportes.html'">Reportes</button>
-    <button onclick="location.href='historial.html'">Historial por Cliente</button>
+    <p><strong>Total de Ventas:</strong> <span id="dash-ventas"></span></p>
+
+    <p><strong>Facturación Total:</strong> $<span id="dash-facturacion"></span></p>
 
 </div>
 
-<!-- Mensaje si un empleado intenta entrar -->
-<div class="solo-empleado" style="display:none;">
-    <p>No tienes permisos para acceder al Dashboard.</p>
-</div>
+<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
+
+
+<!-- ÚLTIMAS VENTAS -->
+<h3>Últimas Ventas</h3>
+
+<div id="dash-ultimas" style="margin-top:10px;"></div>
+
+
+<!-- BOTÓN VOLVER AL MENÚ -->
+<button onclick="location.href='menu.html'"
+    style="
+        margin-top:30px;
+        padding:12px 20px;
+        background:white;
+        color:#007bff;
+        border:none;
+        border-radius:6px;
+        cursor:pointer;
+        font-size:16px;
+        font-weight:bold;
+        text-transform:uppercase;
+    ">
+    Volver al Menú
+</button>
+
 
 <script src="script.js"></script>
 
 <script>
     verificarSesion();
     aplicarPermisos();
-
     document.getElementById("usuario-log").textContent = localStorage.getItem("usuario");
 
-    cargarDashboard();
+    // Cargar datos
+    const clientes = obtenerClientes();
+    const productos = obtenerProductos().filter(p => p.estado === "Activo");
+    const ventas = obtenerVentas();
+
+    // Métricas
+    document.getElementById("dash-clientes").textContent = clientes.length;
+    document.getElementById("dash-productos").textContent = productos.length;
+    document.getElementById("dash-ventas").textContent = ventas.length;
+
+    const totalFacturado = ventas.reduce((t, v) => t + v.total, 0);
+    document.getElementById("dash-facturacion").textContent = totalFacturado;
+
+    // Últimas ventas
+    const ultimas = ventas.slice(-5).reverse();
+    const cont = document.getElementById("dash-ultimas");
+
+    if (ultimas.length === 0) {
+        cont.innerHTML = "<p>No hay ventas registradas.</p>";
+    } else {
+        cont.innerHTML = ultimas.map(v => {
+            const fecha = new Date(v.id).toLocaleDateString();
+            return `
+                <div style='margin-bottom:10px;'>
+                    <strong>${fecha}</strong> - ${v.cliente} - $${v.total}
+                </div>
+            `;
+        }).join("");
+    }
 </script>
 
 </body>
