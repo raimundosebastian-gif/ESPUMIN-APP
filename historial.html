@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>ESPUMIN APP - Menú Principal</title>
+    <title>ESPUMIN APP - Historial por Cliente</title>
 </head>
 
 <body style="
@@ -14,7 +14,20 @@
     text-align: center;
 ">
 
-<h2>MENÚ PRINCIPAL</h2>
+<script>
+    /* 🔐 Protección de acceso */
+    if (!localStorage.getItem("loggedUser")) {
+        window.location.href = "index.html";
+    }
+
+    /* 🚪 Logout */
+    function cerrarSesion() {
+        localStorage.removeItem("loggedUser");
+        window.location.href = "index.html";
+    }
+</script>
+
+<h2>HISTORIAL POR CLIENTE</h2>
 
 <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
 
@@ -37,57 +50,68 @@
 <hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
 
 
-<!-- OPCIONES PARA TODOS -->
-<div>
-    <button onclick="location.href='clientes.html'"
-        style="padding:12px 20px; background:white; color:#007bff; border:none; border-radius:6px; cursor:pointer; font-size:16px; font-weight:bold; margin:10px;">
-        Clientes
-    </button>
+<!-- SELECCIÓN DE CLIENTE -->
+<h3>Seleccionar Cliente</h3>
 
-    <button onclick="location.href='ventas.html'"
-        style="padding:12px 20px; background:white; color:#007bff; border:none; border-radius:6px; cursor:pointer; font-size:16px; font-weight:bold; margin:10px;">
-        Ventas
-    </button>
+<select id="historial-cliente"
+    style="padding:10px; width:260px; border:none; border-radius:5px; margin:5px;">
+</select>
 
-    <button onclick="location.href='historial.html'"
-        style="padding:12px 20px; background:white; color:#007bff; border:none; border-radius:6px; cursor:pointer; font-size:16px; font-weight:bold; margin:10px;">
-        Historial por Cliente
-    </button>
-</div>
+<button onclick="mostrarHistorialCliente()"
+    style="
+        padding:12px 20px;
+        background:white;
+        color:#00c851;
+        border:none;
+        border-radius:6px;
+        cursor:pointer;
+        font-size:16px;
+        font-weight:bold;
+        text-transform:uppercase;
+        margin-top:10px;
+    ">
+    Ver Historial
+</button>
+
+<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 20px;">
 
 
-<!-- SOLO ADMIN -->
-<div class="solo-admin" style="margin-top:30px;">
-    <h3>Opciones de Administrador</h3>
+<!-- RESULTADOS -->
+<h3>Ventas del Cliente</h3>
 
-    <button onclick="location.href='productos.html'"
-        style="padding:12px 20px; background:white; color:#00c851; border:none; border-radius:6px; cursor:pointer; font-size:16px; font-weight:bold; margin:10px;">
-        Productos
-    </button>
+<div id="lista-historial" style="margin-top:10px; text-align:left;"></div>
 
-    <button onclick="location.href='precios.html'"
-        style="padding:12px 20px; background:white; color:#00c851; border:none; border-radius:6px; cursor:pointer; font-size:16px; font-weight:bold; margin:10px;">
-        Precios
-    </button>
 
-    <button onclick="location.href='reportes.html'"
-        style="padding:12px 20px; background:white; color:#00c851; border:none; border-radius:6px; cursor:pointer; font-size:16px; font-weight:bold; margin:10px;">
-        Reportes
-    </button>
-
-    <button onclick="location.href='dashboard.html'"
-        style="padding:12px 20px; background:white; color:#00c851; border:none; border-radius:6px; cursor:pointer; font-size:16px; font-weight:bold; margin:10px;">
-        Dashboard
-    </button>
-</div>
+<!-- BOTÓN VOLVER AL MENÚ -->
+<button onclick="location.href='menu.html'"
+    style="
+        margin-top:30px;
+        padding:12px 20px;
+        background:white;
+        color:#007bff;
+        border:none;
+        border-radius:6px;
+        cursor:pointer;
+        font-size:16px;
+        font-weight:bold;
+        text-transform:uppercase;
+    ">
+    Volver al Menú
+</button>
 
 
 <script src="script.js"></script>
 
 <script>
-    verificarSesion();
-    aplicarPermisos();
-    document.getElementById("usuario-log").textContent = localStorage.getItem("usuario");
+    /* Mostrar usuario logueado */
+    document.getElementById("usuario-log").textContent = localStorage.getItem("loggedUser");
+
+    /* Mantengo tus funciones si existen */
+    if (typeof verificarSesion === "function") verificarSesion();
+    if (typeof aplicarPermisos === "function") aplicarPermisos();
+
+    /* Cargar clientes en el selector */
+    if (typeof cargarClientesEnHistorial === "function") cargarClientesEnHistorial();
 </script>
 
 </body>
