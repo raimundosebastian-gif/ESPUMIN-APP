@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>ESPUMIN APP - Menú</title>
+</head>
+
+<body>
+
+<h2>Menú Principal</h2>
+
+<p>Usuario: <span id="usuario-log"></span></p>
+
+<button onclick="cerrarSesion()">Cerrar sesión</button>
+
+<hr>
+
+<!-- Visible solo para admin -->
+<button class="solo-admin">Configurar Precios</button>
+
+<!-- Visible para todos -->
+<button>Ventas</button>
+<button>Clientes</button>
+<button>Productos</button>
+
+<script src="script.js"></script>
+
+<script>
+    verificarSesion();
+    aplicarPermisos();
+
+    document.getElementById("usuario-log").textContent = localStorage.getItem("usuario");
+</script>
+
+</body>
+</html>
