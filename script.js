@@ -340,6 +340,169 @@ function buscarProductos() {
     mostrarProductos(filtrados);
 }
 
+/* ============================================================
+   USUARIOS (ADMINISTRACIÓN COMPLETA)
+   ============================================================ */
+
+function obtenerUsuarios() {
+    return JSON.parse(localStorage.getItem("usuarios")) || [];
+}
+
+function guardarUsuarios(lista) {
+    localStorage.setItem("usuarios", JSON.stringify(lista));
+}
+
+function guardarUsuario() {
+    const nombre = document.getElementById("user-nombre").value.trim();
+    const usuario = document.getElementById("user-usuario").value.trim();
+    const pass = document.getElementById("user-pass").value.trim();
+    const rol = document.getElementById("user-rol").value;
+    const estado = document.getElementById("user-estado").value;
+
+    if (!nombre || !usuario || !pass) {
+        alert("Complete todos los campos.");
+        return;
+    }
+
+    const usuarios = obtenerUsuarios();
+
+    // ❌ Evitar duplicados por nombre de usuario
+    const existe = usuarios.some(u => u.usuario === usuario);
+    if (existe) {
+        alert("Ya existe un usuario con ese nombre.");
+        return;
+    }
+
+    usuarios.push({
+        id: Date.now(),
+        nombre,
+        usuario,
+        pass,
+        rol,
+        estado
+    });
+
+    guardarUsuarios(usuarios);
+
+    document.getElementById("user-nombre").value = "";
+    document.getElementById("user-usuario").value = "";
+    document.getElementById("user-pass").value = "";
+
+    mostrarUsuarios();
+    alert("Usuario guardado.");
+}
+
+function mostrarUsuarios(lista = null) {
+    const usuarios = lista || obtenerUsuarios();
+    const cont = document.getElementById("lista-usuarios");
+
+    if (!cont) return;
+
+    if (usuarios.length === 0) {
+        cont.innerHTML = "<p>No hay usuarios cargados.</p>";
+        return;
+    }
+
+    // Ordenar por rol → nombre
+    const ordenRoles = ["admin", "operador", "cajero", "supervisor"];
+    usuarios.sort((a, b) => {
+        const idxA = ordenRoles.indexOf(a.rol);
+        const idxB = ordenRoles.indexOf(b.rol);
+        if (idxA !== idxB) return idxA - idxB;
+        return a.nombre.localeCompare(b.nombre);
+    });
+
+    cont.innerHTML = `
+        <table style="width:100%; border-collapse:collapse; background:rgba(255,255,255,0.15); border-radius:6px;">
+            <thead>
+                <tr style="background:rgba(255,255,255,0.25);">
+                    <th style="padding:8px; text-align:left;">Nombre</th>
+                    <th style="padding:8px; text-align:left;">Usuario</th>
+                    <th style="padding:8px; text-align:left;">Rol</th>
+                    <th style="padding:8px; text-align:left;">Estado</th>
+                    <th style="padding:8px; text-align:center;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${usuarios.map(u => `
+                    <tr>
+                        <td style="padding:8px;">${u.nombre}</td>
+                        <td style="padding:8px;">${u.usuario}</td>
+                        <td style="padding:8px;">${u.rol}</td>
+                        <td style="padding:8px;">${u.estado}</td>
+                        <td style="padding:8px; text-align:center;">
+                            <button onclick="editarUsuario(${u.id})"
+                                style="padding:5px 10px; background:white; color:#007bff; border:none; border-radius:4px; cursor:pointer;">
+                                Editar
+                            </button>
+                            <button onclick="eliminarUsuario(${u.id})"
+                                style="padding:5px 10px; background:white; color:#ff4444; border:none; border-radius:4px; cursor:pointer;">
+                                Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                `).join("")}
+            </tbody>
+        </table>
+    `;
+}
+
+function eliminarUsuario(id) {
+    if (!confirm("¿Seguro que desea eliminar este usuario?")) return;
+
+    const usuarios = obtenerUsuarios().filter(u => u.id !== id);
+    guardarUsuarios(usuarios);
+    mostrarUsuarios();
+}
+
+function editarUsuario(id) {
+    const usuarios = obtenerUsuarios();
+    const u = usuarios.find(x => x.id === id);
+    if (!u) return;
+
+    let nuevoNombre = prompt("Nuevo nombre:", u.nombre);
+    let nuevoUsuario = prompt("Nuevo usuario:", u.usuario);
+    let nuevoPass = prompt("Nueva contraseña:", u.pass);
+    let nuevoRol = prompt("Rol (admin / operador / cajero / supervisor):", u.rol);
+    let nuevoEstado = prompt("Estado (Activo/Inactivo):", u.estado);
+
+    if (!nuevoNombre || !nuevoUsuario || !nuevoPass || !nuevoRol || !nuevoEstado) {
+        alert("Datos inválidos.");
+        return;
+    }
+
+    // ❌ Evitar duplicados al editar
+    const existe = usuarios.some(x =>
+        x.id !== id && x.usuario === nuevoUsuario
+    );
+    if (existe) {
+        alert("Ya existe otro usuario con ese nombre.");
+        return;
+    }
+
+    u.nombre = nuevoNombre.trim();
+    u.usuario = nuevoUsuario.trim();
+    u.pass = nuevoPass.trim();
+    u.rol = nuevoRol.trim();
+    u.estado = nuevoEstado.trim();
+
+    guardarUsuarios(usuarios);
+    mostrarUsuarios();
+}
+
+function buscarUsuarios() {
+    const texto = document.getElementById("buscar-usuario").value.toLowerCase();
+    const usuarios = obtenerUsuarios();
+
+    const filtrados = usuarios.filter(u =>
+        u.nombre.toLowerCase().includes(texto) ||
+        u.usuario.toLowerCase().includes(texto) ||
+        u.rol.toLowerCase().includes(texto) ||
+        u.estado.toLowerCase().includes(texto)
+    );
+
+    mostrarUsuarios(filtrados);
+}
 
 
 /* ============================================================
@@ -665,6 +828,7 @@ function generarReporteCliente() {
     document.getElementById("resultado-cliente").innerHTML =
         `<p>Total facturado por ${cliente.apellido}, ${cliente.nombre}: $${total}</p>`;
 }
+
 
 
 
