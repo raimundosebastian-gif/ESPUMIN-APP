@@ -5,31 +5,74 @@
     <title>ESPUMIN APP - Menú Principal</title>
 </head>
 
-<body>
+<body style="
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #007bff, #00c851);
+    color: white;
+">
 
-<h2>Menú Principal</h2>
+<h2 style="text-align:center; margin-top:10px;">Menú Principal</h2>
 
-<p>Usuario: <span id="usuario-log"></span></p>
+<div style="text-align:center; margin-bottom:20px;">
+    <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
 
-<button onclick="cerrarSesion()">Cerrar sesión</button>
+    <button onclick="cerrarSesion()" 
+        style="padding:10px 20px; background:white; color:#007bff; border:none; border-radius:5px; cursor:pointer;">
+        Cerrar sesión
+    </button>
+</div>
 
-<hr>
+<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
 
-<!-- Opciones visibles para todos -->
-<h3>Operaciones</h3>
-<button onclick="location.href='ventas.html'">Ventas</button>
-<button onclick="location.href='clientes.html'">Clientes</button>
-<button onclick="location.href='productos.html'">Productos</button>
-<button onclick="location.href='historial.html'">Historial por Cliente</button>
-<button onclick="location.href='reportes.html'">Reportes</button>
+<!-- SECCIÓN GENERAL -->
+<h3 style="color:white;">Operaciones</h3>
 
-<hr>
+<div style="display:flex; flex-direction:column; gap:12px; max-width:260px;">
+    <button onclick="location.href='ventas.html'" 
+        style="padding:12px; border:none; background:white; color:#007bff; border-radius:6px; cursor:pointer;">
+        Ventas
+    </button>
 
-<!-- Opciones solo para admin -->
+    <button onclick="location.href='clientes.html'" 
+        style="padding:12px; border:none; background:white; color:#0275d8; border-radius:6px; cursor:pointer;">
+        Clientes
+    </button>
+
+    <button onclick="location.href='productos.html'" 
+        style="padding:12px; border:none; background:white; color:#00a8a8; border-radius:6px; cursor:pointer;">
+        Productos
+    </button>
+
+    <button onclick="location.href='historial.html'" 
+        style="padding:12px; border:none; background:white; color:#00c851; border-radius:6px; cursor:pointer;">
+        Historial por Cliente
+    </button>
+
+    <button onclick="location.href='reportes.html'" 
+        style="padding:12px; border:none; background:white; color:#33b5e5; border-radius:6px; cursor:pointer;">
+        Reportes
+    </button>
+</div>
+
+<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
+
+<!-- SECCIÓN ADMIN -->
 <div class="solo-admin">
-    <h3>Administración</h3>
-    <button onclick="location.href='precios.html'">Gestión de Precios</button>
-    <button onclick="location.href='dashboard.html'">Dashboard Admin</button>
+    <h3 style="color:white;">Administración</h3>
+
+    <div style="display:flex; flex-direction:column; gap:12px; max-width:260px;">
+        <button onclick="location.href='precios.html'" 
+            style="padding:12px; border:none; background:white; color:#ff4444; border-radius:6px; cursor:pointer;">
+            Gestión de Precios
+        </button>
+
+        <button onclick="location.href='dashboard.html'" 
+            style="padding:12px; border:none; background:white; color:#cc0000; border-radius:6px; cursor:pointer;">
+            Dashboard Admin
+        </button>
+    </div>
 </div>
 
 <script src="script.js"></script>
