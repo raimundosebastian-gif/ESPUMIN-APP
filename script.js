@@ -57,12 +57,19 @@ function guardarCliente() {
     });
 
     guardarClientes(clientes);
+
+    // Limpiar campos
+    document.getElementById("cliente-nombre").value = "";
+    document.getElementById("cliente-apellido").value = "";
+    document.getElementById("cliente-telefono").value = "";
+
     mostrarClientes();
     alert("Cliente guardado.");
 }
 
-function mostrarClientes() {
-    const clientes = obtenerClientes();
+// Versión mejorada: acepta lista opcional (para búsqueda) y ordena por apellido
+function mostrarClientes(lista = null) {
+    const clientes = lista || obtenerClientes();
     const cont = document.getElementById("lista-clientes");
 
     if (!cont) return;
@@ -72,9 +79,21 @@ function mostrarClientes() {
         return;
     }
 
+    // Ordenar por apellido
+    clientes.sort((a, b) => a.apellido.localeCompare(b.apellido));
+
     cont.innerHTML = clientes.map(c => `
-        <div style="margin-bottom:10px;">
+        <div style="margin-bottom:10px; padding:10px; background:rgba(255,255,255,0.15); border-radius:6px;">
             <strong>${c.apellido}, ${c.nombre}</strong> - ${c.telefono}
+            <br>
+            <button onclick="editarCliente(${c.id})"
+                style="margin-top:5px; padding:5px 10px; background:white; color:#007bff; border:none; border-radius:4px; cursor:pointer;">
+                Editar
+            </button>
+            <button onclick="eliminarCliente(${c.id})"
+                style="margin-top:5px; padding:5px 10px; background:white; color:#ff4444; border:none; border-radius:4px; cursor:pointer;">
+                Eliminar
+            </button>
         </div>
     `).join("");
 }
@@ -84,6 +103,52 @@ function reiniciarClientes() {
         localStorage.removeItem("clientes");
         mostrarClientes();
     }
+}
+
+/* ---- NUEVAS FUNCIONES AVANZADAS DE CLIENTES ---- */
+
+function eliminarCliente(id) {
+    const clientes = obtenerClientes().filter(c => c.id !== id);
+    guardarClientes(clientes);
+    mostrarClientes();
+}
+
+function editarCliente(id) {
+    const clientes = obtenerClientes();
+    const c = clientes.find(x => x.id === id);
+    if (!c) return;
+
+    const nuevoNombre = prompt("Nuevo nombre:", c.nombre);
+    const nuevoApellido = prompt("Nuevo apellido:", c.apellido);
+    const nuevoTelefono = prompt("Nuevo teléfono (10 dígitos):", c.telefono);
+
+    if (!nuevoNombre || !nuevoApellido || !nuevoTelefono || nuevoTelefono.length !== 10) {
+        alert("Datos inválidos.");
+        return;
+    }
+
+    c.nombre = nuevoNombre.trim();
+    c.apellido = nuevoApellido.trim();
+    c.telefono = nuevoTelefono.trim();
+
+    guardarClientes(clientes);
+    mostrarClientes();
+}
+
+function buscarClientes() {
+    const input = document.getElementById("buscar-cliente");
+    if (!input) return;
+
+    const texto = input.value.toLowerCase();
+    const clientes = obtenerClientes();
+
+    const filtrados = clientes.filter(c =>
+        c.nombre.toLowerCase().includes(texto) ||
+        c.apellido.toLowerCase().includes(texto) ||
+        c.telefono.includes(texto)
+    );
+
+    mostrarClientes(filtrados);
 }
 
 
@@ -226,6 +291,11 @@ function agregarItemVenta() {
     const productos = obtenerProductos();
     const prod = productos.find(p => p.id === idProd);
 
+    if (!prod) {
+        alert("Producto inválido.");
+        return;
+    }
+
     itemsVenta.push({
         producto: prod.nombre,
         precio: prod.precio,
@@ -240,6 +310,11 @@ function mostrarItemsVenta() {
     const cont = document.getElementById("items-venta");
 
     if (!cont) return;
+
+    if (itemsVenta.length === 0) {
+        cont.innerHTML = "<p>No hay items cargados.</p>";
+        return;
+    }
 
     cont.innerHTML = itemsVenta.map(i => `
         <div>
@@ -257,6 +332,11 @@ function confirmarVenta() {
     const idCliente = parseInt(document.getElementById("venta-cliente").value);
     const clientes = obtenerClientes();
     const cliente = clientes.find(c => c.id === idCliente);
+
+    if (!cliente) {
+        alert("Cliente inválido.");
+        return;
+    }
 
     const total = itemsVenta.reduce((t, i) => t + i.subtotal, 0);
 
