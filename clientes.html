@@ -27,6 +27,12 @@
         localStorage.removeItem("userRole");
         window.location.href = "index.html";
     }
+
+    // Función para capitalizar automáticamente
+    function capitalizar(texto) {
+        if (!texto) return "";
+        return texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase();
+    }
 </script>
 
 <h2 style="text-align:center;">CLIENTES</h2>
@@ -53,14 +59,16 @@
 <hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
 
 
-<!-- FORMULARIO DE NUEVO CLIENTE (visible para todos los roles) -->
+<!-- FORMULARIO DE NUEVO CLIENTE -->
 <div>
     <h3>Nuevo Cliente</h3>
 
     <input id="cliente-nombre" type="text" placeholder="Nombre"
+        onblur="this.value = capitalizar(this.value)"
         style="padding:10px; width:220px; border:none; border-radius:5px; margin:5px;">
 
     <input id="cliente-apellido" type="text" placeholder="Apellido"
+        onblur="this.value = capitalizar(this.value)"
         style="padding:10px; width:220px; border:none; border-radius:5px; margin:5px;">
 
     <input id="cliente-telefono" type="text" placeholder="Teléfono (10 dígitos)"
@@ -81,7 +89,7 @@
         Guardar
     </button>
 
-    <!-- ESTE BOTÓN SIGUE SIENDO SOLO ADMIN -->
+    <!-- SOLO ADMIN -->
     <button onclick="reiniciarClientes()"
         style="
             padding:12px 20px;
@@ -104,6 +112,17 @@
 
 
 <h3>Listado de Clientes</h3>
+
+<!-- 🔍 CAJA DE BÚSQUEDA -->
+<input id="buscar-cliente" type="text" placeholder="Buscar..."
+    onkeyup="buscarClientes()"
+    style="
+        padding:10px;
+        width:260px;
+        border:none;
+        border-radius:5px;
+        margin-bottom:15px;
+    ">
 
 <div id="lista-clientes" style="margin-top:10px;"></div>
 
@@ -132,12 +151,12 @@
     // Mostrar usuario logueado
     document.getElementById("usuario-log").textContent = usuario;
 
-    // 🔒 Solo ocultamos el botón "Reiniciar Clientes" si NO es admin
+    // Ocultar botón reiniciar si no es admin
     if (rol !== "admin") {
         document.getElementById("btn-reiniciar").style.display = "none";
     }
 
-    // Cargar listado si existe la función
+    // Cargar listado
     if (typeof mostrarClientes === "function") {
         mostrarClientes();
     }
