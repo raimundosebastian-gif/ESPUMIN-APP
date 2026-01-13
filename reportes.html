@@ -13,6 +13,28 @@
     color: white;
 ">
 
+<!-- 🔐 Protección de acceso + rol -->
+<script>
+    const usuario = localStorage.getItem("loggedUser");
+    const rol = localStorage.getItem("userRole");
+
+    if (!usuario) {
+        window.location.href = "index.html";
+    }
+
+    // Solo admin puede entrar
+    if (rol !== "admin") {
+        alert("Acceso restringido: solo administradores");
+        window.location.href = "menu.html";
+    }
+
+    function cerrarSesion() {
+        localStorage.removeItem("loggedUser");
+        localStorage.removeItem("userRole");
+        window.location.href = "index.html";
+    }
+</script>
+
 <h2 style="text-align:center;">REPORTES</h2>
 
 <div style="text-align:center; margin-bottom:20px;">
@@ -151,11 +173,10 @@
 <script src="script.js"></script>
 
 <script>
-    verificarSesion();
-    aplicarPermisos();
-    document.getElementById("usuario-log").textContent = localStorage.getItem("usuario");
+    // Mostrar usuario logueado
+    document.getElementById("usuario-log").textContent = usuario;
 
-    // Cargar clientes en el select
+    // Cargar clientes en el selector
     const clientes = obtenerClientes();
     const select = document.getElementById("reporte-cliente");
 
