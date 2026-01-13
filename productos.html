@@ -1,69 +1,45 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Productos</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>ESPUMIN APP - Productos</title>
 </head>
+
 <body>
 
-  <div id="header-container"></div>
+<h2>Módulo de Productos</h2>
 
-  <main class="contenedor">
+<p>Usuario: <span id="usuario-log"></span></p>
 
-    <h2>Productos</h2>
+<button onclick="cerrarSesion()">Cerrar sesión</button>
 
-    <!-- Búsqueda -->
-    <div class="card">
-      <input type="text" id="buscarProducto" placeholder="Buscar producto..." class="input-buscar">
-    </div>
+<hr>
 
-    <!-- Formulario -->
-    <div class="card">
-      <h3>Agregar Producto</h3>
+<!-- Solo admin puede agregar productos -->
+<div class="solo-admin">
+    <h3>Nuevo Producto</h3>
 
-      <form id="formProducto" class="form">
+    <input id="prod-nombre" type="text" placeholder="Nombre" style="margin:5px;">
+    <input id="prod-precio" type="number" placeholder="Precio" style="margin:5px;">
+    <button onclick="guardarProducto()">Guardar</button>
+</div>
 
-        <label>Nombre del producto:</label>
-        <input type="text" id="nombreProducto" required>
+<hr>
 
-        <label>Categoría:</label>
-        <select id="categoriaProducto" required>
-          <option value="">Seleccionar...</option>
-          <option value="Lavandería">Lavandería</option>
-          <option value="Tintorería">Tintorería</option>
-        </select>
+<h3>Listado de Productos</h3>
 
-        <label>Precio (solo números):</label>
-        <input type="number" id="precioProducto" required min="1" step="0.01">
+<div id="lista-productos"></div>
 
-        <button type="submit">Agregar Producto</button>
-      </form>
-    </div>
+<script src="script.js"></script>
 
-    <!-- Tabla -->
-    <div class="card">
-      <h3>Listado de Productos</h3>
+<script>
+    verificarSesion();
+    aplicarPermisos();
 
-      <table class="tabla">
-        <thead>
-          <tr>
-            <th onclick="ordenarPorNombreProducto()" style="cursor:pointer">Nombre ⬍</th>
-            <th>Categoría</th>
-            <th>Precio</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody id="listaProductos"></tbody>
-      </table>
+    document.getElementById("usuario-log").textContent = localStorage.getItem("usuario");
 
-      <button onclick="exportarProductos()" class="btn-exportar">Exportar a Excel</button>
-      <button onclick="borrarTodosProductos()" class="btn-borrar-todo">Borrar todos los productos</button>
-    </div>
+    mostrarProductos();
+</script>
 
-  </main>
-
-  <script src="app.js"></script>
-  <script src="productos.js"></script>
 </body>
 </html>
