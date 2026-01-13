@@ -13,7 +13,7 @@ document.getElementById("loginForm").addEventListener("submit", function(e) {
 
     if (found) {
         localStorage.setItem("loggedUser", user);
-        window.location.href = "dashboard.html";
+        window.location.href = "menu.html";   // ← REDIRECCIÓN CORRECTA
     } else {
         document.getElementById("loginError").style.display = "block";
     }
