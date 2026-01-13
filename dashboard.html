@@ -13,15 +13,24 @@
     color: white;
 ">
 
+<!-- 🔐 Protección de acceso + rol -->
 <script>
-    /* 🔐 Protección del dashboard */
-    if (!localStorage.getItem("loggedUser")) {
+    const usuario = localStorage.getItem("loggedUser");
+    const rol = localStorage.getItem("userRole");
+
+    if (!usuario) {
         window.location.href = "index.html";
     }
 
-    /* 🚪 Logout */
+    // Solo admin puede entrar
+    if (rol !== "admin") {
+        alert("Acceso restringido: solo administradores");
+        window.location.href = "menu.html";
+    }
+
     function cerrarSesion() {
         localStorage.removeItem("loggedUser");
+        localStorage.removeItem("userRole");
         window.location.href = "index.html";
     }
 </script>
@@ -95,8 +104,8 @@
 <script src="script.js"></script>
 
 <script>
-    /* Mostrar usuario logueado */
-    document.getElementById("usuario-log").textContent = localStorage.getItem("loggedUser");
+    // Mostrar usuario logueado
+    document.getElementById("usuario-log").textContent = usuario;
 
     // Cargar datos
     const clientes = obtenerClientes();
