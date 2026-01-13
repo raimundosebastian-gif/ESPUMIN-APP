@@ -400,7 +400,7 @@ function confirmarVenta() {
 
 
 /* ============================================================
-   HISTORIAL
+   HISTORIAL (MEJORADO)
    ============================================================ */
 
 function cargarClientesEnHistorial() {
@@ -408,6 +408,8 @@ function cargarClientesEnHistorial() {
     const select = document.getElementById("historial-cliente");
 
     if (!select) return;
+
+    clientes.sort((a, b) => a.apellido.localeCompare(b.apellido));
 
     select.innerHTML = clientes.map(c =>
         `<option value="${c.id}">${c.apellido}, ${c.nombre}</option>`
@@ -430,12 +432,51 @@ function mostrarHistorialCliente() {
         return;
     }
 
+    // Ordenar por fecha descendente
+    ventas.sort((a, b) => b.id - a.id);
+
     cont.innerHTML = ventas.map(v => `
-        <div style="margin-bottom:10px;">
-            <strong>${new Date(v.id).toLocaleDateString()}</strong> - Total: $${v.total}
+        <div style="margin-bottom:15px; padding:10px; background:rgba(255,255,255,0.15); border-radius:6px;">
+            <strong>Fecha:</strong> ${new Date(v.id).toLocaleDateString()}<br>
+            <strong>Total:</strong> $${v.total}<br>
+            <strong>Items:</strong>
+            <ul>
+                ${v.items.map(i => `
+                    <li>${i.producto} — ${i.cantidad} x $${i.precio} = $${i.subtotal}</li>
+                `).join("")}
+            </ul>
         </div>
     `).join("");
 }
+
+function buscarEnHistorial() {
+    const texto = document.getElementById("buscar-historial").value.toLowerCase();
+    const idCliente = parseInt(document.getElementById("historial-cliente").value);
+
+    const clientes = obtenerClientes();
+    const cliente = clientes.find(c => c.id === idCliente);
+
+    const ventas = obtenerVentas().filter(v => v.cliente === `${cliente.apellido}, ${cliente.nombre}`);
+
+    const filtradas = ventas.filter(v =>
+        v.items.some(i => i.producto.toLowerCase().includes(texto))
+    );
+
+    mostrarHistorialCliente(filtradas);
+}
+
+function exportarHistorial() {
+    const cont = document.getElementById("lista-historial").innerText;
+
+    if (!cont.trim()) {
+        alert("No hay historial para exportar.");
+        return;
+    }
+
+    navigator.clipboard.writeText(cont);
+    alert("Historial copiado al portapapeles.");
+}
+
 
 
 /* ============================================================
@@ -483,4 +524,5 @@ function generarReporteCliente() {
     document.getElementById("resultado-cliente").innerHTML =
         `<p>Total facturado por ${cliente.apellido}, ${cliente.nombre}: $${total}</p>`;
 }
+
 
