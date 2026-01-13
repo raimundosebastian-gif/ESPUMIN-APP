@@ -1,193 +1,106 @@
-// =========================
-// LOGIN Y SESIÓN
-// =========================
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>ESPUMIN APP - Clientes</title>
+</head>
 
-const empleados = [
-    { usuario: "admin", password: "1234", rol: "admin" },
-    { usuario: "empleado1", password: "abcd", rol: "empleado" },
-    { usuario: "EU", password: "villatita", rol: "admin" }
-];
+<body style="
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #007bff, #00c851);
+    color: white;
+">
 
-function iniciarSesion() {
-    const usuario = document.getElementById("usuario").value.trim();
-    const password = document.getElementById("password").value.trim();
+<h2 style="text-align:center;">CLIENTES</h2>
 
-    const encontrado = empleados.find(e => e.usuario === usuario && e.password === password);
+<div style="text-align:center; margin-bottom:20px;">
+    <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
 
-    if (!encontrado) {
-        alert("Usuario o contraseña incorrectos");
-        return;
-    }
+    <button onclick="cerrarSesion()" 
+        style="
+            padding:10px 20px;
+            background:white;
+            color:#007bff;
+            border:none;
+            border-radius:5px;
+            cursor:pointer;
+            font-size:16px;
+            font-weight:bold;
+            text-transform:uppercase;
+        ">
+        Cerrar sesión
+    </button>
+</div>
 
-    localStorage.setItem("usuario", encontrado.usuario);
-    localStorage.setItem("rol", encontrado.rol);
-
-    location.href = "menu.html";
-}
-
-function verificarSesion() {
-    const usuario = localStorage.getItem("usuario");
-    if (!usuario) location.href = "index.html";
-}
-
-function cerrarSesion() {
-    localStorage.removeItem("usuario");
-    localStorage.removeItem("rol");
-    location.href = "index.html";
-}
-
-function aplicarPermisos() {
-    const rol = localStorage.getItem("rol");
-    const adminElements = document.querySelectorAll(".solo-admin");
-    const empleadoElements = document.querySelectorAll(".solo-empleado");
-
-    if (rol === "admin") {
-        adminElements.forEach(e => e.style.display = "block");
-        empleadoElements.forEach(e => e.style.display = "none");
-    } else {
-        adminElements.forEach(e => e.style.display = "none");
-        empleadoElements.forEach(e => e.style.display = "block");
-    }
-}
+<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
 
 
+<!-- SOLO ADMIN -->
+<div class="solo-admin">
+    <h3>Nuevo Cliente</h3>
 
-// =========================
-// CLIENTES - DATOS INICIALES
-// =========================
+    <input id="cliente-nombre" type="text" placeholder="Nombre"
+        style="padding:10px; width:220px; border:none; border-radius:5px; margin:5px;">
 
-if (!localStorage.getItem("clientes")) {
-    const clientesEjemplo = [
-        { id: Date.now(), nombre: "Juan", apellido: "Pérez", telefono: "1145678901" },
-        { id: Date.now() + 1, nombre: "María", apellido: "López", telefono: "1178901234" }
-    ];
-    localStorage.setItem("clientes", JSON.stringify(clientesEjemplo));
-}
+    <input id="cliente-apellido" type="text" placeholder="Apellido"
+        style="padding:10px; width:220px; border:none; border-radius:5px; margin:5px;">
+
+    <input id="cliente-telefono" type="text" placeholder="Teléfono (10 dígitos)"
+        style="padding:10px; width:220px; border:none; border-radius:5px; margin:5px;">
+
+    <button onclick="guardarCliente()" 
+        style="
+            padding:12px 20px;
+            background:white;
+            color:#00c851;
+            border:none;
+            border-radius:6px;
+            cursor:pointer;
+            font-size:16px;
+            font-weight:bold;
+            text-transform:uppercase;
+        ">
+        Guardar
+    </button>
+
+    <button onclick="reiniciarClientes()"
+        style="
+            padding:12px 20px;
+            background:white;
+            color:#ff4444;
+            border:none;
+            border-radius:6px;
+            cursor:pointer;
+            font-size:16px;
+            font-weight:bold;
+            text-transform:uppercase;
+            margin-top:10px;
+        ">
+        Reiniciar Clientes
+    </button>
+</div>
+
+<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
 
 
+<h3>Listado de Clientes</h3>
 
-// =========================
-// CRUD CLIENTES
-// =========================
+<div id="lista-clientes" style="margin-top:10px;"></div>
 
-function obtenerClientes() {
-    const lista = JSON.parse(localStorage.getItem("clientes") || "[]");
 
-    return lista.sort((a, b) => {
-        const ap = a.apellido.localeCompare(b.apellido);
-        return ap !== 0 ? ap : a.nombre.localeCompare(b.nombre);
-    });
-}
+<script src="script.js"></script>
 
-function guardarListaClientes(lista) {
-    localStorage.setItem("clientes", JSON.stringify(lista));
-}
+<script>
+    verificarSesion();
+    aplicarPermisos();
 
-function normalizarTexto(txt) {
-    txt = txt.trim().toLowerCase();
-    return txt.charAt(0).toUpperCase() + txt.slice(1);
-}
-
-function guardarCliente() {
-    const nombre = normalizarTexto(document.getElementById("cliente-nombre").value);
-    const apellido = normalizarTexto(document.getElementById("cliente-apellido").value);
-    const telefono = document.getElementById("cliente-telefono").value.trim();
-
-    if (!nombre || !apellido) {
-        alert("Nombre y apellido son obligatorios");
-        return;
-    }
-
-    if (!/^\d{10}$/.test(telefono)) {
-        alert("El teléfono debe tener exactamente 10 dígitos numéricos");
-        return;
-    }
-
-    const lista = obtenerClientes();
-    const editId = Number(localStorage.getItem("clienteEditando"));
-
-    const telefonoRepetido = lista.some(c => c.telefono === telefono && c.id !== editId);
-    if (telefonoRepetido) {
-        alert("El teléfono ya está registrado en otro cliente");
-        return;
-    }
-
-    if (editId) {
-        const cliente = lista.find(c => c.id === editId);
-        cliente.nombre = nombre;
-        cliente.apellido = apellido;
-        cliente.telefono = telefono;
-
-        localStorage.removeItem("clienteEditando");
-    } else {
-        lista.push({
-            id: Date.now(),
-            nombre,
-            apellido,
-            telefono
-        });
-    }
-
-    guardarListaClientes(lista);
-
-    document.getElementById("cliente-nombre").value = "";
-    document.getElementById("cliente-apellido").value = "";
-    document.getElementById("cliente-telefono").value = "";
+    document.getElementById("usuario-log").textContent = localStorage.getItem("usuario");
 
     mostrarClientes();
-}
+</script>
 
-function mostrarClientes() {
-    const lista = obtenerClientes();
-    const contenedor = document.getElementById("lista-clientes");
+</body>
+</html>
 
-    if (!contenedor) return;
-
-    contenedor.innerHTML = "";
-
-    lista.forEach(cliente => {
-        const div = document.createElement("div");
-        div.style.margin = "10px 0";
-        div.innerHTML = `
-            <strong>${cliente.apellido}, ${cliente.nombre}</strong> - ${cliente.telefono}
-
-            <button onclick="editarCliente(${cliente.id})"
-                style="margin-left:10px; padding:5px 10px; background:white; color:#0275d8; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">
-                EDITAR
-            </button>
-
-            <button onclick="eliminarCliente(${cliente.id})"
-                style="margin-left:10px; padding:5px 10px; background:white; color:#d9534f; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">
-                ELIMINAR
-            </button>
-        `;
-        contenedor.appendChild(div);
-    });
-}
-
-function eliminarCliente(id) {
-    let lista = obtenerClientes();
-    lista = lista.filter(c => c.id !== id);
-    guardarListaClientes(lista);
-    mostrarClientes();
-}
-
-function editarCliente(id) {
-    const lista = obtenerClientes();
-    const cliente = lista.find(c => c.id === id);
-
-    if (!cliente) return;
-
-    document.getElementById("cliente-nombre").value = cliente.nombre;
-    document.getElementById("cliente-apellido").value = cliente.apellido;
-    document.getElementById("cliente-telefono").value = cliente.telefono;
-
-    localStorage.setItem("clienteEditando", id);
-}
-
-
-
-// =========================
-// PRODUCTOS / VENTAS / REPORTES / HISTORIAL / DASHBOARD
-// (todo lo demás queda igual que ya tenías)
-// =========================
