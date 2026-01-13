@@ -202,7 +202,7 @@ function mostrarProductos() {
 
 
 /* ============================================================
-   PRECIOS
+   PRECIOS (MEJORADO)
    ============================================================ */
 
 function cargarProductosEnPrecios() {
@@ -211,9 +211,23 @@ function cargarProductosEnPrecios() {
 
     if (!select) return;
 
+    // Ordenar por nombre
+    productos.sort((a, b) => a.nombre.localeCompare(b.nombre));
+
     select.innerHTML = productos.map(p =>
         `<option value="${p.id}">${p.nombre}</option>`
     ).join("");
+}
+
+function mostrarPrecioActual() {
+    const id = parseInt(document.getElementById("precio-producto").value);
+    const productos = obtenerProductos();
+    const prod = productos.find(p => p.id === id);
+
+    if (!prod) return;
+
+    document.getElementById("precio-actual").innerHTML =
+        `<strong>Precio actual:</strong> $${prod.precio}`;
 }
 
 function guardarPrecio() {
@@ -234,20 +248,47 @@ function guardarPrecio() {
 
     guardarProductos(productos);
     mostrarPrecios();
+    mostrarPrecioActual();
     alert("Precio actualizado.");
 }
 
-function mostrarPrecios() {
-    const productos = obtenerProductos();
+function mostrarPrecios(lista = null) {
+    const productos = lista || obtenerProductos();
     const cont = document.getElementById("lista-precios");
 
     if (!cont) return;
 
+    if (productos.length === 0) {
+        cont.innerHTML = "<p>No hay productos cargados.</p>";
+        return;
+    }
+
+    // Ordenar por nombre
+    productos.sort((a, b) => a.nombre.localeCompare(b.nombre));
+
     cont.innerHTML = productos.map(p => `
-        <div style="margin-bottom:10px;">
-            <strong>${p.nombre}</strong> - $${p.precio}
+        <div style="margin-bottom:10px; padding:10px; background:rgba(255,255,255,0.15); border-radius:6px;">
+            <strong>${p.nombre}</strong> - $${p.precio} (${p.unidad}) - ${p.estado}
+            <br>
+            <button onclick="editarProducto(${p.id})"
+                style="margin-top:5px; padding:5px 10px; background:white; color:#007bff; border:none; border-radius:4px; cursor:pointer;">
+                Editar
+            </button>
         </div>
     `).join("");
+}
+
+function buscarPrecios() {
+    const texto = document.getElementById("buscar-precio").value.toLowerCase();
+    const productos = obtenerProductos();
+
+    const filtrados = productos.filter(p =>
+        p.nombre.toLowerCase().includes(texto) ||
+        p.unidad.toLowerCase().includes(texto) ||
+        p.estado.toLowerCase().includes(texto)
+    );
+
+    mostrarPrecios(filtrados);
 }
 
 
@@ -442,3 +483,4 @@ function generarReporteCliente() {
     document.getElementById("resultado-cliente").innerHTML =
         `<p>Total facturado por ${cliente.apellido}, ${cliente.nombre}: $${total}</p>`;
 }
+
