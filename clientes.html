@@ -53,7 +53,7 @@
 <hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
 
 
-<!-- SOLO ADMIN -->
+<!-- FORMULARIO DE NUEVO CLIENTE (ahora visible para todos los roles) -->
 <div class="solo-admin">
     <h3>Nuevo Cliente</h3>
 
@@ -81,6 +81,7 @@
         Guardar
     </button>
 
+    <!-- ESTE BOTÓN SIGUE SIENDO SOLO ADMIN -->
     <button onclick="reiniciarClientes()"
         style="
             padding:12px 20px;
@@ -93,7 +94,8 @@
             font-weight:bold;
             text-transform:uppercase;
             margin-top:10px;
-        ">
+        "
+        id="btn-reiniciar">
         Reiniciar Clientes
     </button>
 </div>
@@ -130,9 +132,9 @@
     // Mostrar usuario logueado
     document.getElementById("usuario-log").textContent = usuario;
 
-    // Ocultar funciones de admin si no corresponde
+    // 🔒 Solo ocultamos el botón "Reiniciar Clientes" si NO es admin
     if (rol !== "admin") {
-        document.querySelector(".solo-admin").style.display = "none";
+        document.getElementById("btn-reiniciar").style.display = "none";
     }
 
     // Cargar listado si existe la función
