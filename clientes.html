@@ -13,15 +13,18 @@
     color: white;
 ">
 
+<!-- 🔐 Protección de acceso -->
 <script>
-    /* 🔐 Protección de acceso */
-    if (!localStorage.getItem("loggedUser")) {
+    const usuario = localStorage.getItem("loggedUser");
+    const rol = localStorage.getItem("userRole");
+
+    if (!usuario) {
         window.location.href = "index.html";
     }
 
-    /* 🚪 Logout */
     function cerrarSesion() {
         localStorage.removeItem("loggedUser");
+        localStorage.removeItem("userRole");
         window.location.href = "index.html";
     }
 </script>
@@ -124,15 +127,18 @@
 <script src="script.js"></script>
 
 <script>
-    /* Mostrar usuario logueado */
-    document.getElementById("usuario-log").textContent = localStorage.getItem("loggedUser");
+    // Mostrar usuario logueado
+    document.getElementById("usuario-log").textContent = usuario;
 
-    /* Mantengo tus funciones si existen */
-    if (typeof verificarSesion === "function") verificarSesion();
-    if (typeof aplicarPermisos === "function") aplicarPermisos();
+    // Ocultar funciones de admin si no corresponde
+    if (rol !== "admin") {
+        document.querySelector(".solo-admin").style.display = "none";
+    }
 
-    /* Cargar listado */
-    if (typeof mostrarClientes === "function") mostrarClientes();
+    // Cargar listado si existe la función
+    if (typeof mostrarClientes === "function") {
+        mostrarClientes();
+    }
 </script>
 
 </body>
