@@ -1,129 +1,55 @@
-// --- CLIENTES ---
+/* ============================
+   📌 UTILIDADES LOCALSTORAGE
+============================ */
 
-let clientes = JSON.parse(localStorage.getItem("clientes")) || [];
-let editIndex = null;
-
-// Render inicial
-renderClientes();
-
-// Búsqueda en vivo
-document.getElementById("buscarCliente").addEventListener("input", function() {
-  const texto = this.value.toLowerCase();
-
-  const filtrados = clientes.filter(cli =>
-    cli.nombre.toLowerCase().includes(texto) ||
-    cli.telefono.includes(texto)
-  );
-
-  renderClientes(filtrados);
-});
-
-// Submit del formulario
-document.getElementById("formCliente").addEventListener("submit", function(e) {
-  e.preventDefault();
-
-  const nombre = document.getElementById("nombreCliente").value.trim();
-  const telefono = document.getElementById("telefonoCliente").value.trim();
-
-  // Validación: campos vacíos
-  if (nombre === "" || telefono === "") {
-    alert("Completar por favor para poder continuar");
-    return;
-  }
-
-  // Validación: teléfono debe tener exactamente 10 dígitos
-  const soloNumeros = /^[0-9]{10}$/;
-  if (!soloNumeros.test(telefono)) {
-    alert("El teléfono debe tener exactamente 10 dígitos");
-    return;
-  }
-
-  // Validación duplicados (excepto el que se está editando)
-  const duplicado = clientes.some((cli, idx) =>
-    (cli.nombre.toLowerCase() === nombre.toLowerCase() ||
-     cli.telefono === telefono) &&
-    idx !== editIndex
-  );
-
-  if (duplicado) {
-    alert("El cliente ya existe (nombre o teléfono duplicado)");
-    return;
-  }
-
-  // MODO EDITAR
-  if (editIndex !== null) {
-    clientes[editIndex].nombre = nombre;
-    clientes[editIndex].telefono = telefono;
-
-    editIndex = null;
-    document.querySelector("#formCliente button").textContent = "Agregar Cliente";
-  } 
-  // MODO AGREGAR
-  else {
-    clientes.push({ nombre, telefono });
-  }
-
-  guardarClientes();
-  renderClientes();
-  this.reset();
-});
-
-// Guardar en localStorage
-function guardarClientes() {
-  localStorage.setItem("clientes", JSON.stringify(clientes));
+function obtenerClientes() {
+  return JSON.parse(localStorage.getItem("clientes")) || [];
 }
 
-// Renderizar tabla
-function renderClientes(lista = clientes) {
+function guardarClientes(lista) {
+  localStorage.setItem("clientes", JSON.stringify(lista));
+}
+
+
+/* ============================
+   📌 RENDERIZAR TABLA
+============================ */
+
+function renderClientes(filtro = "") {
+  const clientes = obtenerClientes();
   const tbody = document.getElementById("listaClientes");
   tbody.innerHTML = "";
 
-  lista.forEach((cli, index) => {
-    const tr = document.createElement("tr");
+  const listaFiltrada = clientes.filter(c =>
+    c.nombre.toLowerCase().includes(filtro.toLowerCase())
+  );
 
-    tr.innerHTML = `
-      <td>${cli.nombre}</td>
-      <td>${cli.telefono}</td>
+  listaFiltrada.forEach(cliente => {
+    const fila = document.createElement("tr");
+
+    fila.innerHTML = `
+      <td>${cliente.nombre}</td>
+      <td>${cliente.telefono}</td>
+      <td>${cliente.direccion}</td>
+      <td>${cliente.email}</td>
+      <td>${cliente.tipo}</td>
+      <td>${cliente.cuit || "-"}</td>
       <td>
-        <button class="btn-editar" onclick="editarCliente(${index})">Editar</button>
-        <button class="btn-eliminar" onclick="eliminarCliente(${index})">Eliminar</button>
+        <button onclick="editarCliente(${cliente.id})" class="btn-editar">Editar</button>
+        <button onclick="eliminarCliente(${cliente.id})" class="btn-eliminar">Eliminar</button>
       </td>
     `;
 
-    tbody.appendChild(tr);
+    tbody.appendChild(fila);
   });
 }
 
-// Editar cliente
-function editarCliente(i) {
-  const cli = clientes[i];
 
-  document.getElementById("nombreCliente").value = cli.nombre;
-// --- CLIENTES ---
+/* ============================
+   📌 AGREGAR CLIENTE
+============================ */
 
-let clientes = JSON.parse(localStorage.getItem("clientes")) || [];
-let editIndex = null;
-
-// Render inicial
-renderClientes();
-
-// Búsqueda en vivo
-document.getElementById("buscarCliente").addEventListener("input", function() {
-  const texto = this.value.toLowerCase();
-
-  const filtrados = clientes.filter(cli =>
-    cli.nombre.toLowerCase().includes(texto) ||
-    cli.telefono.includes(texto) ||
-    cli.direccion.toLowerCase().includes(texto) ||
-    cli.email.toLowerCase().includes(texto) ||
-    cli.tipo.toLowerCase().includes(texto)
-  );
-
-  renderClientes(filtrados);
-});
-
-// Submit del formulario
-document.getElementById("formCliente").addEventListener("submit", function(e) {
+document.getElementById("formCliente").addEventListener("submit", function (e) {
   e.preventDefault();
 
   const nombre = document.getElementById("nombreCliente").value.trim();
@@ -133,140 +59,139 @@ document.getElementById("formCliente").addEventListener("submit", function(e) {
   const tipo = document.getElementById("tipoCliente").value;
   const obs = document.getElementById("obsCliente").value.trim();
 
-  // Validación: campos obligatorios
-  if (nombre === "" || telefono === "" || tipo === "") {
-    alert("Completar por favor para poder continuar");
+  if (telefono.length !== 10 || isNaN(telefono)) {
+    alert("El teléfono debe tener 10 dígitos numéricos.");
     return;
   }
 
-  // Validación: teléfono debe tener exactamente 10 dígitos
-  const soloNumeros = /^[0-9]{10}$/;
-  if (!soloNumeros.test(telefono)) {
-    alert("El teléfono debe tener exactamente 10 dígitos");
-    return;
-  }
+  const clientes = obtenerClientes();
 
-  // Validación duplicados (excepto el que se edita)
-  const duplicado = clientes.some((cli, idx) =>
-    (cli.nombre.toLowerCase() === nombre.toLowerCase() ||
-     cli.telefono === telefono) &&
-    idx !== editIndex
-  );
+  const nuevoCliente = {
+    id: Date.now(),
+    nombre,
+    telefono,
+    direccion,
+    email,
+    tipo,
+    cuit: tipo === "Empresa" ? prompt("Ingrese CUIT del cliente:") : "",
+    observaciones: obs
+  };
 
-  if (duplicado) {
-    alert("El cliente ya existe (nombre o teléfono duplicado)");
-    return;
-  }
+  clientes.push(nuevoCliente);
+  guardarClientes(clientes);
 
-  // Fecha de alta automática
-  const fechaAlta = new Date().toLocaleDateString("es-AR");
-
-  // MODO EDITAR
-  if (editIndex !== null) {
-    clientes[editIndex] = {
-      ...clientes[editIndex],
-      nombre,
-      telefono,
-      direccion,
-      email,
-      tipo,
-      obs
-    };
-
-    editIndex = null;
-    document.querySelector("#formCliente button").textContent = "Agregar Cliente";
-  } 
-  // MODO AGREGAR
-  else {
-    clientes.push({
-      nombre,
-      telefono,
-      direccion,
-      email,
-      tipo,
-      obs,
-      alta: fechaAlta
-    });
-  }
-
-  guardarClientes();
-  renderClientes();
   this.reset();
+  renderClientes();
 });
 
-// Guardar en localStorage
-function guardarClientes() {
-  localStorage.setItem("clientes", JSON.stringify(clientes));
-}
 
-// Renderizar tabla
-function renderClientes(lista = clientes) {
-  const tbody = document.getElementById("listaClientes");
-  tbody.innerHTML = "";
+/* ============================
+   📌 ELIMINAR CLIENTE
+============================ */
 
-  lista.forEach((cli, index) => {
-    const tr = document.createElement("tr");
+function eliminarCliente(id) {
+  if (!confirm("¿Eliminar este cliente?")) return;
 
-    tr.innerHTML = `
-      <td>${cli.nombre}</td>
-      <td>${cli.telefono}</td>
-      <td>${cli.direccion || "-"}</td>
-      <td>${cli.email || "-"}</td>
-      <td>${cli.tipo}</td>
-      <td>${cli.cuit || "-"}</td>
-      <td>
-        <button class="btn-editar" onclick="editarCliente(${index})">Editar</button>
-        <button class="btn-eliminar" onclick="eliminarCliente(${index})">Eliminar</button>
-      </td>
-    `;
-
-    tbody.appendChild(tr);
-  });
-}
-
-// Editar cliente
-function editarCliente(i) {
-  const cli = clientes[i];
-
-  document.getElementById("nombreCliente").value = cli.nombre;
-  document.getElementById("telefonoCliente").value = cli.telefono;
-  document.getElementById("direccionCliente").value = cli.direccion;
-  document.getElementById("emailCliente").value = cli.email;
-  document.getElementById("tipoCliente").value = cli.tipo;
-  document.getElementById("obsCliente").value = cli.obs;
-
-  editIndex = i;
-
-  document.querySelector("#formCliente button").textContent = "Guardar Cambios";
-}
-
-// Eliminar cliente
-function eliminarCliente(i) {
-  if (!confirm("¿Seguro que deseas eliminar este cliente?")) return;
-
-  clientes.splice(i, 1);
-  guardarClientes();
+  let clientes = obtenerClientes();
+  clientes = clientes.filter(c => c.id !== id);
+  guardarClientes(clientes);
   renderClientes();
 }
 
-// Ordenar por nombre
-function ordenarPorNombre() {
-  clientes.sort((a, b) => a.nombre.localeCompare(b.nombre));
-  guardarClientes();
-  renderClientes();
-}
 
-// Exportar a CSV
-function exportarClientes() {
-  if (clientes.length === 0) {
-    alert("No hay clientes para exportar");
+/* ============================
+   📌 EDITAR CLIENTE
+============================ */
+
+function editarCliente(id) {
+  const clientes = obtenerClientes();
+  const cliente = clientes.find(c => c.id === id);
+
+  if (!cliente) return;
+
+  const nuevoNombre = prompt("Nuevo nombre:", cliente.nombre);
+  const nuevoTelefono = prompt("Nuevo teléfono (10 dígitos):", cliente.telefono);
+  const nuevaDireccion = prompt("Nueva dirección:", cliente.direccion);
+  const nuevoEmail = prompt("Nuevo email:", cliente.email);
+  const nuevoTipo = prompt("Nuevo tipo (Particular/Empresa):", cliente.tipo);
+  const nuevoCuit = nuevoTipo === "Empresa" ? prompt("Nuevo CUIT:", cliente.cuit) : "";
+  const nuevasObs = prompt("Observaciones:", cliente.observaciones);
+
+  if (nuevoTelefono.length !== 10 || isNaN(nuevoTelefono)) {
+    alert("El teléfono debe tener 10 dígitos numéricos.");
     return;
   }
 
-  let csv = "Nombre,Telefono,Direccion,Email,Tipo,Alta,Observaciones\n";
+  cliente.nombre = nuevoNombre;
+  cliente.telefono = nuevoTelefono;
+  cliente.direccion = nuevaDireccion;
+  cliente.email = nuevoEmail;
+  cliente.tipo = nuevoTipo;
+  cliente.cuit = nuevoCuit;
+  cliente.observaciones = nuevasObs;
+
+  guardarClientes(clientes);
+  renderClientes();
+}
+
+
+/* ============================
+   📌 BUSCADOR
+============================ */
+
+document.getElementById("buscarCliente").addEventListener("input", function () {
+  renderClientes(this.value);
+});
+
+
+/* ============================
+   📌 ORDENAR POR NOMBRE
+============================ */
+
+let ordenAsc = true;
+
+function ordenarPorNombre() {
+  const clientes = obtenerClientes();
+
+  clientes.sort((a, b) => {
+    if (a.nombre.toLowerCase() < b.nombre.toLowerCase()) return ordenAsc ? -1 : 1;
+    if (a.nombre.toLowerCase() > b.nombre.toLowerCase()) return ordenAsc ? 1 : -1;
+    return 0;
+  });
+
+  ordenAsc = !ordenAsc;
+
+  guardarClientes(clientes);
+  renderClientes();
+}
+
+
+/* ============================
+   📌 BORRAR TODO
+============================ */
+
+function borrarTodo() {
+  if (!confirm("¿Seguro que desea borrar TODOS los clientes?")) return;
+  localStorage.removeItem("clientes");
+  renderClientes();
+}
+
+
+/* ============================
+   📌 EXPORTAR A EXCEL (CSV)
+============================ */
+
+function exportarClientes() {
+  const clientes = obtenerClientes();
+  if (clientes.length === 0) {
+    alert("No hay clientes para exportar.");
+    return;
+  }
+
+  let csv = "Nombre,Telefono,Direccion,Email,Tipo,CUIT,Observaciones\n";
 
   clientes.forEach(c => {
-    csv += `${c.nombre},${c.telefono},${c.direccion},${c.email},${c.tipo},${c.alta},${c.obs}\n`;
+    csv += `${c.nombre},${c.telefono},${c.direccion},${c.email},${c.tipo},${c.cuit},${c.observaciones}\n`;
   });
 
   const blob = new Blob([csv], { type: "text/csv" });
@@ -280,12 +205,9 @@ function exportarClientes() {
   URL.revokeObjectURL(url);
 }
 
-// Borrar todo
-function borrarTodo() {
-  if (!confirm("¿Seguro que deseas borrar TODOS los clientes?")) return;
 
-  clientes = [];
-  guardarClientes();
-  renderClientes();
-}
+/* ============================
+   📌 INICIALIZAR
+============================ */
 
+document.addEventListener("DOMContentLoaded", renderClientes);
