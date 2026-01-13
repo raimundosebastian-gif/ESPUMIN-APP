@@ -556,3 +556,22 @@ function generarHistorialCliente() {
 
     cont.innerHTML = html;
 }
+
+// =========================
+// DASHBOARD ADMIN
+// =========================
+
+function cargarDashboard() {
+    const clientes = obtenerClientes();
+    const productos = obtenerProductos();
+    const ventas = JSON.parse(localStorage.getItem("ventas") || "[]");
+
+    const totalFacturado = ventas.reduce((t, v) => t + v.total, 0);
+
+    const c = id => document.getElementById(id);
+
+    if (c("dash-clientes")) c("dash-clientes").textContent = clientes.length;
+    if (c("dash-productos")) c("dash-productos").textContent = productos.length;
+    if (c("dash-ventas")) c("dash-ventas").textContent = ventas.length;
+    if (c("dash-facturado")) c("dash-facturado").textContent = totalFacturado;
+}
