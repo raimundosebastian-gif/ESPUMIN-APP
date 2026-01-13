@@ -56,7 +56,6 @@ function aplicarPermisos() {
 // CLIENTES - DATOS INICIALES
 // =========================
 
-// Cargar clientes de ejemplo si la lista está vacía
 let clientesGuardados = JSON.parse(localStorage.getItem("clientes") || "[]");
 
 if (clientesGuardados.length === 0) {
@@ -209,4 +208,255 @@ function reiniciarClientes() {
     mostrarClientes();
 
     alert("Clientes reiniciados correctamente.");
+}
+
+
+
+// =========================
+// PRODUCTOS
+// =========================
+
+function obtenerProductos() {
+    return JSON.parse(localStorage.getItem("productos") || "[]");
+}
+
+
+
+// =========================
+// VENTAS
+// =========================
+
+function obtenerVentas() {
+    return JSON.parse(localStorage.getItem("ventas") || "[]");
+}
+
+function cargarClientesEnVentas() {
+    const clientes = obtenerClientes();
+    const select = document.getElementById("venta-cliente");
+    if (!select) return;
+
+    select.innerHTML = clientes.map(c =>
+        `<option value="${c.apellido}, ${c.nombre}">${c.apellido}, ${c.nombre}</option>`
+    ).join("");
+}
+
+function cargarProductosEnVentas() {
+    const productos = obtenerProductos();
+    const select = document.getElementById("venta-producto");
+    if (!select) return;
+
+    select.innerHTML = productos.map(p =>
+        `<option value="${p.nombre}">${p.nombre}</option>`
+    ).join("");
+}
+
+let itemsVenta = [];
+
+function agregarItemVenta() {
+    const producto = document.getElementById("venta-producto").value;
+    const cantidad = Number(document.getElementById("venta-cantidad").value);
+
+    if (!producto || cantidad <= 0) {
+        alert("Debe seleccionar un producto y una cantidad válida.");
+        return;
+    }
+
+    const productos = obtenerProductos();
+    const prod = productos.find(p => p.nombre === producto);
+
+    if (!prod) {
+        alert("Producto no encontrado.");
+        return;
+    }
+
+    const subtotal = prod.precio * cantidad;
+
+    itemsVenta.push({
+        producto,
+        cantidad,
+        subtotal
+    });
+
+    mostrarItemsVenta();
+}
+
+function mostrarItemsVenta() {
+    const cont = document.getElementById("items-venta");
+    if (!cont) return;
+
+    cont.innerHTML = itemsVenta.map(i =>
+        `<p>${i.producto} x ${i.cantidad} = $${i.subtotal}</p>`
+    ).join("");
+}
+
+function confirmarVenta() {
+    if (itemsVenta.length === 0) {
+        alert("Debe agregar al menos un item.");
+        return;
+    }
+
+    const cliente = document.getElementById("venta-cliente").value;
+
+    const total = itemsVenta.reduce((t, i) => t + i.subtotal, 0);
+
+    const ventas = obtenerVentas();
+
+    ventas.push({
+        id: Date.now(),
+        cliente,
+        items: itemsVenta,
+        total
+    });
+
+    localStorage.setItem("ventas", JSON.stringify(ventas));
+
+    itemsVenta = [];
+    mostrarItemsVenta();
+
+    alert("Venta registrada correctamente.");
+}
+
+
+
+// =========================
+// REPORTES
+// =========================
+
+function generarReporteMensual() {
+    const mes = Number(document.getElementById("reporte-mes").value);
+    const anio = Number(document.getElementById("reporte-anio-mes").value);
+    const cont = document.getElementById("resultado-mensual");
+
+    if (!anio) {
+        cont.innerHTML = "Debe ingresar un año.";
+        return;
+    }
+
+    const ventas = obtenerVentas();
+
+    const filtradas = ventas.filter(v => {
+        const fecha = new Date(v.id);
+        return fecha.getMonth() + 1 === mes && fecha.getFullYear() === anio;
+    });
+
+    const total = filtradas.reduce((t, v) => t + v.total, 0);
+
+    cont.innerHTML = `
+        <p><strong>Ventas del mes:</strong> ${filtradas.length}</p>
+        <p><strong>Total facturado:</strong> $${total}</p>
+    `;
+}
+
+function generarReporteAnual() {
+    const anio = Number(document.getElementById("reporte-anio").value);
+    const cont = document.getElementById("resultado-anual");
+
+    if (!anio) {
+        cont.innerHTML = "Debe ingresar un año.";
+        return;
+    }
+
+    const ventas = obtenerVentas();
+
+    const filtradas = ventas.filter(v => {
+        const fecha = new Date(v.id);
+        return fecha.getFullYear() === anio;
+    });
+
+    const total = filtradas.reduce((t, v) => t + v.total, 0);
+
+    cont.innerHTML = `
+        <p><strong>Ventas del año:</strong> ${filtradas.length}</p>
+        <p><strong>Total facturado:</strong> $${total}</p>
+    `;
+}
+
+function generarReporteCliente() {
+    const clienteId = Number(document.getElementById("reporte-cliente").value);
+    const cont = document.getElementById("resultado-cliente");
+
+    const clientes = obtenerClientes();
+    const cliente = clientes.find(c => c.id === clienteId);
+
+    const ventas = obtenerVentas();
+
+    const filtradas = ventas.filter(v => v.cliente === `${cliente.apellido}, ${cliente.nombre}`);
+
+    const total = filtradas.reduce((t, v) => t + v.total, 0);
+
+    cont.innerHTML = `
+        <p><strong>Ventas realizadas:</strong> ${filtradas.length}</p>
+        <p><strong>Total facturado:</strong> $${total}</p>
+    `;
+}
+
+
+
+// =========================
+// HISTORIAL POR CLIENTE
+// =========================
+
+function generarHistorialCliente() {
+    const clienteId = Number(document.getElementById("historial-cliente").value);
+    const cont = document.getElementById("resultado-historial");
+
+    const clientes = obtenerClientes();
+    const cliente = clientes.find(c => c.id === clienteId);
+
+    const ventas = obtenerVentas();
+
+    const filtradas = ventas.filter(v => v.cliente === `${cliente.apellido}, ${cliente.nombre}`);
+
+    if (filtradas.length === 0) {
+        cont.innerHTML = `<p>No hay ventas registradas para este cliente.</p>`;
+        return;
+    }
+
+    let totalGeneral = 0;
+
+    let html = `<h4>Cliente: ${cliente.apellido}, ${cliente.nombre}</h4>`;
+
+    filtradas.forEach(v => {
+        const fecha = new Date(v.id);
+        const fechaStr = fecha.toLocaleDateString();
+
+        totalGeneral += v.total;
+
+        html += `
+            <div style="margin-bottom:10px;">
+                <strong>Fecha:</strong> ${fechaStr}<br>
+                <strong>Total:</strong> $${v.total}<br>
+                <strong>Items:</strong>
+                <ul>
+                    ${v.items.map(i => `<li>${i.producto} x ${i.cantidad} = $${i.subtotal}</li>`).join("")}
+                </ul>
+                <hr>
+            </div>
+        `;
+    });
+
+    html += `<h3>Total acumulado: $${totalGeneral}</h3>`;
+
+    cont.innerHTML = html;
+}
+
+
+
+// =========================
+// DASHBOARD ADMIN
+// =========================
+
+function cargarDashboard() {
+    const clientes = obtenerClientes();
+    const productos = obtenerProductos();
+    const ventas = obtenerVentas();
+
+    const totalFacturado = ventas.reduce((t, v) => t + v.total, 0);
+
+    const c = id => document.getElementById(id);
+
+    if (c("dash-clientes")) c("dash-clientes").textContent = clientes.length;
+    if (c("dash-productos")) c("dash-productos").textContent = productos.length;
+    if (c("dash-ventas")) c("dash-ventas").textContent = ventas.length;
+    if (c("dash-facturado")) c("dash-facturado").textContent = totalFacturado;
 }
