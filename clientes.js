@@ -1,6 +1,6 @@
-/* ============================
+/* ============================================================
    📌 UTILIDADES LOCALSTORAGE
-============================ */
+============================================================ */
 
 function obtenerClientes() {
   return JSON.parse(localStorage.getItem("clientes")) || [];
@@ -11,9 +11,9 @@ function guardarClientes(lista) {
 }
 
 
-/* ============================
+/* ============================================================
    📌 RENDERIZAR TABLA
-============================ */
+============================================================ */
 
 function renderClientes(filtro = "") {
   const clientes = obtenerClientes();
@@ -45,9 +45,9 @@ function renderClientes(filtro = "") {
 }
 
 
-/* ============================
+/* ============================================================
    📌 AGREGAR CLIENTE
-============================ */
+============================================================ */
 
 document.getElementById("formCliente").addEventListener("submit", function (e) {
   e.preventDefault();
@@ -57,10 +57,16 @@ document.getElementById("formCliente").addEventListener("submit", function (e) {
   const direccion = document.getElementById("direccionCliente").value.trim();
   const email = document.getElementById("emailCliente").value.trim();
   const tipo = document.getElementById("tipoCliente").value;
+  const cuit = document.getElementById("cuitCliente").value.trim();
   const obs = document.getElementById("obsCliente").value.trim();
 
   if (telefono.length !== 10 || isNaN(telefono)) {
     alert("El teléfono debe tener 10 dígitos numéricos.");
+    return;
+  }
+
+  if (cuit !== "" && isNaN(cuit)) {
+    alert("El CUIT debe ser numérico.");
     return;
   }
 
@@ -73,7 +79,7 @@ document.getElementById("formCliente").addEventListener("submit", function (e) {
     direccion,
     email,
     tipo,
-    cuit: tipo === "Empresa" ? prompt("Ingrese CUIT del cliente:") : "",
+    cuit,
     observaciones: obs
   };
 
@@ -85,9 +91,9 @@ document.getElementById("formCliente").addEventListener("submit", function (e) {
 });
 
 
-/* ============================
+/* ============================================================
    📌 ELIMINAR CLIENTE
-============================ */
+============================================================ */
 
 function eliminarCliente(id) {
   if (!confirm("¿Eliminar este cliente?")) return;
@@ -99,9 +105,9 @@ function eliminarCliente(id) {
 }
 
 
-/* ============================
+/* ============================================================
    📌 EDITAR CLIENTE
-============================ */
+============================================================ */
 
 function editarCliente(id) {
   const clientes = obtenerClientes();
@@ -114,11 +120,16 @@ function editarCliente(id) {
   const nuevaDireccion = prompt("Nueva dirección:", cliente.direccion);
   const nuevoEmail = prompt("Nuevo email:", cliente.email);
   const nuevoTipo = prompt("Nuevo tipo (Particular/Empresa):", cliente.tipo);
-  const nuevoCuit = nuevoTipo === "Empresa" ? prompt("Nuevo CUIT:", cliente.cuit) : "";
+  const nuevoCuit = prompt("Nuevo CUIT:", cliente.cuit);
   const nuevasObs = prompt("Observaciones:", cliente.observaciones);
 
   if (nuevoTelefono.length !== 10 || isNaN(nuevoTelefono)) {
     alert("El teléfono debe tener 10 dígitos numéricos.");
+    return;
+  }
+
+  if (nuevoCuit !== "" && isNaN(nuevoCuit)) {
+    alert("El CUIT debe ser numérico.");
     return;
   }
 
@@ -135,18 +146,18 @@ function editarCliente(id) {
 }
 
 
-/* ============================
+/* ============================================================
    📌 BUSCADOR
-============================ */
+============================================================ */
 
 document.getElementById("buscarCliente").addEventListener("input", function () {
   renderClientes(this.value);
 });
 
 
-/* ============================
+/* ============================================================
    📌 ORDENAR POR NOMBRE
-============================ */
+============================================================ */
 
 let ordenAsc = true;
 
@@ -166,9 +177,9 @@ function ordenarPorNombre() {
 }
 
 
-/* ============================
+/* ============================================================
    📌 BORRAR TODO
-============================ */
+============================================================ */
 
 function borrarTodo() {
   if (!confirm("¿Seguro que desea borrar TODOS los clientes?")) return;
@@ -177,9 +188,9 @@ function borrarTodo() {
 }
 
 
-/* ============================
+/* ============================================================
    📌 EXPORTAR A EXCEL (CSV)
-============================ */
+============================================================ */
 
 function exportarClientes() {
   const clientes = obtenerClientes();
@@ -206,8 +217,8 @@ function exportarClientes() {
 }
 
 
-/* ============================
+/* ============================================================
    📌 INICIALIZAR
-============================ */
+============================================================ */
 
 document.addEventListener("DOMContentLoaded", renderClientes);
