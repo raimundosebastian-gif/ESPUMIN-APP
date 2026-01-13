@@ -1,55 +1,67 @@
-// LOGIN
-function loginEmpleado() {
-    const user = document.getElementById("usuario").value.trim();
-    const pass = document.getElementById("password").value.trim();
-    const error = document.getElementById("login-error");
+// =========================
+// LOGIN Y SESIÓN
+// =========================
 
-    const empleados = [
+const empleados = [
     { usuario: "admin", password: "1234", rol: "admin" },
     { usuario: "empleado1", password: "abcd", rol: "empleado" },
-    { usuario: "EU", password: "villatita", rol: "admin" } // NUEVO ADMIN
+    { usuario: "EU", password: "villatita", rol: "admin" }
 ];
 
-    const encontrado = empleados.find(e => e.usuario === user && e.password === pass);
+function iniciarSesion() {
+    const usuario = document.getElementById("usuario").value.trim();
+    const password = document.getElementById("password").value.trim();
 
-    if (encontrado) {
-        localStorage.setItem("usuario", encontrado.usuario);
-        localStorage.setItem("rol", encontrado.rol);
-        window.location.href = "menu.html";
-    } else {
-        error.style.display = "block";
+    const encontrado = empleados.find(e => e.usuario === usuario && e.password === password);
+
+    if (!encontrado) {
+        alert("Usuario o contraseña incorrectos");
+        return;
     }
+
+    localStorage.setItem("usuario", encontrado.usuario);
+    localStorage.setItem("rol", encontrado.rol);
+
+    location.href = "menu.html";
 }
 
-
-
-// VERIFICAR SESIÓN
 function verificarSesion() {
     const usuario = localStorage.getItem("usuario");
-    if (!usuario) {
-        window.location.href = "index.html";
-    }
+    if (!usuario) location.href = "index.html";
 }
 
+function cerrarSesion() {
+    localStorage.removeItem("usuario");
+    localStorage.removeItem("rol");
+    location.href = "index.html";
+}
 
-
-// PERMISOS
 function aplicarPermisos() {
     const rol = localStorage.getItem("rol");
+    const adminElements = document.querySelectorAll(".solo-admin");
+    const empleadoElements = document.querySelectorAll(".solo-empleado");
 
-    if (rol === "empleado") {
-        document.querySelectorAll(".solo-admin").forEach(el => {
-            el.style.display = "none";
-        });
+    if (rol === "admin") {
+        adminElements.forEach(e => e.style.display = "block");
+        empleadoElements.forEach(e => e.style.display = "none");
+    } else {
+        adminElements.forEach(e => e.style.display = "none");
+        empleadoElements.forEach(e => e.style.display = "block");
     }
 }
 
 
 
-// CERRAR SESIÓN
-function cerrarSesion() {
-    localStorage.clear();
-    window.location.href = "index.html";
+// =========================
+// CLIENTES - DATOS INICIALES
+// =========================
+
+if (!localStorage.getItem("clientes")) {
+    const clientesEjemplo = [
+        { id: Date.now(), nombre: "Juan Pérez", telefono: "11-4567-8901" },
+        { id: Date.now() + 1, nombre: "María López", telefono: "11-7890-1234" }
+    ];
+    localStorage.setItem("clientes", JSON.stringify(clientesEjemplo));
 }
 
 
@@ -104,7 +116,10 @@ function mostrarClientes() {
         div.style.margin = "10px 0";
         div.innerHTML = `
             <strong>${cliente.nombre}</strong> - ${cliente.telefono || "Sin teléfono"}
-            <button onclick="eliminarCliente(${cliente.id})">Eliminar</button>
+            <button onclick="eliminarCliente(${cliente.id})"
+                style="margin-left:10px; padding:5px 10px; background:white; color:#d9534f; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">
+                ELIMINAR
+            </button>
         `;
         contenedor.appendChild(div);
     });
@@ -120,66 +135,11 @@ function eliminarCliente(id) {
 
 
 // =========================
-// CRUD PRODUCTOS
+// PRODUCTOS
 // =========================
 
 function obtenerProductos() {
     return JSON.parse(localStorage.getItem("productos") || "[]");
-}
-
-function guardarListaProductos(lista) {
-    localStorage.setItem("productos", JSON.stringify(lista));
-}
-
-function guardarProducto() {
-    const nombre = document.getElementById("prod-nombre").value.trim();
-    const precio = document.getElementById("prod-precio").value.trim();
-
-    if (!nombre || !precio) {
-        alert("Nombre y precio son obligatorios");
-        return;
-    }
-
-    const lista = obtenerProductos();
-
-    lista.push({
-        id: Date.now(),
-        nombre,
-        precio: Number(precio)
-    });
-
-    guardarListaProductos(lista);
-
-    document.getElementById("prod-nombre").value = "";
-    document.getElementById("prod-precio").value = "";
-
-    mostrarProductos();
-}
-
-function mostrarProductos() {
-    const lista = obtenerProductos();
-    const contenedor = document.getElementById("lista-productos");
-
-    if (!contenedor) return;
-
-    contenedor.innerHTML = "";
-
-    lista.forEach(prod => {
-        const div = document.createElement("div");
-        div.style.margin = "10px 0";
-        div.innerHTML = `
-            <strong>${prod.nombre}</strong> - $${prod.precio}
-            <button onclick="eliminarProducto(${prod.id})">Eliminar</button>
-        `;
-        contenedor.appendChild(div);
-    });
-}
-
-function eliminarProducto(id) {
-    let lista = obtenerProductos();
-    lista = lista.filter(p => p.id !== id);
-    guardarListaProductos(lista);
-    mostrarProductos();
 }
 
 
@@ -188,230 +148,16 @@ function eliminarProducto(id) {
 // VENTAS
 // =========================
 
-let itemsVenta = [];
-
-// Cargar clientes en select
-function cargarClientesEnVentas() {
-    const clientes = obtenerClientes();
-    const select = document.getElementById("venta-cliente");
-
-    if (!select) return;
-
-    select.innerHTML = "";
-
-    clientes.forEach(c => {
-        const op = document.createElement("option");
-        op.value = c.id;
-        op.textContent = c.nombre;
-        select.appendChild(op);
-    });
-}
-
-// Cargar productos en select
-function cargarProductosEnVentas() {
-    const productos = obtenerProductos();
-    const select = document.getElementById("venta-producto");
-
-    if (!select) return;
-
-    select.innerHTML = "";
-
-    productos.forEach(p => {
-        const op = document.createElement("option");
-        op.value = p.id;
-        op.textContent = `${p.nombre} ($${p.precio})`;
-        select.appendChild(op);
-    });
-}
-
-// Agregar item a la venta
-function agregarItemVenta() {
-    const prodId = Number(document.getElementById("venta-producto").value);
-    const cantidad = Number(document.getElementById("venta-cantidad").value);
-
-    if (!cantidad || cantidad <= 0) {
-        alert("Cantidad inválida");
-        return;
-    }
-
-    const productos = obtenerProductos();
-    const prod = productos.find(p => p.id === prodId);
-
-    itemsVenta.push({
-        id: Date.now(),
-        producto: prod.nombre,
-        precio: prod.precio,
-        cantidad,
-        subtotal: prod.precio * cantidad
-    });
-
-    mostrarItemsVenta();
-}
-
-// Mostrar items
-function mostrarItemsVenta() {
-    const cont = document.getElementById("venta-items");
-    const totalSpan = document.getElementById("venta-total");
-
-    cont.innerHTML = "";
-
-    let total = 0;
-
-    itemsVenta.forEach(item => {
-        total += item.subtotal;
-
-        const div = document.createElement("div");
-        div.style.margin = "8px 0";
-        div.innerHTML = `
-            ${item.producto} x ${item.cantidad} = $${item.subtotal}
-            <button onclick="eliminarItemVenta(${item.id})">X</button>
-        `;
-        cont.appendChild(div);
-    });
-
-    totalSpan.textContent = total;
-}
-
-// Eliminar item
-function eliminarItemVenta(id) {
-    itemsVenta = itemsVenta.filter(i => i.id !== id);
-    mostrarItemsVenta();
-}
-
-// Guardar venta
-function guardarVenta() {
-    if (itemsVenta.length === 0) {
-        alert("No hay items en la venta");
-        return;
-    }
-
-    const clienteId = Number(document.getElementById("venta-cliente").value);
-    const clientes = obtenerClientes();
-    const cliente = clientes.find(c => c.id === clienteId);
-
-    const ventas = JSON.parse(localStorage.getItem("ventas") || "[]");
-
-    ventas.push({
-        id: Date.now(),
-        cliente: cliente.nombre,
-        items: itemsVenta,
-        total: itemsVenta.reduce((t, i) => t + i.subtotal, 0)
-    });
-
-    localStorage.setItem("ventas", JSON.stringify(ventas));
-
-    itemsVenta = [];
-    mostrarItemsVenta();
-    mostrarVentas();
-
-    alert("Venta guardada");
-}
-
-// Mostrar ventas realizadas
-function mostrarVentas() {
-    const ventas = JSON.parse(localStorage.getItem("ventas") || "[]");
-    const cont = document.getElementById("lista-ventas");
-
-    if (!cont) return;
-
-    cont.innerHTML = "";
-
-    ventas.forEach(v => {
-        const div = document.createElement("div");
-        div.style.margin = "10px 0";
-        div.innerHTML = `
-            <strong>Cliente:</strong> ${v.cliente}<br>
-            <strong>Total:</strong> $${v.total}<br>
-            <strong>Items:</strong>
-            <ul>
-                ${v.items.map(i => `<li>${i.producto} x ${i.cantidad} = $${i.subtotal}</li>`).join("")}
-            </ul>
-            <hr>
-        `;
-        cont.appendChild(div);
-    });
-}
-
-// =========================
-// GESTIÓN DE PRECIOS
-// =========================
-
-// Cargar productos en la pantalla de precios
-function cargarProductosParaPrecios() {
-    const cont = document.getElementById("lista-precios");
-    if (!cont) return;
-
-    const productos = obtenerProductos();
-
-    cont.innerHTML = "";
-
-    productos.forEach(prod => {
-        const div = document.createElement("div");
-        div.style.margin = "10px 0";
-
-        div.innerHTML = `
-            <strong>${prod.nombre}</strong><br>
-            Precio actual: $${prod.precio}<br>
-            <input id="precio-${prod.id}" type="number" value="${prod.precio}" style="margin:5px; width:100px;">
-            <button onclick="actualizarPrecio(${prod.id})">Actualizar</button>
-            <hr>
-        `;
-
-        cont.appendChild(div);
-    });
-}
-
-// Actualizar precio de un producto
-function actualizarPrecio(id) {
-    const lista = obtenerProductos();
-    const nuevoPrecio = Number(document.getElementById(`precio-${id}`).value);
-
-    if (!nuevoPrecio || nuevoPrecio <= 0) {
-        alert("Precio inválido");
-        return;
-    }
-
-    const prod = lista.find(p => p.id === id);
-    prod.precio = nuevoPrecio;
-
-    guardarListaProductos(lista);
-
-    alert("Precio actualizado");
-
-    cargarProductosParaPrecios();
-}
-
-// =========================
-// REPORTES
-// =========================
-
-// Cargar clientes en el select de reportes
-function cargarClientesEnReporte() {
-    const clientes = obtenerClientes();
-    const select = document.getElementById("reporte-cliente");
-
-    if (!select) return;
-
-    select.innerHTML = "";
-
-    clientes.forEach(c => {
-        const op = document.createElement("option");
-        op.value = c.id;
-        op.textContent = c.nombre;
-        select.appendChild(op);
-    });
-}
-
-// Obtener ventas
 function obtenerVentas() {
     return JSON.parse(localStorage.getItem("ventas") || "[]");
 }
 
 
 
-// -------------------------
-// REPORTE MENSUAL
-// -------------------------
+// =========================
+// REPORTES
+// =========================
+
 function generarReporteMensual() {
     const mes = Number(document.getElementById("reporte-mes").value);
     const anio = Number(document.getElementById("reporte-anio-mes").value);
@@ -437,11 +183,6 @@ function generarReporteMensual() {
     `;
 }
 
-
-
-// -------------------------
-// REPORTE ANUAL
-// -------------------------
 function generarReporteAnual() {
     const anio = Number(document.getElementById("reporte-anio").value);
     const cont = document.getElementById("resultado-anual");
@@ -466,23 +207,16 @@ function generarReporteAnual() {
     `;
 }
 
-
-
-// -------------------------
-// REPORTE POR CLIENTE
-// -------------------------
 function generarReporteCliente() {
     const clienteId = Number(document.getElementById("reporte-cliente").value);
     const cont = document.getElementById("resultado-cliente");
 
+    const clientes = obtenerClientes();
+    const cliente = clientes.find(c => c.id === clienteId);
+
     const ventas = obtenerVentas();
 
-    const filtradas = ventas.filter(v => v.items && v.cliente && v.cliente !== "" && v.cliente !== null)
-                            .filter(v => {
-                                const clientes = obtenerClientes();
-                                const cliente = clientes.find(c => c.id === clienteId);
-                                return v.cliente === cliente.nombre;
-                            });
+    const filtradas = ventas.filter(v => v.cliente === cliente.nombre);
 
     const total = filtradas.reduce((t, v) => t + v.total, 0);
 
@@ -492,28 +226,12 @@ function generarReporteCliente() {
     `;
 }
 
+
+
 // =========================
 // HISTORIAL POR CLIENTE
 // =========================
 
-// Cargar clientes en el select
-function cargarClientesEnHistorial() {
-    const clientes = obtenerClientes();
-    const select = document.getElementById("historial-cliente");
-
-    if (!select) return;
-
-    select.innerHTML = "";
-
-    clientes.forEach(c => {
-        const op = document.createElement("option");
-        op.value = c.id;
-        op.textContent = c.nombre;
-        select.appendChild(op);
-    });
-}
-
-// Generar historial
 function generarHistorialCliente() {
     const clienteId = Number(document.getElementById("historial-cliente").value);
     const cont = document.getElementById("resultado-historial");
@@ -521,7 +239,7 @@ function generarHistorialCliente() {
     const clientes = obtenerClientes();
     const cliente = clientes.find(c => c.id === clienteId);
 
-    const ventas = JSON.parse(localStorage.getItem("ventas") || "[]");
+    const ventas = obtenerVentas();
 
     const filtradas = ventas.filter(v => v.cliente === cliente.nombre);
 
@@ -558,6 +276,8 @@ function generarHistorialCliente() {
     cont.innerHTML = html;
 }
 
+
+
 // =========================
 // DASHBOARD ADMIN
 // =========================
@@ -565,7 +285,7 @@ function generarHistorialCliente() {
 function cargarDashboard() {
     const clientes = obtenerClientes();
     const productos = obtenerProductos();
-    const ventas = JSON.parse(localStorage.getItem("ventas") || "[]");
+    const ventas = obtenerVentas();
 
     const totalFacturado = ventas.reduce((t, v) => t + v.total, 0);
 
