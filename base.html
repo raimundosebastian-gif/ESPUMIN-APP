@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>TÍTULO DE LA PÁGINA</title>
+</head>
+
+<body style="
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #007bff, #00c851);
+    color: white;
+">
+
+<h2 style="text-align:center;">TÍTULO DE LA PÁGINA</h2>
+
+<div style="text-align:center; margin-bottom:20px;">
+    <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
+
+    <button onclick="cerrarSesion()" 
+        style="padding:10px 20px; background:white; color:#007bff; border:none; border-radius:5px; cursor:pointer;">
+        Cerrar sesión
+    </button>
+</div>
+
+<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
+
+<!-- CONTENIDO PRINCIPAL AQUÍ -->
+
+<script src="script.js"></script>
+
+<script>
+    verificarSesion();
+    aplicarPermisos();
+    document.getElementById("usuario-log").textContent = localStorage.getItem("usuario");
+</script>
+
+</body>
+</html>
