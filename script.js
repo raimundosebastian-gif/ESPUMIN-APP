@@ -490,3 +490,69 @@ function generarReporteCliente() {
         <p><strong>Total facturado:</strong> $${total}</p>
     `;
 }
+
+// =========================
+// HISTORIAL POR CLIENTE
+// =========================
+
+// Cargar clientes en el select
+function cargarClientesEnHistorial() {
+    const clientes = obtenerClientes();
+    const select = document.getElementById("historial-cliente");
+
+    if (!select) return;
+
+    select.innerHTML = "";
+
+    clientes.forEach(c => {
+        const op = document.createElement("option");
+        op.value = c.id;
+        op.textContent = c.nombre;
+        select.appendChild(op);
+    });
+}
+
+// Generar historial
+function generarHistorialCliente() {
+    const clienteId = Number(document.getElementById("historial-cliente").value);
+    const cont = document.getElementById("resultado-historial");
+
+    const clientes = obtenerClientes();
+    const cliente = clientes.find(c => c.id === clienteId);
+
+    const ventas = JSON.parse(localStorage.getItem("ventas") || "[]");
+
+    const filtradas = ventas.filter(v => v.cliente === cliente.nombre);
+
+    if (filtradas.length === 0) {
+        cont.innerHTML = `<p>No hay ventas registradas para este cliente.</p>`;
+        return;
+    }
+
+    let totalGeneral = 0;
+
+    let html = `<h4>Cliente: ${cliente.nombre}</h4>`;
+
+    filtradas.forEach(v => {
+        const fecha = new Date(v.id);
+        const fechaStr = fecha.toLocaleDateString();
+
+        totalGeneral += v.total;
+
+        html += `
+            <div style="margin-bottom:10px;">
+                <strong>Fecha:</strong> ${fechaStr}<br>
+                <strong>Total:</strong> $${v.total}<br>
+                <strong>Items:</strong>
+                <ul>
+                    ${v.items.map(i => `<li>${i.producto} x ${i.cantidad} = $${i.subtotal}</li>`).join("")}
+                </ul>
+                <hr>
+            </div>
+        `;
+    });
+
+    html += `<h3>Total acumulado: $${totalGeneral}</h3>`;
+
+    cont.innerHTML = html;
+}
