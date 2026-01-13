@@ -56,11 +56,15 @@ function aplicarPermisos() {
 // CLIENTES - DATOS INICIALES
 // =========================
 
-if (!localStorage.getItem("clientes")) {
+// Cargar clientes de ejemplo si la lista está vacía
+let clientesGuardados = JSON.parse(localStorage.getItem("clientes") || "[]");
+
+if (clientesGuardados.length === 0) {
     const clientesEjemplo = [
         { id: Date.now(), nombre: "Juan", apellido: "Pérez", telefono: "1145678901" },
         { id: Date.now() + 1, nombre: "María", apellido: "López", telefono: "1178901234" }
     ];
+
     localStorage.setItem("clientes", JSON.stringify(clientesEjemplo));
 }
 
@@ -188,6 +192,5 @@ function editarCliente(id) {
 
 
 // =========================
-// PRODUCTOS / VENTAS / REPORTES / HISTORIAL / DASHBOARD
-// (todo lo demás queda igual que ya tenías)
+// EL RESTO DEL SISTEMA SIGUE IGUAL
 // =========================
