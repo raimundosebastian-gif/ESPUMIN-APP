@@ -1,116 +1,364 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>ESPUMIN APP - Productos</title>
-</head>
-
-<body style="
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
-    background: linear-gradient(135deg, #007bff, #00c851);
-    color: white;
-">
-
-<h2 style="text-align:center;">PRODUCTOS</h2>
-
-<div style="text-align:center; margin-bottom:20px;">
-    <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
-
-    <button onclick="cerrarSesion()" 
-        style="
-            padding:10px 20px;
-            background:white;
-            color:#007bff;
-            border:none;
-            border-radius:5px;
-            cursor:pointer;
-            font-size:16px;
-            font-weight:bold;
-            text-transform:uppercase;
-        ">
-        Cerrar sesión
-    </button>
-</div>
-
-<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
+/* ============================================================
+   SISTEMA ESPUMIN APP - SCRIPT PRINCIPAL
+   Gestión de Clientes, Productos, Ventas, Precios y Reportes
+   ============================================================ */
 
 
-<!-- SOLO ADMIN -->
-<div class="solo-admin">
-    <h3>Nuevo Producto</h3>
+/* ============================================================
+   UTILIDADES DE LOCALSTORAGE
+   ============================================================ */
 
-    <input id="prod-nombre" type="text" placeholder="Nombre"
-        style="padding:10px; width:220px; border:none; border-radius:5px; margin:5px;">
+function obtenerClientes() {
+    return JSON.parse(localStorage.getItem("clientes")) || [];
+}
 
-    <input id="prod-precio" type="number" placeholder="Precio"
-        style="padding:10px; width:220px; border:none; border-radius:5px; margin:5px;">
+function guardarClientes(lista) {
+    localStorage.setItem("clientes", JSON.stringify(lista));
+}
 
-    <select id="prod-unidad"
-        style="padding:10px; width:220px; border:none; border-radius:5px; margin:5px;">
-        <option value="Litros">Litros</option>
-        <option value="Kilos">Kilos</option>
-        <option value="Unidades">Unidades</option>
-    </select>
+function obtenerProductos() {
+    return JSON.parse(localStorage.getItem("productos")) || [];
+}
 
-    <select id="prod-estado"
-        style="padding:10px; width:220px; border:none; border-radius:5px; margin:5px;">
-        <option value="Activo">Activo</option>
-        <option value="Inactivo">Inactivo</option>
-    </select>
+function guardarProductos(lista) {
+    localStorage.setItem("productos", JSON.stringify(lista));
+}
 
-    <button onclick="guardarProducto()" 
-        style="
-            padding:12px 20px;
-            background:white;
-            color:#00c851;
-            border:none;
-            border-radius:6px;
-            cursor:pointer;
-            font-size:16px;
-            font-weight:bold;
-            text-transform:uppercase;
-        ">
-        Guardar
-    </button>
-</div>
+function obtenerVentas() {
+    return JSON.parse(localStorage.getItem("ventas")) || [];
+}
 
-<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
+function guardarVentas(lista) {
+    localStorage.setItem("ventas", JSON.stringify(lista));
+}
 
 
-<h3>Listado de Productos</h3>
+/* ============================================================
+   CLIENTES
+   ============================================================ */
 
-<div id="lista-productos" style="margin-top:10px;"></div>
+function guardarCliente() {
+    const nombre = document.getElementById("cliente-nombre").value.trim();
+    const apellido = document.getElementById("cliente-apellido").value.trim();
+    const telefono = document.getElementById("cliente-telefono").value.trim();
+
+    if (!nombre || !apellido || telefono.length !== 10) {
+        alert("Complete todos los campos correctamente.");
+        return;
+    }
+
+    const clientes = obtenerClientes();
+
+    clientes.push({
+        id: Date.now(),
+        nombre,
+        apellido,
+        telefono
+    });
+
+    guardarClientes(clientes);
+    mostrarClientes();
+    alert("Cliente guardado.");
+}
+
+function mostrarClientes() {
+    const clientes = obtenerClientes();
+    const cont = document.getElementById("lista-clientes");
+
+    if (!cont) return;
+
+    if (clientes.length === 0) {
+        cont.innerHTML = "<p>No hay clientes cargados.</p>";
+        return;
+    }
+
+    cont.innerHTML = clientes.map(c => `
+        <div style="margin-bottom:10px;">
+            <strong>${c.apellido}, ${c.nombre}</strong> - ${c.telefono}
+        </div>
+    `).join("");
+}
+
+function reiniciarClientes() {
+    if (confirm("¿Seguro que desea borrar todos los clientes?")) {
+        localStorage.removeItem("clientes");
+        mostrarClientes();
+    }
+}
 
 
-<!-- BOTÓN VOLVER AL MENÚ -->
-<button onclick="location.href='menu.html'"
-    style="
-        margin-top:30px;
-        padding:12px 20px;
-        background:white;
-        color:#007bff;
-        border:none;
-        border-radius:6px;
-        cursor:pointer;
-        font-size:16px;
-        font-weight:bold;
-        text-transform:uppercase;
-    ">
-    Volver al Menú
-</button>
+/* ============================================================
+   PRODUCTOS
+   ============================================================ */
 
+function guardarProducto() {
+    const nombre = document.getElementById("prod-nombre").value.trim();
+    const precio = parseFloat(document.getElementById("prod-precio").value);
+    const unidad = document.getElementById("prod-unidad").value;
+    const estado = document.getElementById("prod-estado").value;
 
-<script src="script.js"></script>
+    if (!nombre || isNaN(precio)) {
+        alert("Complete todos los campos.");
+        return;
+    }
 
-<script>
-    verificarSesion();
-    aplicarPermisos();
-    document.getElementById("usuario-log").textContent = localStorage.getItem("usuario");
+    const productos = obtenerProductos();
 
+    productos.push({
+        id: Date.now(),
+        nombre,
+        precio,
+        unidad,
+        estado
+    });
+
+    guardarProductos(productos);
     mostrarProductos();
-</script>
+    alert("Producto guardado.");
+}
 
-</body>
-</html>
+function mostrarProductos() {
+    const productos = obtenerProductos();
+    const cont = document.getElementById("lista-productos");
+
+    if (!cont) return;
+
+    if (productos.length === 0) {
+        cont.innerHTML = "<p>No hay productos cargados.</p>";
+        return;
+    }
+
+    cont.innerHTML = productos.map(p => `
+        <div style="margin-bottom:10px;">
+            <strong>${p.nombre}</strong> - $${p.precio} (${p.unidad}) - ${p.estado}
+        </div>
+    `).join("");
+}
+
+
+/* ============================================================
+   PRECIOS
+   ============================================================ */
+
+function cargarProductosEnPrecios() {
+    const productos = obtenerProductos();
+    const select = document.getElementById("precio-producto");
+
+    if (!select) return;
+
+    select.innerHTML = productos.map(p =>
+        `<option value="${p.id}">${p.nombre}</option>`
+    ).join("");
+}
+
+function guardarPrecio() {
+    const id = parseInt(document.getElementById("precio-producto").value);
+    const nuevoPrecio = parseFloat(document.getElementById("precio-nuevo").value);
+
+    if (isNaN(nuevoPrecio)) {
+        alert("Ingrese un precio válido.");
+        return;
+    }
+
+    const productos = obtenerProductos();
+    const prod = productos.find(p => p.id === id);
+
+    if (!prod) return;
+
+    prod.precio = nuevoPrecio;
+
+    guardarProductos(productos);
+    mostrarPrecios();
+    alert("Precio actualizado.");
+}
+
+function mostrarPrecios() {
+    const productos = obtenerProductos();
+    const cont = document.getElementById("lista-precios");
+
+    if (!cont) return;
+
+    cont.innerHTML = productos.map(p => `
+        <div style="margin-bottom:10px;">
+            <strong>${p.nombre}</strong> - $${p.precio}
+        </div>
+    `).join("");
+}
+
+
+/* ============================================================
+   VENTAS
+   ============================================================ */
+
+function cargarClientesEnVentas() {
+    const clientes = obtenerClientes();
+    const select = document.getElementById("venta-cliente");
+
+    if (!select) return;
+
+    select.innerHTML = clientes.map(c =>
+        `<option value="${c.id}">${c.apellido}, ${c.nombre}</option>`
+    ).join("");
+}
+
+function cargarProductosEnVentas() {
+    const productos = obtenerProductos().filter(p => p.estado === "Activo");
+    const select = document.getElementById("venta-producto");
+
+    if (!select) return;
+
+    select.innerHTML = productos.map(p =>
+        `<option value="${p.id}">${p.nombre} - $${p.precio}</option>`
+    ).join("");
+}
+
+let itemsVenta = [];
+
+function agregarItemVenta() {
+    const idProd = parseInt(document.getElementById("venta-producto").value);
+    const cantidad = parseFloat(document.getElementById("venta-cantidad").value);
+
+    if (isNaN(cantidad) || cantidad <= 0) {
+        alert("Cantidad inválida.");
+        return;
+    }
+
+    const productos = obtenerProductos();
+    const prod = productos.find(p => p.id === idProd);
+
+    itemsVenta.push({
+        producto: prod.nombre,
+        precio: prod.precio,
+        cantidad,
+        subtotal: prod.precio * cantidad
+    });
+
+    mostrarItemsVenta();
+}
+
+function mostrarItemsVenta() {
+    const cont = document.getElementById("items-venta");
+
+    if (!cont) return;
+
+    cont.innerHTML = itemsVenta.map(i => `
+        <div>
+            ${i.producto} - ${i.cantidad} x $${i.precio} = $${i.subtotal}
+        </div>
+    `).join("");
+}
+
+function confirmarVenta() {
+    if (itemsVenta.length === 0) {
+        alert("No hay items en la venta.");
+        return;
+    }
+
+    const idCliente = parseInt(document.getElementById("venta-cliente").value);
+    const clientes = obtenerClientes();
+    const cliente = clientes.find(c => c.id === idCliente);
+
+    const total = itemsVenta.reduce((t, i) => t + i.subtotal, 0);
+
+    const ventas = obtenerVentas();
+
+    ventas.push({
+        id: Date.now(),
+        cliente: `${cliente.apellido}, ${cliente.nombre}`,
+        items: itemsVenta,
+        total
+    });
+
+    guardarVentas(ventas);
+
+    itemsVenta = [];
+    mostrarItemsVenta();
+
+    alert("Venta registrada.");
+}
+
+
+/* ============================================================
+   HISTORIAL
+   ============================================================ */
+
+function cargarClientesEnHistorial() {
+    const clientes = obtenerClientes();
+    const select = document.getElementById("historial-cliente");
+
+    if (!select) return;
+
+    select.innerHTML = clientes.map(c =>
+        `<option value="${c.id}">${c.apellido}, ${c.nombre}</option>`
+    ).join("");
+}
+
+function mostrarHistorialCliente() {
+    const idCliente = parseInt(document.getElementById("historial-cliente").value);
+    const clientes = obtenerClientes();
+    const cliente = clientes.find(c => c.id === idCliente);
+
+    const ventas = obtenerVentas().filter(v => v.cliente === `${cliente.apellido}, ${cliente.nombre}`);
+
+    const cont = document.getElementById("lista-historial");
+
+    if (!cont) return;
+
+    if (ventas.length === 0) {
+        cont.innerHTML = "<p>No hay ventas para este cliente.</p>";
+        return;
+    }
+
+    cont.innerHTML = ventas.map(v => `
+        <div style="margin-bottom:10px;">
+            <strong>${new Date(v.id).toLocaleDateString()}</strong> - Total: $${v.total}
+        </div>
+    `).join("");
+}
+
+
+/* ============================================================
+   REPORTES
+   ============================================================ */
+
+function generarReporteMensual() {
+    const mes = parseInt(document.getElementById("reporte-mes").value);
+    const anio = parseInt(document.getElementById("reporte-anio-mes").value);
+
+    const ventas = obtenerVentas().filter(v => {
+        const fecha = new Date(v.id);
+        return fecha.getMonth() + 1 === mes && fecha.getFullYear() === anio;
+    });
+
+    const total = ventas.reduce((t, v) => t + v.total, 0);
+
+    document.getElementById("resultado-mensual").innerHTML =
+        `<p>Total facturado: $${total}</p>`;
+}
+
+function generarReporteAnual() {
+    const anio = parseInt(document.getElementById("reporte-anio").value);
+
+    const ventas = obtenerVentas().filter(v => {
+        const fecha = new Date(v.id);
+        return fecha.getFullYear() === anio;
+    });
+
+    const total = ventas.reduce((t, v) => t + v.total, 0);
+
+    document.getElementById("resultado-anual").innerHTML =
+        `<p>Total facturado: $${total}</p>`;
+}
+
+function generarReporteCliente() {
+    const idCliente = parseInt(document.getElementById("reporte-cliente").value);
+    const clientes = obtenerClientes();
+    const cliente = clientes.find(c => c.id === idCliente);
+
+    const ventas = obtenerVentas().filter(v => v.cliente === `${cliente.apellido}, ${cliente.nombre}`);
+
+    const total = ventas.reduce((t, v) => t + v.total, 0);
+
+    document.getElementById("resultado-cliente").innerHTML =
+        `<p>Total facturado por ${cliente.apellido}, ${cliente.nombre}: $${total}</p>`;
+}
