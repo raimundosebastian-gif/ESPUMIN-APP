@@ -3,16 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <title>Backups - ESPUMIN</title>
-    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #007bff, #00c851);
+            color: white;
+            text-align: center;
+        }
+
+        .contenedor {
+            background: white;
+            color: #333;
+            padding: 25px;
+            border-radius: 12px;
+            max-width: 800px;
+            margin: auto;
+            box-shadow: 0 0 12px rgba(0,0,0,0.25);
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #007bff;
+            color: white;
+        }
+
+        tr:hover {
+            background: #f1f1f1;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 5px;
+        }
+
+        .btn-azul { background: #007bff; color: white; }
+        .btn-verde { background: #00c851; color: white; }
+        .btn-rojo { background: #ff4444; color: white; }
+        .btn-volver { background: #444; color: white; margin-top: 20px; }
+
+        /* Modal */
+        #modal-confirmacion {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-contenido {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            width: 350px;
+            text-align: center;
+            color: #333;
+            box-shadow: 0 0 12px rgba(0,0,0,0.3);
+        }
+    </style>
 </head>
+
 <body>
 
-<div class="container">
+<div class="contenedor">
     <h1>Backups del Sistema</h1>
 
-    <button onclick="descargarBackup()" class="btn-azul">Descargar Backup Actual</button>
+    <button onclick="descargarBackup()" class="btn btn-verde">Descargar Backup Actual</button>
 
-    <h2>Backups Internos</h2>
+    <h2>Historial de Backups</h2>
+
     <table id="tabla-backups">
         <thead>
             <tr>
@@ -24,9 +105,27 @@
         <tbody></tbody>
     </table>
 
-    <button onclick="window.location.href='menu.html'" class="btn-volver">Volver al menú</button>
+    <button onclick="window.location.href='menu.html'" class="btn btn-volver">Volver al menú</button>
+</div>
+
+<!-- Modal -->
+<div id="modal-confirmacion">
+    <div class="modal-contenido">
+        <h3>¿Restaurar este backup?</h3>
+        <p>Se reemplazarán todos los datos actuales.</p>
+
+        <button id="btn-confirmar" class="btn btn-verde">Sí, restaurar</button>
+        <button onclick="cerrarModal()" class="btn btn-rojo">Cancelar</button>
+    </div>
 </div>
 
 <script src="script.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        mostrarBackups();
+    });
+</script>
+
 </body>
 </html>
