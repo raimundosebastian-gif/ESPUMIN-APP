@@ -797,6 +797,18 @@ function generarReporteProductos() {
 }
 
 /* ============================================================
+   PARSEAR FECHA dd/mm/aaaa → Date válido
+   ============================================================ */
+function parsearFecha(fechaStr) {
+    // fechaStr viene como "dd/mm/aaaa"
+    const partes = fechaStr.split("/");
+    const dia = parseInt(partes[0], 10);
+    const mes = parseInt(partes[1], 10) - 1; // JS usa 0-11
+    const anio = parseInt(partes[2], 10);
+    return new Date(anio, mes, dia);
+}
+
+/* ============================================================
    REPORTES AVANZADOS
    ============================================================ */
 
@@ -810,7 +822,7 @@ function generarReporteMensual(mes, anio) {
     if (!cont) return;
 
     const filtradas = ventas.filter(v => {
-        const f = new Date(v.fecha);
+        const f = parsearFecha(v.fecha);
         return f.getMonth() + 1 === mes && f.getFullYear() === anio;
     });
 
@@ -839,7 +851,7 @@ function generarReporteAnual(anio) {
     if (!cont) return;
 
     const filtradas = ventas.filter(v => {
-        const f = new Date(v.fecha);
+        const f = parsearFecha(v.fecha);
         return f.getFullYear() === anio;
     });
 
@@ -871,7 +883,7 @@ function generarReporteRango(desde, hasta) {
     const d2 = new Date(hasta);
 
     const filtradas = ventas.filter(v => {
-        const f = new Date(v.fecha);
+        const f = parsearFecha(v.fecha);
         return f >= d1 && f <= d2;
     });
 
@@ -889,6 +901,7 @@ function generarReporteRango(desde, hasta) {
         </table>
     `;
 }
+
 
 /* ------------------------------
    REPORTE POR CATEGORÍA
@@ -991,4 +1004,5 @@ function exportarPDF() {
 /* ============================================================
    FIN DEL ARCHIVO
    ============================================================ */
+
 
