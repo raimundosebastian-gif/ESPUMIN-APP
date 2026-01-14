@@ -101,13 +101,13 @@
     const rol = localStorage.getItem("userRole");
 
     if (!usuario) {
-        window.location.href = "index.html";
+        location.href = "index.html";
     }
 
     function cerrarSesion() {
         localStorage.removeItem("loggedUser");
         localStorage.removeItem("userRole");
-        window.location.href = "index.html";
+        location.href = "index.html";
     }
 
     function capitalizar(texto) {
@@ -163,7 +163,7 @@
 </div>
 
 <div style="text-align:center;">
-    <button onclick="location.href='menu.html'" class="btn btn-volver">
+    <button onclick="irAMenu()" class="btn btn-volver">
         Volver al Menú
     </button>
 </div>
