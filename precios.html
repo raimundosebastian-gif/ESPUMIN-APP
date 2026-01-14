@@ -3,6 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <title>ESPUMIN APP - Precios</title>
+
+    <style>
+        .contenedor {
+            background: white;
+            color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 900px;
+            margin: auto;
+            box-shadow: 0 0 12px rgba(0,0,0,0.2);
+        }
+
+        .input-box {
+            padding: 10px;
+            width: 260px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin: 5px;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 5px;
+        }
+
+        .btn-guardar { background: #00c851; color: white; }
+        .btn-volver { background: #007bff; color: white; }
+        .btn-sesion { background: white; color: #007bff; }
+
+        #precio-actual {
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
 </head>
 
 <body style="
@@ -13,24 +54,19 @@
     color: white;
 ">
 
-<!-- 🔐 Protección de acceso + rol -->
+<!-- 🔐 Protección de acceso -->
 <script>
     const usuario = localStorage.getItem("loggedUser");
     const rol = localStorage.getItem("userRole");
 
     if (!usuario) {
-        window.location.href = "index.html";
-    }
-
-    if (rol !== "admin") {
-        alert("Acceso restringido: solo administradores");
-        window.location.href = "menu.html";
+        location.href = "index.html";
     }
 
     function cerrarSesion() {
         localStorage.removeItem("loggedUser");
         localStorage.removeItem("userRole");
-        window.location.href = "index.html";
+        location.href = "index.html";
     }
 </script>
 
@@ -39,99 +75,42 @@
 <div style="text-align:center; margin-bottom:20px;">
     <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
 
-    <button onclick="cerrarSesion()" 
-        style="
-            padding:10px 20px;
-            background:white;
-            color:#007bff;
-            border:none;
-            border-radius:5px;
-            cursor:pointer;
-            font-size:16px;
-            font-weight:bold;
-            text-transform:uppercase;
-        ">
+    <button onclick="cerrarSesion()" class="btn btn-sesion">
         Cerrar sesión
     </button>
 </div>
 
-<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
+<div class="contenedor">
 
+    <h3>Modificar Precio</h3>
 
-<!-- FORMULARIO ACTUALIZAR PRECIO -->
-<div>
-    <h3>Actualizar Precio</h3>
-
-    <select id="precio-producto"
-        onchange="mostrarPrecioActual()"
-        style="padding:10px; width:260px; border:none; border-radius:5px; margin:5px;">
+    <select id="precio-producto" class="input-box" onchange="mostrarPrecioActual()">
+        <option value="">Seleccione un producto</option>
     </select>
 
-    <p id="precio-actual" style="margin:5px 0 15px 0; font-size:18px;"></p>
+    <div id="precio-actual"></div>
 
-    <input id="precio-nuevo" type="number" placeholder="Nuevo Precio"
-        style="padding:10px; width:260px; border:none; border-radius:5px; margin:5px;">
+    <input id="precio-nuevo" type="number" placeholder="Nuevo precio" class="input-box">
 
-    <button onclick="guardarPrecio()" 
-        style="
-            padding:12px 20px;
-            background:white;
-            color:#00c851;
-            border:none;
-            border-radius:6px;
-            cursor:pointer;
-            font-size:16px;
-            font-weight:bold;
-            text-transform:uppercase;
-        ">
-        Guardar Precio
-    </button>
+    <button onclick="guardarPrecio()" class="btn btn-guardar">Guardar Precio</button>
+
 </div>
 
-<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
-
-
-<h3>Listado de Precios</h3>
-
-<!-- 🔍 BUSCADOR -->
-<input id="buscar-precio" type="text" placeholder="Buscar producto..."
-    onkeyup="buscarPrecios()"
-    style="
-        padding:10px;
-        width:260px;
-        border:none;
-        border-radius:5px;
-        margin-bottom:15px;
-    ">
-
-<div id="lista-precios" style="margin-top:10px;"></div>
-
-
-<!-- BOTÓN VOLVER AL MENÚ -->
-<button onclick="location.href='menu.html'"
-    style="
-        margin-top:30px;
-        padding:12px 20px;
-        background:white;
-        color:#007bff;
-        border:none;
-        border-radius:6px;
-        cursor:pointer;
-        font-size:16px;
-        font-weight:bold;
-        text-transform:uppercase;
-    ">
-    Volver al Menú
-</button>
-
+<div style="text-align:center; margin-top:20px;">
+    <button onclick="irAMenu()" class="btn btn-volver">
+        Volver al Menú
+    </button>
+</div>
 
 <script src="script.js"></script>
 
 <script>
     document.getElementById("usuario-log").textContent = usuario;
 
+    // Cargar productos en el selector
     cargarProductosEnPrecios();
-    mostrarPrecios();
+
+    // Mostrar precio del primer producto si existe
     mostrarPrecioActual();
 </script>
 
