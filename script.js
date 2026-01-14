@@ -383,6 +383,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+async function descargarZipBackups() {
+    const zip = new JSZip();
+    const contador = parseInt(localStorage.getItem("backup_contador") || "0");
+
+    for (let i = contador; i >= 1; i--) {
+        const data = localStorage.getItem(`backup_${i}`);
+        if (!data) continue;
+        zip.file(`backup_${i}.json`, data);
+    }
+
+    const contenido = await zip.generateAsync({ type: "blob" });
+
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(contenido);
+    a.download = "ESPUMIN_BACKUPS.zip";
+    a.click();
+}
+
 function mostrarBackups() {
     const tabla = document.querySelector("#tabla-backups tbody");
     if (!tabla) return;
@@ -596,4 +614,5 @@ function descargarBackupEspecifico(numero) {
 
     URL.revokeObjectURL(url);
 }
+
 
