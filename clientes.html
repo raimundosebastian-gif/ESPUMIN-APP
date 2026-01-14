@@ -114,6 +114,13 @@
         if (!texto) return "";
         return texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase();
     }
+
+    function reiniciarClientes() {
+        if (confirm("¿Seguro que desea eliminar TODOS los clientes?")) {
+            localStorage.removeItem("clientes");
+            mostrarClientes();
+        }
+    }
 </script>
 
 <h2 style="text-align:center;">CLIENTES</h2>
@@ -170,9 +177,7 @@
         document.getElementById("btn-reiniciar").style.display = "none";
     }
 
-    if (typeof mostrarClientes === "function") {
-        mostrarClientes();
-    }
+    mostrarClientes();
 </script>
 
 </body>
