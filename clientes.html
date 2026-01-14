@@ -149,11 +149,14 @@
     </button>
 </div>
 
+<!-- 🔥 EL SCRIPT VA AL FINAL DEL BODY -->
 <script src="script.js"></script>
 
 <script>
+document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("usuario-log").textContent = usuario;
     mostrarClientes();
+});
 </script>
 
 </body>
