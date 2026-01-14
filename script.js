@@ -803,3 +803,195 @@ function editarPrecio(index) {
 function irAMenu() {
     window.location.href = "menu.html";
 }
+
+/* ===============================
+      AGREGAR VENTA
+=============================== */
+function agregarVenta() {
+    const cliente = document.getElementById("venta-cliente").value.trim();
+    const producto = document.getElementById("venta-producto").value.trim();
+    const cantidad = parseInt(document.getElementById("venta-cantidad").value.trim());
+
+    if (!cliente || !producto || isNaN(cantidad) || cantidad <= 0) {
+        alert("Completa todos los campos correctamente.");
+        return;
+    }
+
+    const productos = JSON.parse(localStorage.getItem("productos")) || [];
+    const precios = JSON.parse(localStorage.getItem("precios")) || [];
+
+    const prod = productos.find(p => p.nombre === producto);
+    const precioProd = precios.find(p => p.producto === producto);
+
+    if (!prod) {
+        alert("El producto no existe.");
+        return;
+    }
+
+    if (!precioProd) {
+        alert("No hay precio cargado para este producto.");
+        return;
+    }
+
+    if (cantidad > prod.stock) {
+        alert("No hay stock suficiente.");
+        return;
+    }
+
+    const total = precioProd.venta * cantidad;
+
+    const ventas = JSON.parse(localStorage.getItem("ventas")) || [];
+
+    ventas.push({
+        cliente,
+        producto,
+        cantidad,
+        precioUnitario: precioProd.venta,
+        total,
+        fecha: new Date().toLocaleString()
+    });
+
+    localStorage.setItem("ventas", JSON.stringify(ventas));
+
+    // Descontar stock
+    prod.stock -= cantidad;
+    localStorage.setItem("productos", JSON.stringify(productos));
+
+    alert("Venta registrada correctamente.");
+
+    document.getElementById("venta-cliente").value = "";
+    document.getElementById("venta-producto").value = "";
+    document.getElementById("venta-cantidad").value = "";
+
+    mostrarVentas();
+}
+
+/* ===============================
+      MOSTRAR VENTAS
+=============================== */
+function mostrarVentas() {
+    const ventas = JSON.parse(localStorage.getItem("ventas")) || [];
+    const contenedor = document.getElementById("lista-ventas");
+
+    if (ventas.length === 0) {
+        contenedor.innerHTML = "<p>No hay ventas registradas.</p>";
+        return;
+    }
+
+    let html = `
+        <table>
+            <tr>
+                <th>Cliente</th>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unit.</th>
+                <th>Total</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
+    `;
+
+    ventas.forEach((v, index) => {
+        html += `
+            <tr>
+                <td>${v.cliente}</td>
+                <td>${v.producto}</td>
+                <td>${v.cantidad}</td>
+                <td>$${v.precioUnitario.toFixed(2)}</td>
+                <td>$${v.total.toFixed(2)}</td>
+                <td>${v.fecha}</td>
+                <td>
+                    <button class="btn-accion btn-eliminar" onclick="eliminarVenta(${index})">Eliminar</button>
+                </td>
+            </tr>
+        `;
+    });
+
+    html += "</table>";
+
+    contenedor.innerHTML = html;
+}
+
+/* ===============================
+      BUSCAR VENTAS
+=============================== */
+function buscarVentas() {
+    const texto = document.getElementById("buscar-venta").value.toLowerCase();
+    const ventas = JSON.parse(localStorage.getItem("ventas")) || [];
+
+    const filtradas = ventas.filter(v =>
+        v.cliente.toLowerCase().includes(texto) ||
+        v.producto.toLowerCase().includes(texto)
+    );
+
+    const contenedor = document.getElementById("lista-ventas");
+
+    if (filtradas.length === 0) {
+        contenedor.innerHTML = "<p>No se encontraron coincidencias.</p>";
+        return;
+    }
+
+    let html = `
+        <table>
+            <tr>
+                <th>Cliente</th>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unit.</th>
+                <th>Total</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
+    `;
+
+    filtradas.forEach((v, index) => {
+        html += `
+            <tr>
+                <td>${v.cliente}</td>
+                <td>${v.producto}</td>
+                <td>${v.cantidad}</td>
+                <td>$${v.precioUnitario.toFixed(2)}</td>
+                <td>$${v.total.toFixed(2)}</td>
+                <td>${v.fecha}</td>
+                <td>
+                    <button class="btn-accion btn-eliminar" onclick="eliminarVenta(${index})">Eliminar</button>
+                </td>
+            </tr>
+        `;
+    });
+
+    html += "</table>";
+
+    contenedor.innerHTML = html;
+}
+
+/* ===============================
+      ELIMINAR VENTA
+=============================== */
+function eliminarVenta(index) {
+    const ventas = JSON.parse(localStorage.getItem("ventas")) || [];
+    const productos = JSON.parse(localStorage.getItem("productos")) || [];
+
+    const venta = ventas[index];
+
+    if (!confirm("¿Eliminar esta venta?")) return;
+
+    // Devolver stock
+    const prod = productos.find(p => p.nombre === venta.producto);
+    if (prod) {
+        prod.stock += venta.cantidad;
+        localStorage.setItem("productos", JSON.stringify(productos));
+    }
+
+    ventas.splice(index, 1);
+    localStorage.setItem("ventas", JSON.stringify(ventas));
+
+    mostrarVentas();
+}
+
+/* ===============================
+      VOLVER AL MENÚ
+=============================== */
+function irAMenu() {
+    window.location.href = "menu.html";
+}
