@@ -602,6 +602,8 @@ function guardarVenta() {
     guardarVentas(ventas);
 
     document.getElementById("venta-cantidad").value = "";
+    document.getElementById("venta-cliente").value = "";
+    document.getElementById("venta-producto").value = "";
     actualizarPrecioVenta();
     mostrarVentas();
 
@@ -989,3 +991,4 @@ function exportarPDF() {
 /* ============================================================
    FIN DEL ARCHIVO
    ============================================================ */
+
