@@ -3,6 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <title>ESPUMIN APP - Reportes</title>
+
+    <style>
+        .contenedor {
+            background: white;
+            color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 900px;
+            margin: auto;
+            box-shadow: 0 0 12px rgba(0,0,0,0.2);
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 5px;
+        }
+
+        .btn-volver { background: #007bff; color: white; }
+        .btn-sesion { background: white; color: #007bff; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th {
+            background: #007bff;
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:nth-child(even) {
+            background: #f2f2f2;
+        }
+
+        h3 {
+            margin-top: 25px;
+        }
+    </style>
 </head>
 
 <body style="
@@ -13,25 +64,19 @@
     color: white;
 ">
 
-<!-- 🔐 Protección de acceso + rol -->
+<!-- 🔐 Protección de acceso -->
 <script>
     const usuario = localStorage.getItem("loggedUser");
     const rol = localStorage.getItem("userRole");
 
     if (!usuario) {
-        window.location.href = "index.html";
-    }
-
-    // Solo admin puede entrar
-    if (rol !== "admin") {
-        alert("Acceso restringido: solo administradores");
-        window.location.href = "menu.html";
+        location.href = "index.html";
     }
 
     function cerrarSesion() {
         localStorage.removeItem("loggedUser");
         localStorage.removeItem("userRole");
-        window.location.href = "index.html";
+        location.href = "index.html";
     }
 </script>
 
@@ -40,149 +85,39 @@
 <div style="text-align:center; margin-bottom:20px;">
     <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
 
-    <button onclick="cerrarSesion()" 
-        style="
-            padding:10px 20px;
-            background:white;
-            color:#007bff;
-            border:none;
-            border-radius:5px;
-            cursor:pointer;
-            font-size:16px;
-            font-weight:bold;
-            text-transform:uppercase;
-        ">
+    <button onclick="cerrarSesion()" class="btn btn-sesion">
         Cerrar sesión
     </button>
 </div>
 
-<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
+<div class="contenedor">
 
+    <h3>Ventas Totales</h3>
+    <div id="reporte-ventas"></div>
 
-<!-- REPORTE MENSUAL -->
-<h3>Reporte Mensual</h3>
+    <h3>Ventas por Cliente</h3>
+    <div id="reporte-clientes"></div>
 
-<select id="reporte-mes"
-    style="padding:10px; width:200px; border:none; border-radius:5px; margin:5px;">
-    <option value="1">Enero</option>
-    <option value="2">Febrero</option>
-    <option value="3">Marzo</option>
-    <option value="4">Abril</option>
-    <option value="5">Mayo</option>
-    <option value="6">Junio</option>
-    <option value="7">Julio</option>
-    <option value="8">Agosto</option>
-    <option value="9">Septiembre</option>
-    <option value="10">Octubre</option>
-    <option value="11">Noviembre</option>
-    <option value="12">Diciembre</option>
-</select>
+    <h3>Ventas por Producto</h3>
+    <div id="reporte-productos"></div>
 
-<input id="reporte-anio-mes" type="number" placeholder="Año"
-    style="padding:10px; width:200px; border:none; border-radius:5px; margin:5px;">
+</div>
 
-<button onclick="generarReporteMensual()"
-    style="
-        padding:12px 20px;
-        background:white;
-        color:#00c851;
-        border:none;
-        border-radius:6px;
-        cursor:pointer;
-        font-size:16px;
-        font-weight:bold;
-        text-transform:uppercase;
-    ">
-    Generar
-</button>
-
-<div id="resultado-mensual" style="margin-top:10px;"></div>
-
-<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
-
-
-<!-- REPORTE ANUAL -->
-<h3>Reporte Anual</h3>
-
-<input id="reporte-anio" type="number" placeholder="Año"
-    style="padding:10px; width:200px; border:none; border-radius:5px; margin:5px;">
-
-<button onclick="generarReporteAnual()"
-    style="
-        padding:12px 20px;
-        background:white;
-        color:#00c851;
-        border:none;
-        border-radius:6px;
-        cursor:pointer;
-        font-size:16px;
-        font-weight:bold;
-        text-transform:uppercase;
-    ">
-    Generar
-</button>
-
-<div id="resultado-anual" style="margin-top:10px;"></div>
-
-<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
-
-
-<!-- REPORTE POR CLIENTE -->
-<h3>Reporte por Cliente</h3>
-
-<select id="reporte-cliente"
-    style="padding:10px; width:260px; border:none; border-radius:5px; margin:5px;">
-</select>
-
-<button onclick="generarReporteCliente()"
-    style="
-        padding:12px 20px;
-        background:white;
-        color:#00c851;
-        border:none;
-        border-radius:6px;
-        cursor:pointer;
-        font-size:16px;
-        font-weight:bold;
-        text-transform:uppercase;
-    ">
-    Generar
-</button>
-
-<div id="resultado-cliente" style="margin-top:10px;"></div>
-
-
-<!-- BOTÓN VOLVER AL MENÚ -->
-<button onclick="location.href='menu.html'"
-    style="
-        margin-top:30px;
-        padding:12px 20px;
-        background:white;
-        color:#007bff;
-        border:none;
-        border-radius:6px;
-        cursor:pointer;
-        font-size:16px;
-        font-weight:bold;
-        text-transform:uppercase;
-    ">
-    Volver al Menú
-</button>
-
+<div style="text-align:center; margin-top:20px;">
+    <button onclick="irAMenu()" class="btn btn-volver">
+        Volver al Menú
+    </button>
+</div>
 
 <script src="script.js"></script>
 
 <script>
-    // Mostrar usuario logueado
     document.getElementById("usuario-log").textContent = usuario;
 
-    // Cargar clientes en el selector
-    const clientes = obtenerClientes();
-    const select = document.getElementById("reporte-cliente");
-
-    select.innerHTML = clientes.map(c =>
-        `<option value="${c.id}">${c.apellido}, ${c.nombre}</option>`
-    ).join("");
+    // Mostrar reportes
+    generarReporteVentas();
+    generarReporteClientes();
+    generarReporteProductos();
 </script>
 
 </body>
