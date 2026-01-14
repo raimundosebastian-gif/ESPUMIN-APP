@@ -3,117 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <title>ESPUMIN APP - Menú Principal</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #007bff, #00c851);
+            color: white;
+            text-align: center;
+        }
+
+        .contenedor {
+            background: white;
+            color: #333;
+            padding: 25px;
+            border-radius: 12px;
+            max-width: 600px;
+            margin: auto;
+            box-shadow: 0 0 12px rgba(0,0,0,0.25);
+        }
+
+        h2 {
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            width: 80%;
+            padding: 14px;
+            margin: 10px auto;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: block;
+        }
+
+        .btn-menu { background: #007bff; color: white; }
+        .btn-sesion { background: white; color: #007bff; }
+    </style>
 </head>
 
-<body style="
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
-    background: linear-gradient(135deg, #007bff, #00c851);
-    color: white;
-    text-align: center;
-">
+<body>
 
-<!-- 🔐 Protección del menú -->
+<!-- 🔐 Protección de acceso -->
 <script>
     const usuario = localStorage.getItem("loggedUser");
     const rol = localStorage.getItem("userRole");
 
     if (!usuario) {
-        window.location.href = "index.html";
+        location.href = "index.html";
+    }
+
+    function cerrarSesion() {
+        localStorage.removeItem("loggedUser");
+        localStorage.removeItem("userRole");
+        location.href = "index.html";
     }
 </script>
 
 <h2>MENÚ PRINCIPAL</h2>
 
-<!-- 👤 Mostrar usuario logueado -->
 <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
 
-<!-- 🚪 Botón de cierre de sesión -->
-<button onclick="cerrarSesion()" 
-    style="
-        padding:10px 20px;
-        background:white;
-        color:#007bff;
-        border:none;
-        border-radius:5px;
-        cursor:pointer;
-        font-size:16px;
-        font-weight:bold;
-        text-transform:uppercase;
-        margin-bottom:20px;
-    ">
+<div class="contenedor">
+
+    <button onclick="irAClientes()" class="btn btn-menu">Clientes</button>
+
+    <button onclick="irAProductos()" class="btn btn-menu">Productos</button>
+
+    <button onclick="irAPrecios()" class="btn btn-menu">Precios</button>
+
+    <button onclick="irAVentas()" class="btn btn-menu">Ventas</button>
+
+    <button onclick="irAUsuarios()" class="btn btn-menu" id="btn-usuarios">
+        Usuarios
+    </button>
+
+    <button onclick="irAReportes()" class="btn btn-menu">Reportes</button>
+
+</div>
+
+<button onclick="cerrarSesion()" class="btn btn-sesion" style="margin-top:20px;">
     Cerrar sesión
 </button>
 
-<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
+<script src="script.js"></script>
 
-
-<!-- OPCIONES PARA TODOS LOS USUARIOS -->
-<div>
-    <button onclick="location.href='clientes.html'"
-        style="padding:12px 20px; background:white; color:#007bff; border:none; border-radius:6px; cursor:pointer; font-size:16px; font-weight:bold; margin:10px;">
-        Clientes
-    </button>
-
-    <button onclick="location.href='ventas.html'"
-        style="padding:12px 20px; background:white; color:#007bff; border:none; border-radius:6px; cursor:pointer; font-size:16px; font-weight:bold; margin:10px;">
-        Ventas
-    </button>
-
-    <button onclick="location.href='historial.html'"
-        style="padding:12px 20px; background:white; color:#007bff; border:none; border-radius:6px; cursor:pointer; font-size:16px; font-weight:bold; margin:10px;">
-        Historial por Cliente
-    </button>
-</div>
-
-
-<!-- OPCIONES SOLO ADMIN -->
-<div class="solo-admin" style="margin-top:30px;">
-    <h3>Opciones de Administrador</h3>
-
-    <button onclick="location.href='productos.html'"
-        style="padding:12px 20px; background:white; color:#00c851; border:none; border-radius:6px; cursor:pointer; font-size:16px; font-weight:bold; margin:10px;">
-        Productos
-    </button>
-
-    <button onclick="location.href='precios.html'"
-        style="padding:12px 20px; background:white; color:#00c851; border:none; border-radius:6px; cursor:pointer; font-size:16px; font-weight:bold; margin:10px;">
-        Precios
-    </button>
-
-    <button onclick="location.href='reportes.html'"
-        style="padding:12px 20px; background:white; color:#00c851; border:none; border-radius:6px; cursor:pointer; font-size:16px; font-weight:bold; margin:10px;">
-        Reportes
-    </button>
-
-    <button onclick="location.href='dashboard.html'"
-        style="padding:12px 20px; background:white; color:#00c851; border:none; border-radius:6px; cursor:pointer; font-size:16px; font-weight:bold; margin:10px;">
-        Dashboard
-    </button>
-
-    <!-- ✅ NUEVO BOTÓN USUARIOS -->
-    <button onclick="location.href='usuarios.html'"
-        style="padding:12px 20px; background:white; color:#00c851; border:none; border-radius:6px; cursor:pointer; font-size:16px; font-weight:bold; margin:10px;">
-        Usuarios
-    </button>
-</div>
-
-
-<!-- 🚪 Función de logout + Aplicación de roles -->
 <script>
-    function cerrarSesion() {
-        localStorage.removeItem("loggedUser");
-        localStorage.removeItem("userRole");
-        window.location.href = "index.html";
-    }
-
-    // Mostrar usuario logueado
     document.getElementById("usuario-log").textContent = usuario;
 
-    // Ocultar opciones de admin si no corresponde
+    // Solo admin puede ver Usuarios
     if (rol !== "admin") {
-        document.querySelector(".solo-admin").style.display = "none";
+        document.getElementById("btn-usuarios").style.display = "none";
     }
 </script>
 
