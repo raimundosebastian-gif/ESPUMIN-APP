@@ -570,4 +570,491 @@ function mostrarPrecios() {
 
 function buscarPrecios() {
     const texto = document.getElementById("buscar-precio").value.toLowerCase();
-    const
+    const cont = document.getElementById("lista-precios");
+    const precios = JSON.parse(localStorage.getItem("precios")) || [];
+
+    const filtrados = precios.filter(p =>
+        p.producto.toLowerCase().includes(texto)
+    );
+
+    if (filtrados.length === 0) {
+        cont.innerHTML = "<p>No se encontraron coincidencias.</p>";
+        return;
+    }
+
+    let html = `
+        <table>
+            <tr><th>Producto</th><th>Costo</th><th>Venta</th><th>Acciones</th></tr>
+    `;
+
+    filtrados.forEach((p, i) => {
+        html += `
+            <tr>
+                <td>${p.producto}</td>
+                <td>$${p.costo.toFixed(2)}</td>
+                <td>$${p.venta.toFixed(2)}</td>
+                <td>
+                    <button onclick="editarPrecio(${i})">Editar</button>
+                    <button onclick="eliminarPrecio(${i})">Eliminar</button>
+                </td>
+            </tr>
+        `;
+    });
+
+    html += "</table>";
+    cont.innerHTML = html;
+}
+
+function eliminarPrecio(i) {
+    const precios = JSON.parse(localStorage.getItem("precios")) || [];
+    if (!confirm("¿Eliminar este precio?")) return;
+
+    precios.splice(i, 1);
+    localStorage.setItem("precios", JSON.stringify(precios));
+    mostrarPrecios();
+}
+
+function editarPrecio(i) {
+    const precios = JSON.parse(localStorage.getItem("precios")) || [];
+    const p = precios[i];
+
+    const producto = prompt("Nuevo producto:", p.producto);
+    const costo = parseFloat(prompt("Nuevo costo:", p.costo));
+    const venta = parseFloat(prompt("Nuevo precio de venta:", p.venta));
+
+    if (!producto || isNaN(costo) || isNaN(venta)) {
+        alert("Datos inválidos.");
+        return;
+    }
+
+    if (venta < costo) {
+        alert("El precio de venta no puede ser menor al costo.");
+        return;
+    }
+
+    precios[i] = {
+        producto: capitalizar(producto),
+        costo,
+        venta
+    };
+
+    localStorage.setItem("precios", JSON.stringify(precios));
+    mostrarPrecios();
+}
+
+/* ============================================================
+   VENTAS
+============================================================ */
+function agregarVenta() {
+    const cliente = document.getElementById("venta-cliente").value.trim();
+    const producto = document.getElementById("venta-producto").value.trim();
+    const cantidad = parseInt(document.getElementById("venta-cantidad").value.trim());
+
+    if (!cliente || !producto || isNaN(cantidad) || cantidad <= 0) {
+        alert("Completa todos los campos correctamente.");
+        return;
+    }
+
+    const productos = JSON.parse(localStorage.getItem("productos")) || [];
+    const precios = JSON.parse(localStorage.getItem("precios")) || [];
+
+    const prod = productos.find(p => p.nombre === producto);
+    const precioProd = precios.find(p => p.producto === producto);
+
+    if (!prod) {
+        alert("El producto no existe.");
+        return;
+    }
+
+    if (!precioProd) {
+        alert("No hay precio cargado para este producto.");
+        return;
+    }
+
+    if (cantidad > prod.stock) {
+        alert("No hay stock suficiente.");
+        return;
+    }
+
+    const total = precioProd.venta * cantidad;
+
+    const ventas = JSON.parse(localStorage.getItem("ventas")) || [];
+
+    ventas.push({
+        cliente,
+        producto,
+        cantidad,
+        precioUnitario: precioProd.venta,
+        total,
+        fecha: new Date().toLocaleString()
+    });
+
+    localStorage.setItem("ventas", JSON.stringify(ventas));
+
+    // Descontar stock
+    prod.stock -= cantidad;
+    localStorage.setItem("productos", JSON.stringify(productos));
+
+    alert("Venta registrada correctamente.");
+
+    document.getElementById("venta-cliente").value = "";
+    document.getElementById("venta-producto").value = "";
+    document.getElementById("venta-cantidad").value = "";
+
+    mostrarVentas();
+}
+
+function mostrarVentas() {
+    const cont = document.getElementById("lista-ventas");
+    if (!cont) return;
+
+    const ventas = JSON.parse(localStorage.getItem("ventas")) || [];
+
+    if (ventas.length === 0) {
+        cont.innerHTML = "<p>No hay ventas registradas.</p>";
+        return;
+    }
+
+    let html = `
+        <table>
+            <tr>
+                <th>Cliente</th>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unit.</th>
+                <th>Total</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
+    `;
+
+    ventas.forEach((v, i) => {
+        html += `
+            <tr>
+                <td>${v.cliente}</td>
+                <td>${v.producto}</td>
+                <td>${v.cantidad}</td>
+                <td>$${v.precioUnitario.toFixed(2)}</td>
+                <td>$${v.total.toFixed(2)}</td>
+                <td>${v.fecha}</td>
+                <td>
+                    <button onclick="eliminarVenta(${i})">Eliminar</button>
+                </td>
+            </tr>
+        `;
+    });
+
+    html += "</table>";
+    cont.innerHTML = html;
+}
+
+function buscarVentas() {
+    const texto = document.getElementById("buscar-venta").value.toLowerCase();
+    const cont = document.getElementById("lista-ventas");
+    const ventas = JSON.parse(localStorage.getItem("ventas")) || [];
+
+    const filtradas = ventas.filter(v =>
+        v.cliente.toLowerCase().includes(texto) ||
+        v.producto.toLowerCase().includes(texto)
+    );
+
+    if (filtradas.length === 0) {
+        cont.innerHTML = "<p>No se encontraron coincidencias.</p>";
+        return;
+    }
+
+    let html = `
+        <table>
+            <tr>
+                <th>Cliente</th>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unit.</th>
+                <th>Total</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
+    `;
+
+    filtradas.forEach((v, i) => {
+        html += `
+            <tr>
+                <td>${v.cliente}</td>
+                <td>${v.producto}</td>
+                <td>${v.cantidad}</td>
+                <td>$${v.precioUnitario.toFixed(2)}</td>
+                <td>$${v.total.toFixed(2)}</td>
+                <td>${v.fecha}</td>
+                <td>
+                    <button onclick="eliminarVenta(${i})">Eliminar</button>
+                </td>
+            </tr>
+        `;
+    });
+
+    html += "</table>";
+    cont.innerHTML = html;
+}
+
+function eliminarVenta(i) {
+    const ventas = JSON.parse(localStorage.getItem("ventas")) || [];
+    const productos = JSON.parse(localStorage.getItem("productos")) || [];
+
+    const venta = ventas[i];
+
+    if (!confirm("¿Eliminar esta venta?")) return;
+
+    const prod = productos.find(p => p.nombre === venta.producto);
+    if (prod) {
+        prod.stock += venta.cantidad;
+        localStorage.setItem("productos", JSON.stringify(productos));
+    }
+
+    ventas.splice(i, 1);
+    localStorage.setItem("ventas", JSON.stringify(ventas));
+
+    mostrarVentas();
+}
+
+/* ============================================================
+   REPORTES
+============================================================ */
+function reporteClientes() {
+    const cont = document.getElementById("reporte-clientes");
+    if (!cont) return;
+
+    const clientes = JSON.parse(localStorage.getItem("clientes")) || [];
+
+    if (clientes.length === 0) {
+        cont.innerHTML = "<p>No hay clientes cargados.</p>";
+        return;
+    }
+
+    let html = `
+        <h3>Listado de Clientes</h3>
+        <table>
+            <tr><th>Nombre</th><th>Apellido</th><th>Teléfono</th></tr>
+    `;
+
+    clientes.forEach(c => {
+        html += `
+            <tr>
+                <td>${c.nombre}</td>
+                <td>${c.apellido}</td>
+                <td>${c.telefono}</td>
+            </tr>
+        `;
+    });
+
+    html += "</table>";
+    cont.innerHTML = html;
+}
+
+function reporteProductos() {
+    const cont = document.getElementById("reporte-productos");
+    if (!cont) return;
+
+    const productos = JSON.parse(localStorage.getItem("productos")) || [];
+
+    if (productos.length === 0) {
+        cont.innerHTML = "<p>No hay productos cargados.</p>";
+        return;
+    }
+
+    let html = `
+        <h3>Listado de Productos</h3>
+        <table>
+            <tr><th>Producto</th><th>Descripción</th><th>Precio</th><th>Stock</th></tr>
+    `;
+
+    productos.forEach(p => {
+        html += `
+            <tr>
+                <td>${p.nombre}</td>
+                <td>${p.descripcion}</td>
+                <td>$${p.precio.toFixed(2)}</td>
+                <td>${p.stock}</td>
+            </tr>
+        `;
+    });
+
+    html += "</table>";
+    cont.innerHTML = html;
+}
+
+function reportePrecios() {
+    const cont = document.getElementById("reporte-precios");
+    if (!cont) return;
+
+    const precios = JSON.parse(localStorage.getItem("precios")) || [];
+
+    if (precios.length === 0) {
+        cont.innerHTML = "<p>No hay precios cargados.</p>";
+        return;
+    }
+
+    let html = `
+        <h3>Listado de Precios</h3>
+        <table>
+            <tr><th>Producto</th><th>Costo</th><th>Venta</th></tr>
+    `;
+
+    precios.forEach(p => {
+        html += `
+            <tr>
+                <td>${p.producto}</td>
+                <td>$${p.costo.toFixed(2)}</td>
+                <td>$${p.venta.toFixed(2)}</td>
+            </tr>
+        `;
+    });
+
+    html += "</table>";
+    cont.innerHTML = html;
+}
+
+function reporteVentas() {
+    const cont = document.getElementById("reporte-ventas");
+    if (!cont) return;
+
+    const ventas = JSON.parse(localStorage.getItem("ventas")) || [];
+
+    if (ventas.length === 0) {
+        cont.innerHTML = "<p>No hay ventas registradas.</p>";
+        return;
+    }
+
+    let totalGeneral = 0;
+
+    let html = `
+        <h3>Listado de Ventas</h3>
+        <table>
+            <tr><th>Cliente</th><th>Producto</th><th>Cantidad</th><th>Total</th><th>Fecha</th></tr>
+    `;
+
+    ventas.forEach(v => {
+        totalGeneral += v.total;
+
+        html += `
+            <tr>
+                <td>${v.cliente}</td>
+                <td>${v.producto}</td>
+                <td>${v.cantidad}</td>
+                <td>$${v.total.toFixed(2)}</td>
+                <td>${v.fecha}</td>
+            </tr>
+        `;
+    });
+
+    html += `
+        </table>
+        <h3>Total General: $${totalGeneral.toFixed(2)}</h3>
+    `;
+
+    cont.innerHTML = html;
+}
+
+/* ============================================================
+   BACKUPS
+============================================================ */
+function crearBackup() {
+    const fecha = new Date().toLocaleString();
+
+    const datos = {
+        clientes: JSON.parse(localStorage.getItem("clientes")) || [],
+        productos: JSON.parse(localStorage.getItem("productos")) || [],
+        precios: JSON.parse(localStorage.getItem("precios")) || [],
+        ventas: JSON.parse(localStorage.getItem("ventas")) || [],
+        usuarios: JSON.parse(localStorage.getItem("usuarios")) || []
+    };
+
+    const backups = JSON.parse(localStorage.getItem("backups")) || [];
+
+    if (backups.length >= 10) {
+        backups.shift();
+    }
+
+    backups.push({ fecha, datos });
+
+    localStorage.setItem("backups", JSON.stringify(backups));
+
+    alert("Backup creado correctamente.");
+    mostrarBackups();
+}
+
+function mostrarBackups() {
+    const cont = document.getElementById("lista-backups");
+    if (!cont) return;
+
+    const backups = JSON.parse(localStorage.getItem("backups")) || [];
+
+    if (backups.length === 0) {
+        cont.innerHTML = "<p>No hay backups creados.</p>";
+        return;
+    }
+
+    let html = `
+        <table>
+            <tr><th>Fecha</th><th>Acciones</th></tr>
+    `;
+
+    backups.forEach((b, i) => {
+        html += `
+            <tr>
+                <td>${b.fecha}</td>
+                <td>
+                    <button onclick="descargarBackup(${i})">Descargar</button>
+                    <button onclick="restaurarBackup(${i})">Restaurar</button>
+                    <button onclick="eliminarBackup(${i})">Eliminar</button>
+                </td>
+            </tr>
+        `;
+    });
+
+    html += "</table>";
+    cont.innerHTML = html;
+}
+
+function descargarBackup(i) {
+    const backups = JSON.parse(localStorage.getItem("backups")) || [];
+    const backup = backups[i];
+
+    const contenido = JSON.stringify(backup, null, 2);
+    const blob = new Blob([contenido], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `backup_${backup.fecha.replace(/[/ :]/g, "_")}.json`;
+    a.click();
+
+    URL.revokeObjectURL(url);
+}
+
+function restaurarBackup(i) {
+    if (!confirm("¿Restaurar este backup? Se sobrescribirán todos los datos.")) return;
+
+    const backups = JSON.parse(localStorage.getItem("backups")) || [];
+    const backup = backups[i];
+
+    localStorage.setItem("clientes", JSON.stringify(backup.datos.clientes));
+    localStorage.setItem("productos", JSON.stringify(backup.datos.productos));
+    localStorage.setItem("precios", JSON.stringify(backup.datos.precios));
+    localStorage.setItem("ventas", JSON.stringify(backup.datos.ventas));
+    localStorage.setItem("usuarios", JSON.stringify(backup.datos.usuarios));
+
+    alert("Backup restaurado correctamente.");
+}
+
+function eliminarBackup(i) {
+    const backups = JSON.parse(localStorage.getItem("backups")) || [];
+    if (!confirm("¿Eliminar este backup?")) return;
+
+    backups.splice(i, 1);
+    localStorage.setItem("backups", JSON.stringify(backups));
+
+    mostrarBackups();
+}
+
+
+
