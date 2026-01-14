@@ -363,3 +363,74 @@ function editarUsuario(index) {
 function irAMenu() {
     window.location.href = "menu.html";
 }
+
+/* ===============================
+      VALIDAR SESIÓN AL ENTRAR
+=============================== */
+document.addEventListener("DOMContentLoaded", () => {
+    const usuario = localStorage.getItem("loggedUser");
+    const rol = localStorage.getItem("userRole");
+
+    if (!usuario) {
+        location.href = "index.html";
+        return;
+    }
+
+    // Mostrar nombre del usuario
+    const spanUsuario = document.getElementById("usuario-log");
+    if (spanUsuario) spanUsuario.textContent = usuario;
+
+    // Control de roles: solo admin ve Usuarios, Reportes y Backups
+    if (rol !== "admin") {
+        const adminButtons = [
+            "btn-usuarios",
+            "btn-reportes",
+            "btn-backups"
+        ];
+
+        adminButtons.forEach(id => {
+            const btn = document.getElementById(id);
+            if (btn) btn.style.display = "none";
+        });
+    }
+});
+
+/* ===============================
+      CERRAR SESIÓN
+=============================== */
+function cerrarSesion() {
+    localStorage.removeItem("loggedUser");
+    localStorage.removeItem("userRole");
+    location.href = "index.html";
+}
+
+/* ===============================
+      NAVEGACIÓN DEL MENÚ
+=============================== */
+function irAClientes() {
+    window.location.href = "clientes.html";
+}
+
+function irAProductos() {
+    window.location.href = "productos.html";
+}
+
+function irAPrecios() {
+    window.location.href = "precios.html";
+}
+
+function irAVentas() {
+    window.location.href = "ventas.html";
+}
+
+function irAUsuarios() {
+    window.location.href = "usuarios.html";
+}
+
+function irAReportes() {
+    window.location.href = "reportes.html";
+}
+
+function irABackups() {
+    window.location.href = "backups.html";
+}
