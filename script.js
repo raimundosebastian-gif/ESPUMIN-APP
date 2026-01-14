@@ -995,3 +995,168 @@ function eliminarVenta(index) {
 function irAMenu() {
     window.location.href = "menu.html";
 }
+
+/* ===============================
+      REPORTE: CLIENTES
+=============================== */
+function reporteClientes() {
+    const clientes = JSON.parse(localStorage.getItem("clientes")) || [];
+    const cont = document.getElementById("reporte-clientes");
+
+    if (clientes.length === 0) {
+        cont.innerHTML = "<p>No hay clientes cargados.</p>";
+        return;
+    }
+
+    let html = `
+        <h3>Listado de Clientes</h3>
+        <table>
+            <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Teléfono</th>
+            </tr>
+    `;
+
+    clientes.forEach(c => {
+        html += `
+            <tr>
+                <td>${c.nombre}</td>
+                <td>${c.apellido}</td>
+                <td>${c.telefono}</td>
+            </tr>
+        `;
+    });
+
+    html += "</table>";
+    cont.innerHTML = html;
+}
+
+/* ===============================
+      REPORTE: PRODUCTOS
+=============================== */
+function reporteProductos() {
+    const productos = JSON.parse(localStorage.getItem("productos")) || [];
+    const cont = document.getElementById("reporte-productos");
+
+    if (productos.length === 0) {
+        cont.innerHTML = "<p>No hay productos cargados.</p>";
+        return;
+    }
+
+    let html = `
+        <h3>Listado de Productos</h3>
+        <table>
+            <tr>
+                <th>Producto</th>
+                <th>Descripción</th>
+                <th>Precio</th>
+                <th>Stock</th>
+            </tr>
+    `;
+
+    productos.forEach(p => {
+        html += `
+            <tr>
+                <td>${p.nombre}</td>
+                <td>${p.descripcion}</td>
+                <td>$${p.precio.toFixed(2)}</td>
+                <td>${p.stock}</td>
+            </tr>
+        `;
+    });
+
+    html += "</table>";
+    cont.innerHTML = html;
+}
+
+/* ===============================
+      REPORTE: PRECIOS
+=============================== */
+function reportePrecios() {
+    const precios = JSON.parse(localStorage.getItem("precios")) || [];
+    const cont = document.getElementById("reporte-precios");
+
+    if (precios.length === 0) {
+        cont.innerHTML = "<p>No hay precios cargados.</p>";
+        return;
+    }
+
+    let html = `
+        <h3>Listado de Precios</h3>
+        <table>
+            <tr>
+                <th>Producto</th>
+                <th>Costo</th>
+                <th>Venta</th>
+            </tr>
+    `;
+
+    precios.forEach(p => {
+        html += `
+            <tr>
+                <td>${p.producto}</td>
+                <td>$${p.costo.toFixed(2)}</td>
+                <td>$${p.venta.toFixed(2)}</td>
+            </tr>
+        `;
+    });
+
+    html += "</table>";
+    cont.innerHTML = html;
+}
+
+/* ===============================
+      REPORTE: VENTAS
+=============================== */
+function reporteVentas() {
+    const ventas = JSON.parse(localStorage.getItem("ventas")) || [];
+    const cont = document.getElementById("reporte-ventas");
+
+    if (ventas.length === 0) {
+        cont.innerHTML = "<p>No hay ventas registradas.</p>";
+        return;
+    }
+
+    let totalGeneral = 0;
+
+    let html = `
+        <h3>Listado de Ventas</h3>
+        <table>
+            <tr>
+                <th>Cliente</th>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Total</th>
+                <th>Fecha</th>
+            </tr>
+    `;
+
+    ventas.forEach(v => {
+        totalGeneral += v.total;
+
+        html += `
+            <tr>
+                <td>${v.cliente}</td>
+                <td>${v.producto}</td>
+                <td>${v.cantidad}</td>
+                <td>$${v.total.toFixed(2)}</td>
+                <td>${v.fecha}</td>
+            </tr>
+        `;
+    });
+
+    html += `
+        </table>
+        <h3>Total General: $${totalGeneral.toFixed(2)}</h3>
+    `;
+
+    cont.innerHTML = html;
+}
+
+/* ===============================
+      VOLVER AL MENÚ
+=============================== */
+function irAMenu() {
+    window.location.href = "menu.html";
+}
