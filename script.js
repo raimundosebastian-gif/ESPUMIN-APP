@@ -434,3 +434,190 @@ function irAReportes() {
 function irABackups() {
     window.location.href = "backups.html";
 }
+
+/* ===============================
+      GUARDAR PRODUCTO
+=============================== */
+function guardarProducto() {
+    const nombre = document.getElementById("producto-nombre").value.trim();
+    const descripcion = document.getElementById("producto-descripcion").value.trim();
+    const precio = parseFloat(document.getElementById("producto-precio").value.trim());
+    const stock = parseInt(document.getElementById("producto-stock").value.trim());
+
+    if (!nombre || !descripcion || isNaN(precio) || isNaN(stock)) {
+        alert("Completa todos los campos correctamente.");
+        return;
+    }
+
+    if (precio <= 0) {
+        alert("El precio debe ser mayor a 0.");
+        return;
+    }
+
+    if (stock < 0) {
+        alert("El stock no puede ser negativo.");
+        return;
+    }
+
+    const productos = JSON.parse(localStorage.getItem("productos")) || [];
+
+    productos.push({
+        nombre: capitalizar(nombre),
+        descripcion,
+        precio,
+        stock
+    });
+
+    localStorage.setItem("productos", JSON.stringify(productos));
+
+    alert("Producto guardado correctamente.");
+
+    document.getElementById("producto-nombre").value = "";
+    document.getElementById("producto-descripcion").value = "";
+    document.getElementById("producto-precio").value = "";
+    document.getElementById("producto-stock").value = "";
+
+    mostrarProductos();
+}
+
+/* ===============================
+      MOSTRAR PRODUCTOS
+=============================== */
+function mostrarProductos() {
+    const productos = JSON.parse(localStorage.getItem("productos")) || [];
+    const contenedor = document.getElementById("lista-productos");
+
+    if (productos.length === 0) {
+        contenedor.innerHTML = "<p>No hay productos cargados.</p>";
+        return;
+    }
+
+    let html = `
+        <table>
+            <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Acciones</th>
+            </tr>
+    `;
+
+    productos.forEach((p, index) => {
+        html += `
+            <tr>
+                <td>${p.nombre}</td>
+                <td>${p.descripcion}</td>
+                <td>$${p.precio.toFixed(2)}</td>
+                <td>${p.stock}</td>
+                <td>
+                    <button class="btn-accion btn-editar" onclick="editarProducto(${index})">Editar</button>
+                    <button class="btn-accion btn-eliminar" onclick="eliminarProducto(${index})">Eliminar</button>
+                </td>
+            </tr>
+        `;
+    });
+
+    html += "</table>";
+
+    contenedor.innerHTML = html;
+}
+
+/* ===============================
+      BUSCAR PRODUCTOS
+=============================== */
+function buscarProductos() {
+    const texto = document.getElementById("buscar-producto").value.toLowerCase();
+    const productos = JSON.parse(localStorage.getItem("productos")) || [];
+
+    const filtrados = productos.filter(p =>
+        p.nombre.toLowerCase().includes(texto) ||
+        p.descripcion.toLowerCase().includes(texto)
+    );
+
+    const contenedor = document.getElementById("lista-productos");
+
+    if (filtrados.length === 0) {
+        contenedor.innerHTML = "<p>No se encontraron coincidencias.</p>";
+        return;
+    }
+
+    let html = `
+        <table>
+            <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Acciones</th>
+            </tr>
+    `;
+
+    filtrados.forEach((p, index) => {
+        html += `
+            <tr>
+                <td>${p.nombre}</td>
+                <td>${p.descripcion}</td>
+                <td>$${p.precio.toFixed(2)}</td>
+                <td>${p.stock}</td>
+                <td>
+                    <button class="btn-accion btn-editar" onclick="editarProducto(${index})">Editar</button>
+                    <button class="btn-accion btn-eliminar" onclick="eliminarProducto(${index})">Eliminar</button>
+                </td>
+            </tr>
+        `;
+    });
+
+    html += "</table>";
+
+    contenedor.innerHTML = html;
+}
+
+/* ===============================
+      ELIMINAR PRODUCTO
+=============================== */
+function eliminarProducto(index) {
+    const productos = JSON.parse(localStorage.getItem("productos")) || [];
+
+    if (!confirm("¿Eliminar este producto?")) return;
+
+    productos.splice(index, 1);
+    localStorage.setItem("productos", JSON.stringify(productos));
+
+    mostrarProductos();
+}
+
+/* ===============================
+      EDITAR PRODUCTO
+=============================== */
+function editarProducto(index) {
+    const productos = JSON.parse(localStorage.getItem("productos")) || [];
+    const p = productos[index];
+
+    const nuevoNombre = prompt("Nuevo nombre:", p.nombre);
+    const nuevaDescripcion = prompt("Nueva descripción:", p.descripcion);
+    const nuevoPrecio = parseFloat(prompt("Nuevo precio:", p.precio));
+    const nuevoStock = parseInt(prompt("Nuevo stock:", p.stock));
+
+    if (!nuevoNombre || !nuevaDescripcion || isNaN(nuevoPrecio) || isNaN(nuevoStock)) {
+        alert("Datos inválidos.");
+        return;
+    }
+
+    productos[index] = {
+        nombre: capitalizar(nuevoNombre),
+        descripcion: nuevaDescripcion,
+        precio: nuevoPrecio,
+        stock: nuevoStock
+    };
+
+    localStorage.setItem("productos", JSON.stringify(productos));
+    mostrarProductos();
+}
+
+/* ===============================
+      VOLVER AL MENÚ
+=============================== */
+function irAMenu() {
+    window.location.href = "menu.html";
+}
