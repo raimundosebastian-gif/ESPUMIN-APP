@@ -721,3 +721,154 @@ function mostrarVentas() {
 
     cont.innerHTML = html;
 }
+
+/* ============================================================
+   REPORTES — VENTAS, CLIENTES Y PRODUCTOS
+   ============================================================ */
+
+function generarReporteVentas() {
+    const ventas = obtenerVentas();
+    const cont = document.getElementById("reporte-ventas");
+
+    if (!cont) return;
+
+    if (ventas.length === 0) {
+        cont.innerHTML = "<p>No hay ventas registradas.</p>";
+        return;
+    }
+
+    const total = ventas.reduce((sum, v) => sum + v.total, 0);
+
+    cont.innerHTML = `
+        <table>
+            <thead>
+                <tr>
+                    <th>Total Facturado</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>$${total.toLocaleString("es-AR")}</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    `;
+}
+
+function generarReporteClientes() {
+    const ventas = obtenerVentas();
+    const clientes = obtenerClientes();
+    const cont = document.getElementById("reporte-clientes");
+
+    if (!cont) return;
+
+    if (ventas.length === 0) {
+        cont.innerHTML = "<p>No hay ventas registradas.</p>";
+        return;
+    }
+
+    // Agrupar ventas por cliente
+    const resumen = {};
+
+    ventas.forEach(v => {
+        if (!resumen[v.clienteId]) resumen[v.clienteId] = 0;
+        resumen[v.clienteId] += v.total;
+    });
+
+    // Convertir a lista ordenada
+    const lista = Object.entries(resumen)
+        .map(([id, total]) => {
+            const c = clientes.find(x => x.id == id);
+            return {
+                nombre: c ? `${c.apellido}, ${c.nombre}` : "Cliente desconocido",
+                total
+            };
+        })
+        .sort((a, b) => b.total - a.total);
+
+    let html = `
+        <table>
+            <thead>
+                <tr>
+                    <th>Cliente</th>
+                    <th>Total Gastado</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    lista.forEach(r => {
+        html += `
+            <tr>
+                <td>${r.nombre}</td>
+                <td><strong>$${r.total.toLocaleString("es-AR")}</strong></td>
+            </tr>
+        `;
+    });
+
+    html += `
+            </tbody>
+        </table>
+    `;
+
+    cont.innerHTML = html;
+}
+
+function generarReporteProductos() {
+    const ventas = obtenerVentas();
+    const productos = obtenerProductos();
+    const cont = document.getElementById("reporte-productos");
+
+    if (!cont) return;
+
+    if (ventas.length === 0) {
+        cont.innerHTML = "<p>No hay ventas registradas.</p>";
+        return;
+    }
+
+    // Agrupar ventas por producto
+    const resumen = {};
+
+    ventas.forEach(v => {
+        if (!resumen[v.productoId]) resumen[v.productoId] = 0;
+        resumen[v.productoId] += v.total;
+    });
+
+    // Convertir a lista ordenada
+    const lista = Object.entries(resumen)
+        .map(([id, total]) => {
+            const p = productos.find(x => x.id == id);
+            return {
+                nombre: p ? p.nombre : "Producto desconocido",
+                total
+            };
+        })
+        .sort((a, b) => b.total - a.total);
+
+    let html = `
+        <table>
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Total Vendido</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    lista.forEach(r => {
+        html += `
+            <tr>
+                <td>${r.nombre}</td>
+                <td><strong>$${r.total.toLocaleString("es-AR")}</strong></td>
+            </tr>
+        `;
+    });
+
+    html += `
+            </tbody>
+        </table>
+    `;
+
+    cont.innerHTML = html;
+}
