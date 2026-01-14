@@ -427,3 +427,173 @@ function descargarBackupEspecifico(numero) {
 
     URL.revokeObjectURL(url);
 }
+
+function crearBackupInterno() {
+    const data = {
+        clientes: JSON.parse(localStorage.getItem("clientes") || "[]"),
+        productos: JSON.parse(localStorage.getItem("productos") || "[]"),
+        usuarios: JSON.parse(localStorage.getItem("usuarios") || "[]"),
+        precios: JSON.parse(localStorage.getItem("precios") || "[]"),
+        ventas: JSON.parse(localStorage.getItem("ventas") || "[]"),
+        fecha: new Date().toLocaleString("es-AR")
+    };
+
+    let contador = parseInt(localStorage.getItem("backup_contador") || "0");
+    contador++;
+    localStorage.setItem("backup_contador", contador);
+
+    localStorage.setItem(`backup_${contador}`, JSON.stringify(data));
+
+    // ⭐ Mantener solo los últimos 10
+    const limite = 10;
+    const borrarHasta = contador - limite;
+
+    for (let i = 1; i <= borrarHasta; i++) {
+        localStorage.removeItem(`backup_${i}`);
+    }
+}
+
+function backupDiario() {
+    const hoy = new Date().toLocaleDateString("es-AR");
+    const ultimo = localStorage.getItem("backup_diario_fecha");
+
+    if (ultimo === hoy) return;
+
+    crearBackupInterno();
+    localStorage.setItem("backup_diario_fecha", hoy);
+}
+
+// Ejecutar cada minuto para detectar fin de día
+setInterval(() => {
+    const ahora = new Date();
+    if (ahora.getHours() === 23 && ahora.getMinutes() === 59) {
+        backupDiario();
+    }
+}, 60000);
+
+function descargarBackup() {
+    const data = {
+        clientes: JSON.parse(localStorage.getItem("clientes") || "[]"),
+        productos: JSON.parse(localStorage.getItem("productos") || "[]"),
+        usuarios: JSON.parse(localStorage.getItem("usuarios") || "[]"),
+        precios: JSON.parse(localStorage.getItem("precios") || "[]"),
+        ventas: JSON.parse(localStorage.getItem("ventas") || "[]"),
+        fecha: new Date().toLocaleString("es-AR")
+    };
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+
+    const f = new Date();
+    a.download = `backup_ESPUMIN_${f.getFullYear()}-${f.getMonth()+1}-${f.getDate()}_${f.getHours()}-${f.getMinutes()}.json`;
+
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+async function descargarZipBackups() {
+    const zip = new JSZip();
+    const contador = parseInt(localStorage.getItem("backup_contador") || "0");
+
+    for (let i = contador; i >= 1; i--) {
+        const data = localStorage.getItem(`backup_${i}`);
+        if (!data) continue;
+        zip.file(`backup_${i}.json`, data);
+    }
+
+    const contenido = await zip.generateAsync({ type: "blob" });
+
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(contenido);
+    a.download = "ESPUMIN_BACKUPS.zip";
+    a.click();
+}
+
+async function descargarZipBackups() {
+    const zip = new JSZip();
+    const contador = parseInt(localStorage.getItem("backup_contador") || "0");
+
+    for (let i = contador; i >= 1; i--) {
+        const data = localStorage.getItem(`backup_${i}`);
+        if (!data) continue;
+        zip.file(`backup_${i}.json`, data);
+    }
+
+    const contenido = await zip.generateAsync({ type: "blob" });
+
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(contenido);
+    a.download = "ESPUMIN_BACKUPS.zip";
+    a.click();
+}
+
+let backupSeleccionado = null;
+
+function abrirModal(numero) {
+    backupSeleccionado = numero;
+    document.getElementById("modal-confirmacion").style.display = "flex";
+}
+
+function cerrarModal() {
+    document.getElementById("modal-confirmacion").style.display = "none";
+    backupSeleccionado = null;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const btn = document.getElementById("btn-confirmar");
+    if (btn) {
+        btn.onclick = () => {
+            if (backupSeleccionado !== null) restaurarBackup(backupSeleccionado);
+            cerrarModal();
+        };
+    }
+});
+
+function mostrarBackups() {
+    const tabla = document.querySelector("#tabla-backups tbody");
+    if (!tabla) return;
+
+    tabla.innerHTML = "";
+
+    const contador = parseInt(localStorage.getItem("backup_contador") || "0");
+
+    for (let i = contador; i >= 1; i--) {
+        const data = JSON.parse(localStorage.getItem(`backup_${i}`) || "null");
+        if (!data) continue;
+
+        const fila = document.createElement("tr");
+
+        fila.innerHTML = `
+            <td>${i}</td>
+            <td>${data.fecha}</td>
+            <td>
+                <button onclick="abrirModal(${i})" class="btn btn-azul">Restaurar</button>
+                <button onclick="descargarBackupEspecifico(${i})" class="btn btn-verde">Descargar</button>
+            </td>
+        `;
+
+        tabla.appendChild(fila);
+    }
+}
+
+function descargarBackupEspecifico(numero) {
+    const data = localStorage.getItem(`backup_${numero}`);
+    if (!data) {
+        alert("Backup no encontrado.");
+        return;
+    }
+
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `backup_${numero}.json`;
+    a.click();
+
+    URL.revokeObjectURL(url);
+}
+
