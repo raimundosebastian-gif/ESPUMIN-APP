@@ -3,6 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <title>ESPUMIN APP - Productos</title>
+
+    <style>
+        .contenedor {
+            background: white;
+            color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 900px;
+            margin: auto;
+            box-shadow: 0 0 12px rgba(0,0,0,0.2);
+        }
+
+        .input-box {
+            padding: 10px;
+            width: 220px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin: 5px;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 5px;
+        }
+
+        .btn-guardar { background: #00c851; color: white; }
+        .btn-volver { background: #007bff; color: white; }
+        .btn-sesion { background: white; color: #007bff; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th {
+            background: #007bff;
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:nth-child(even) {
+            background: #f2f2f2;
+        }
+
+        .btn-accion {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 5px;
+        }
+
+        .btn-editar { background: #00c851; color: white; }
+        .btn-eliminar { background: #ff4444; color: white; }
+
+        #buscar-producto {
+            padding: 10px;
+            width: 260px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+    </style>
 </head>
 
 <body style="
@@ -13,30 +88,19 @@
     color: white;
 ">
 
-<!-- 🔐 Protección de acceso + rol -->
+<!-- 🔐 Protección de acceso -->
 <script>
     const usuario = localStorage.getItem("loggedUser");
     const rol = localStorage.getItem("userRole");
 
     if (!usuario) {
-        window.location.href = "index.html";
-    }
-
-    if (rol !== "admin") {
-        alert("Acceso restringido: solo administradores");
-        window.location.href = "menu.html";
+        location.href = "index.html";
     }
 
     function cerrarSesion() {
         localStorage.removeItem("loggedUser");
         localStorage.removeItem("userRole");
-        window.location.href = "index.html";
-    }
-
-    // Convertir a MAYÚSCULAS automáticamente
-    function mayus(texto) {
-        if (!texto) return "";
-        return texto.toUpperCase();
+        location.href = "index.html";
     }
 </script>
 
@@ -45,110 +109,55 @@
 <div style="text-align:center; margin-bottom:20px;">
     <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
 
-    <button onclick="cerrarSesion()" 
-        style="
-            padding:10px 20px;
-            background:white;
-            color:#007bff;
-            border:none;
-            border-radius:5px;
-            cursor:pointer;
-            font-size:16px;
-            font-weight:bold;
-            text-transform:uppercase;
-        ">
+    <button onclick="cerrarSesion()" class="btn btn-sesion">
         Cerrar sesión
     </button>
 </div>
 
-<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
+<div class="contenedor">
 
-
-<!-- FORMULARIO NUEVO PRODUCTO -->
-<div>
     <h3>Nuevo Producto</h3>
 
-    <input id="prod-nombre" type="text" placeholder="Nombre"
-        onblur="this.value = mayus(this.value)"
-        style="padding:10px; width:220px; border:none; border-radius:5px; margin:5px;">
+    <input id="prod-nombre" type="text" placeholder="Nombre del producto" class="input-box">
 
-    <input id="prod-precio" type="number" placeholder="Precio"
-        style="padding:10px; width:220px; border:none; border-radius:5px; margin:5px;">
+    <input id="prod-precio" type="number" placeholder="Precio" class="input-box">
 
-    <!-- NUEVA CATEGORÍA -->
-    <select id="prod-categoria"
-        style="padding:10px; width:220px; border:none; border-radius:5px; margin:5px;">
+    <select id="prod-categoria" class="input-box">
+        <option value="">Categoría</option>
         <option value="Lavandería">Lavandería</option>
         <option value="Tintorería">Tintorería</option>
         <option value="Acolchados">Acolchados</option>
         <option value="Otros">Otros</option>
     </select>
 
-    <select id="prod-estado"
-        style="padding:10px; width:220px; border:none; border-radius:5px; margin:5px;">
+    <select id="prod-estado" class="input-box">
         <option value="Activo">Activo</option>
         <option value="Inactivo">Inactivo</option>
     </select>
 
-    <button onclick="guardarProducto()" 
-        style="
-            padding:12px 20px;
-            background:white;
-            color:#00c851;
-            border:none;
-            border-radius:6px;
-            cursor:pointer;
-            font-size:16px;
-            font-weight:bold;
-            text-transform:uppercase;
-        ">
-        Guardar
-    </button>
+    <button onclick="guardarProducto()" class="btn btn-guardar">Guardar</button>
+
+    <hr style="margin:20px 0;">
+
+    <h3>Listado de Productos</h3>
+
+    <input id="buscar-producto" type="text" placeholder="Buscar..." onkeyup="buscarProductos()">
+
+    <div id="lista-productos"></div>
+
 </div>
 
-<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
-
-
-<h3>Listado de Productos</h3>
-
-<!-- 🔍 BUSCADOR -->
-<input id="buscar-producto" type="text" placeholder="Buscar..."
-    onkeyup="buscarProductos()"
-    style="
-        padding:10px;
-        width:260px;
-        border:none;
-        border-radius:5px;
-        margin-bottom:15px;
-    ">
-
-<div id="lista-productos" style="margin-top:10px;"></div>
-
-
-<!-- BOTÓN VOLVER AL MENÚ -->
-<button onclick="location.href='menu.html'"
-    style="
-        margin-top:30px;
-        padding:12px 20px;
-        background:white;
-        color:#007bff;
-        border:none;
-        border-radius:6px;
-        cursor:pointer;
-        font-size:16px;
-        font-weight:bold;
-        text-transform:uppercase;
-    ">
-    Volver al Menú
-</button>
-
+<div style="text-align:center;">
+    <button onclick="irAMenu()" class="btn btn-volver">
+        Volver al Menú
+    </button>
+</div>
 
 <script src="script.js"></script>
 
 <script>
     document.getElementById("usuario-log").textContent = usuario;
-
-    if (typeof mostrarProductos === "function") mostrarProductos();
+    mostrarProductos();
 </script>
 
 </body>
