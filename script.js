@@ -8,66 +8,34 @@
    NAVEGACIÓN CENTRALIZADA ENTRE MÓDULOS
    ============================================================ */
 
-function irAMenu() {
-    location.href = "menu.html";
-}
-
-function irAClientes() {
-    location.href = "clientes.html";
-}
-
-function irAProductos() {
-    location.href = "productos.html";
-}
-
-function irAUsuarios() {
-    location.href = "usuarios.html";
-}
-
-function irAPrecios() {
-    location.href = "precios.html";
-}
-
-function irAVentas() {
-    location.href = "ventas.html";
-}
-
-function irAReportes() {
-    location.href = "reportes.html";
-}
+function irAMenu() { location.href = "menu.html"; }
+function irAClientes() { location.href = "clientes.html"; }
+function irAProductos() { location.href = "productos.html"; }
+function irAUsuarios() { location.href = "usuarios.html"; }
+function irAPrecios() { location.href = "precios.html"; }
+function irAVentas() { location.href = "ventas.html"; }
+function irAReportes() { location.href = "reportes.html"; }
 
 
 /* ============================================================
    UTILIDADES DE LOCALSTORAGE
    ============================================================ */
 
-function obtenerClientes() {
-    return JSON.parse(localStorage.getItem("clientes")) || [];
-}
+function obtenerClientes() { return JSON.parse(localStorage.getItem("clientes")) || []; }
+function guardarClientes(lista) { localStorage.setItem("clientes", JSON.stringify(lista)); }
 
-function guardarClientes(lista) {
-    localStorage.setItem("clientes", JSON.stringify(lista));
-}
+function obtenerProductos() { return JSON.parse(localStorage.getItem("productos")) || []; }
+function guardarProductos(lista) { localStorage.setItem("productos", JSON.stringify(lista)); }
 
-function obtenerProductos() {
-    return JSON.parse(localStorage.getItem("productos")) || [];
-}
+function obtenerVentas() { return JSON.parse(localStorage.getItem("ventas")) || []; }
+function guardarVentas(lista) { localStorage.setItem("ventas", JSON.stringify(lista)); }
 
-function guardarProductos(lista) {
-    localStorage.setItem("productos", JSON.stringify(lista));
-}
-
-function obtenerVentas() {
-    return JSON.parse(localStorage.getItem("ventas")) || [];
-}
-
-function guardarVentas(lista) {
-    localStorage.setItem("ventas", JSON.stringify(lista));
-}
+function obtenerUsuarios() { return JSON.parse(localStorage.getItem("usuarios")) || []; }
+function guardarUsuarios(lista) { localStorage.setItem("usuarios", JSON.stringify(lista)); }
 
 
 /* ============================================================
-   CLIENTES — LISTADO EN TABLA (NUEVO DISEÑO)
+   CLIENTES
    ============================================================ */
 
 function guardarCliente() {
@@ -92,7 +60,7 @@ function guardarCliente() {
     );
 
     if (existe) {
-        alert("Este cliente ya existe en el sistema.");
+        alert("Este cliente ya existe.");
         return;
     }
 
@@ -110,7 +78,6 @@ function guardarCliente() {
     document.getElementById("cliente-telefono").value = "";
 
     mostrarClientes();
-    alert("Cliente guardado.");
 }
 
 function mostrarClientes(lista = null) {
@@ -121,7 +88,7 @@ function mostrarClientes(lista = null) {
     if (!cont) return;
 
     if (clientes.length === 0) {
-        cont.innerHTML = "<p style='color:#555;'>No hay clientes cargados.</p>";
+        cont.innerHTML = "<p>No hay clientes cargados.</p>";
         return;
     }
 
@@ -134,7 +101,7 @@ function mostrarClientes(lista = null) {
                     <th>Apellido</th>
                     <th>Nombre</th>
                     <th>Teléfono</th>
-                    <th style="width:150px;">Acciones</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -147,33 +114,19 @@ function mostrarClientes(lista = null) {
                 <td>${c.nombre}</td>
                 <td>${c.telefono}</td>
                 <td>
-                    <button class="btn-accion btn-editar" onclick="editarCliente(${c.id})">
-                        Editar
-                    </button>
-
-                    ${rol === "admin" ? `
-                        <button class="btn-accion btn-eliminar" onclick="eliminarCliente(${c.id})">
-                            Eliminar
-                        </button>
-                    ` : ""}
+                    <button onclick="editarCliente(${c.id})">Editar</button>
+                    ${rol === "admin" ? `<button onclick="eliminarCliente(${c.id})">Eliminar</button>` : ""}
                 </td>
             </tr>
         `;
     });
 
-    html += `
-            </tbody>
-        </table>
-    `;
-
+    html += "</tbody></table>";
     cont.innerHTML = html;
 }
 
 function buscarClientes() {
-    const input = document.getElementById("buscar-cliente");
-    if (!input) return;
-
-    const texto = input.value.toLowerCase();
+    const texto = document.getElementById("buscar-cliente").value.toLowerCase();
     const clientes = obtenerClientes();
 
     const filtrados = clientes.filter(c =>
@@ -186,9 +139,7 @@ function buscarClientes() {
 }
 
 function eliminarCliente(id) {
-    if (!confirm("¿Seguro que desea eliminar este cliente? Esta acción no se puede deshacer.")) {
-        return;
-    }
+    if (!confirm("¿Eliminar cliente?")) return;
 
     const clientes = obtenerClientes().filter(c => c.id !== id);
     guardarClientes(clientes);
@@ -224,9 +175,9 @@ function editarCliente(id) {
         return;
     }
 
-    c.nombre = nuevoNombre.trim();
-    c.apellido = nuevoApellido.trim();
-    c.telefono = nuevoTelefono.trim();
+    c.nombre = nuevoNombre;
+    c.apellido = nuevoApellido;
+    c.telefono = nuevoTelefono;
 
     guardarClientes(clientes);
     mostrarClientes();
@@ -234,7 +185,7 @@ function editarCliente(id) {
 
 
 /* ============================================================
-   PRODUCTOS (MEJORADO PARA LAVANDERÍA/TINTORERÍA)
+   PRODUCTOS
    ============================================================ */
 
 function guardarProducto() {
@@ -252,8 +203,7 @@ function guardarProducto() {
 
     const productos = obtenerProductos();
 
-    const existe = productos.some(p => p.nombre === nombre);
-    if (existe) {
+    if (productos.some(p => p.nombre === nombre)) {
         alert("Este producto ya existe.");
         return;
     }
@@ -272,7 +222,6 @@ function guardarProducto() {
     document.getElementById("prod-precio").value = "";
 
     mostrarProductos();
-    alert("Producto guardado.");
 }
 
 function mostrarProductos(lista = null) {
@@ -291,87 +240,41 @@ function mostrarProductos(lista = null) {
     productos.sort((a, b) => {
         const idxA = ordenCategorias.indexOf(a.categoria);
         const idxB = ordenCategorias.indexOf(b.categoria);
-
         if (idxA !== idxB) return idxA - idxB;
-        if (a.nombre !== b.nombre) return a.nombre.localeCompare(b.nombre);
-        return a.precio - b.precio;
+        return a.nombre.localeCompare(b.nombre);
     });
 
-    cont.innerHTML = `
-        <table style="width:100%; border-collapse:collapse; background:rgba(255,255,255,0.15); border-radius:6px;">
+    let html = `
+        <table>
             <thead>
-                <tr style="background:rgba(255,255,255,0.25);">
-                    <th style="padding:8px; text-align:left;">Categoría</th>
-                    <th style="padding:8px; text-align:left;">Nombre</th>
-                    <th style="padding:8px; text-align:right;">Precio</th>
-                    <th style="padding:8px; text-align:left;">Estado</th>
-                    <th style="padding:8px; text-align:center;">Acciones</th>
+                <tr>
+                    <th>Categoría</th>
+                    <th>Nombre</th>
+                    <th>Precio</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                ${productos.map(p => `
-                    <tr>
-                        <td style="padding:8px;">${p.categoria}</td>
-                        <td style="padding:8px;">${p.nombre}</td>
-                        <td style="padding:8px; text-align:right;">${p.precio.toLocaleString("es-AR")}</td>
-                        <td style="padding:8px;">${p.estado}</td>
-                        <td style="padding:8px; text-align:center;">
-                            <button onclick="editarProducto(${p.id})"
-                                style="padding:5px 10px; background:white; color:#007bff; border:none; border-radius:4px; cursor:pointer;">
-                                Editar
-                            </button>
-                            <button onclick="eliminarProducto(${p.id})"
-                                style="padding:5px 10px; background:white; color:#ff4444; border:none; border-radius:4px; cursor:pointer;">
-                                Eliminar
-                            </button>
-                        </td>
-                    </tr>
-                `).join("")}
-            </tbody>
-        </table>
     `;
-}
 
-function eliminarProducto(id) {
-    if (!confirm("¿Seguro que desea eliminar este producto?")) return;
+    productos.forEach(p => {
+        html += `
+            <tr>
+                <td>${p.categoria}</td>
+                <td>${p.nombre}</td>
+                <td>$${p.precio}</td>
+                <td>${p.estado}</td>
+                <td>
+                    <button onclick="editarProducto(${p.id})">Editar</button>
+                    <button onclick="eliminarProducto(${p.id})">Eliminar</button>
+                </td>
+            </tr>
+        `;
+    });
 
-    const productos = obtenerProductos().filter(p => p.id !== id);
-    guardarProductos(productos);
-    mostrarProductos();
-}
-
-function editarProducto(id) {
-    const productos = obtenerProductos();
-    const p = productos.find(x => x.id === id);
-    if (!p) return;
-
-    let nuevoNombre = prompt("Nuevo nombre:", p.nombre);
-    let nuevoPrecio = prompt("Nuevo precio:", p.precio);
-    let nuevaCategoria = prompt("Categoría (Lavandería / Tintorería / Acolchados / Otros):", p.categoria);
-    let nuevoEstado = prompt("Estado (Activo/Inactivo):", p.estado);
-
-    if (!nuevoNombre || !nuevoPrecio || !nuevaCategoria || !nuevoEstado) {
-        alert("Datos inválidos.");
-        return;
-    }
-
-    nuevoNombre = nuevoNombre.toUpperCase();
-
-    const existe = productos.some(x =>
-        x.id !== id && x.nombre === nuevoNombre
-    );
-    if (existe) {
-        alert("Ya existe otro producto con ese nombre.");
-        return;
-    }
-
-    p.nombre = nuevoNombre.trim();
-    p.precio = parseFloat(nuevoPrecio);
-    p.categoria = nuevaCategoria.trim();
-    p.estado = nuevoEstado.trim();
-
-    guardarProductos(productos);
-    mostrarProductos();
+    html += "</tbody></table>";
+    cont.innerHTML = html;
 }
 
 function buscarProductos() {
@@ -387,18 +290,49 @@ function buscarProductos() {
     mostrarProductos(filtrados);
 }
 
+function eliminarProducto(id) {
+    if (!confirm("¿Eliminar producto?")) return;
+
+    const productos = obtenerProductos().filter(p => p.id !== id);
+    guardarProductos(productos);
+    mostrarProductos();
+}
+
+function editarProducto(id) {
+    const productos = obtenerProductos();
+    const p = productos.find(x => x.id === id);
+    if (!p) return;
+
+    let nuevoNombre = prompt("Nuevo nombre:", p.nombre);
+    let nuevoPrecio = prompt("Nuevo precio:", p.precio);
+    let nuevaCategoria = prompt("Categoría:", p.categoria);
+    let nuevoEstado = prompt("Estado:", p.estado);
+
+    if (!nuevoNombre || !nuevoPrecio || !nuevaCategoria || !nuevoEstado) {
+        alert("Datos inválidos.");
+        return;
+    }
+
+    nuevoNombre = nuevoNombre.toUpperCase();
+
+    if (productos.some(x => x.id !== id && x.nombre === nuevoNombre)) {
+        alert("Ya existe otro producto con ese nombre.");
+        return;
+    }
+
+    p.nombre = nuevoNombre;
+    p.precio = parseFloat(nuevoPrecio);
+    p.categoria = nuevaCategoria;
+    p.estado = nuevoEstado;
+
+    guardarProductos(productos);
+    mostrarProductos();
+}
+
 
 /* ============================================================
-   USUARIOS (ADMINISTRACIÓN COMPLETA)
+   USUARIOS
    ============================================================ */
-
-function obtenerUsuarios() {
-    return JSON.parse(localStorage.getItem("usuarios")) || [];
-}
-
-function guardarUsuarios(lista) {
-    localStorage.setItem("usuarios", JSON.stringify(lista));
-}
 
 function guardarUsuario() {
     const nombre = document.getElementById("user-nombre").value.trim();
@@ -414,8 +348,7 @@ function guardarUsuario() {
 
     const usuarios = obtenerUsuarios();
 
-    const existe = usuarios.some(u => u.usuario === usuario);
-    if (existe) {
+    if (usuarios.some(u => u.usuario === usuario)) {
         alert("Ya existe un usuario con ese nombre.");
         return;
     }
@@ -436,7 +369,6 @@ function guardarUsuario() {
     document.getElementById("user-pass").value = "";
 
     mostrarUsuarios();
-    alert("Usuario guardado.");
 }
 
 function mostrarUsuarios(lista = null) {
@@ -450,89 +382,39 @@ function mostrarUsuarios(lista = null) {
         return;
     }
 
-    const ordenRoles = ["admin", "operador", "cajero", "supervisor"];
-    usuarios.sort((a, b) => {
-        const idxA = ordenRoles.indexOf(a.rol);
-        const idxB = ordenRoles.indexOf(b.rol);
-        if (idxA !== idxB) return idxA - idxB;
-        return a.nombre.localeCompare(b.nombre);
-    });
+    usuarios.sort((a, b) => a.nombre.localeCompare(b.nombre));
 
-    cont.innerHTML = `
-        <table style="width:100%; border-collapse:collapse; background:rgba(255,255,255,0.15); border-radius:6px;">
+    let html = `
+        <table>
             <thead>
-                <tr style="background:rgba(255,255,255,0.25);">
-                    <th style="padding:8px; text-align:left;">Nombre</th>
-                    <th style="padding:8px; text-align:left;">Usuario</th>
-                    <th style="padding:8px; text-align:left;">Rol</th>
-                    <th style="padding:8px; text-align:left;">Estado</th>
-                    <th style="padding:8px; text-align:center;">Acciones</th>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Usuario</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                ${usuarios.map(u => `
-                    <tr>
-                        <td style="padding:8px;">${u.nombre}</td>
-                        <td style="padding:8px;">${u.usuario}</td>
-                        <td style="padding:8px;">${u.rol}</td>
-                        <td style="padding:8px;">${u.estado}</td>
-                        <td style="padding:8px; text-align:center;">
-                            <button onclick="editarUsuario(${u.id})"
-                                style="padding:5px 10px; background:white; color:#007bff; border:none; border-radius:4px; cursor:pointer;">
-                                Editar
-                            </button>
-                            <button onclick="eliminarUsuario(${u.id})"
-                                style="padding:5px 10px; background:white; color:#ff4444; border:none; border-radius:4px; cursor:pointer;">
-                                Eliminar
-                            </button>
-                        </td>
-                    </tr>
-                `).join("")}
-            </tbody>
-        </table>
     `;
-}
 
-function eliminarUsuario(id) {
-    if (!confirm("¿Seguro que desea eliminar este usuario?")) return;
+    usuarios.forEach(u => {
+        html += `
+            <tr>
+                <td>${u.nombre}</td>
+                <td>${u.usuario}</td>
+                <td>${u.rol}</td>
+                <td>${u.estado}</td>
+                <td>
+                    <button onclick="editarUsuario(${u.id})">Editar</button>
+                    <button onclick="eliminarUsuario(${u.id})">Eliminar</button>
+                </td>
+            </tr>
+        `;
+    });
 
-    const usuarios = obtenerUsuarios().filter(u => u.id !== id);
-    guardarUsuarios(usuarios);
-    mostrarUsuarios();
-}
-
-function editarUsuario(id) {
-    const usuarios = obtenerUsuarios();
-    const u = usuarios.find(x => x.id === id);
-    if (!u) return;
-
-    let nuevoNombre = prompt("Nuevo nombre:", u.nombre);
-    let nuevoUsuario = prompt("Nuevo usuario:", u.usuario);
-    let nuevoPass = prompt("Nueva contraseña:", u.pass);
-    let nuevoRol = prompt("Rol (admin / operador / cajero / supervisor):", u.rol);
-    let nuevoEstado = prompt("Estado (Activo/Inactivo):", u.estado);
-
-    if (!nuevoNombre || !nuevoUsuario || !nuevoPass || !nuevoRol || !nuevoEstado) {
-        alert("Datos inválidos.");
-        return;
-    }
-
-    const existe = usuarios.some(x =>
-        x.id !== id && x.usuario === nuevoUsuario
-    );
-    if (existe) {
-        alert("Ya existe otro usuario con ese nombre.");
-        return;
-    }
-
-    u.nombre = nuevoNombre.trim();
-    u.usuario = nuevoUsuario.trim();
-    u.pass = nuevoPass.trim();
-    u.rol = nuevoRol.trim();
-    u.estado = nuevoEstado.trim();
-
-    guardarUsuarios(usuarios);
-    mostrarUsuarios();
+    html += "</tbody></table>";
+    cont.innerHTML = html;
 }
 
 function buscarUsuarios() {
@@ -549,9 +431,48 @@ function buscarUsuarios() {
     mostrarUsuarios(filtrados);
 }
 
+function eliminarUsuario(id) {
+    if (!confirm("¿Eliminar usuario?")) return;
+
+    const usuarios = obtenerUsuarios().filter(u => u.id !== id);
+    guardarUsuarios(usuarios);
+    mostrarUsuarios();
+}
+
+function editarUsuario(id) {
+    const usuarios = obtenerUsuarios();
+    const u = usuarios.find(x => x.id === id);
+    if (!u) return;
+
+    let nuevoNombre = prompt("Nuevo nombre:", u.nombre);
+    let nuevoUsuario = prompt("Nuevo usuario:", u.usuario);
+    let nuevoPass = prompt("Nueva contraseña:", u.pass);
+    let nuevoRol = prompt("Rol:", u.rol);
+    let nuevoEstado = prompt("Estado:", u.estado);
+
+    if (!nuevoNombre || !nuevoUsuario || !nuevoPass || !nuevoRol || !nuevoEstado) {
+        alert("Datos inválidos.");
+        return;
+    }
+
+    if (usuarios.some(x => x.id !== id && x.usuario === nuevoUsuario)) {
+        alert("Ya existe otro usuario con ese nombre.");
+        return;
+    }
+
+    u.nombre = nuevoNombre;
+    u.usuario = nuevoUsuario;
+    u.pass = nuevoPass;
+    u.rol = nuevoRol;
+    u.estado = nuevoEstado;
+
+    guardarUsuarios(usuarios);
+    mostrarUsuarios();
+}
+
 
 /* ============================================================
-   PRECIOS (MEJORADO)
+   PRECIOS
    ============================================================ */
 
 function cargarProductosEnPrecios() {
@@ -580,7 +501,25 @@ function mostrarPrecioActual() {
 
 function guardarPrecio() {
     const id = parseInt(document.getElementById("precio-producto").value);
-    const nuevoPrecio = parseFloat(document.get
+    const nuevoPrecio = parseFloat(document.getElementById("precio-nuevo").value);
+
+    if (isNaN(nuevoPrecio) || nuevoPrecio <= 0) {
+        alert("Ingrese un precio válido.");
+        return;
+    }
+
+    const productos = obtenerProductos();
+    const prod = productos.find(p => p.id === id);
+
+    if (!prod) return;
+
+    prod.precio = nuevoPrecio;
+
+    guardarProductos(productos);
+    mostrarPrecioActual();
+
+    alert("Precio actualizado.");
+}
 
 /* ============================================================
    VENTAS — REGISTRO Y LISTADO
@@ -656,6 +595,7 @@ function guardarVenta() {
         cantidad,
         precioUnitario: prod.precio,
         total,
+        usuario: localStorage.getItem("loggedUser") || "desconocido",
         fecha: new Date().toLocaleString()
     });
 
@@ -693,6 +633,7 @@ function mostrarVentas() {
                     <th>Cant.</th>
                     <th>Unitario</th>
                     <th>Total</th>
+                    <th>Usuario</th>
                 </tr>
             </thead>
             <tbody>
@@ -710,6 +651,7 @@ function mostrarVentas() {
                 <td>${v.cantidad}</td>
                 <td>$${v.precioUnitario}</td>
                 <td><strong>$${v.total}</strong></td>
+                <td>${v.usuario}</td>
             </tr>
         `;
     });
@@ -722,8 +664,9 @@ function mostrarVentas() {
     cont.innerHTML = html;
 }
 
+
 /* ============================================================
-   REPORTES — VENTAS, CLIENTES Y PRODUCTOS
+   REPORTES BÁSICOS — VENTAS, CLIENTES Y PRODUCTOS
    ============================================================ */
 
 function generarReporteVentas() {
@@ -742,165 +685,10 @@ function generarReporteVentas() {
     cont.innerHTML = `
         <table>
             <thead>
-                <tr>
-                    <th>Total Facturado</th>
-                </tr>
+                <tr><th>Total Facturado</th></tr>
             </thead>
             <tbody>
-                <tr>
-                    <td><strong>$${total.toLocaleString("es-AR")}</strong></td>
-                </tr>
-            </tbody>
-        </table>
-    `;
-}
-
-function generarReporteClientes() {
-    const ventas = obtenerVentas();
-    const clientes = obtenerClientes();
-    const cont = document.getElementById("reporte-clientes");
-
-    if (!cont) return;
-
-    if (ventas.length === 0) {
-        cont.innerHTML = "<p>No hay ventas registradas.</p>";
-        return;
-    }
-
-    // Agrupar ventas por cliente
-    const resumen = {};
-
-    ventas.forEach(v => {
-        if (!resumen[v.clienteId]) resumen[v.clienteId] = 0;
-        resumen[v.clienteId] += v.total;
-    });
-
-    // Convertir a lista ordenada
-    const lista = Object.entries(resumen)
-        .map(([id, total]) => {
-            const c = clientes.find(x => x.id == id);
-            return {
-                nombre: c ? `${c.apellido}, ${c.nombre}` : "Cliente desconocido",
-                total
-            };
-        })
-        .sort((a, b) => b.total - a.total);
-
-    let html = `
-        <table>
-            <thead>
-                <tr>
-                    <th>Cliente</th>
-                    <th>Total Gastado</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
-
-    lista.forEach(r => {
-        html += `
-            <tr>
-                <td>${r.nombre}</td>
-                <td><strong>$${r.total.toLocaleString("es-AR")}</strong></td>
-            </tr>
-        `;
-    });
-
-    html += `
-            </tbody>
-        </table>
-    `;
-
-    cont.innerHTML = html;
-}
-
-function generarReporteProductos() {
-    const ventas = obtenerVentas();
-    const productos = obtenerProductos();
-    const cont = document.getElementById("reporte-productos");
-
-    if (!cont) return;
-
-    if (ventas.length === 0) {
-        cont.innerHTML = "<p>No hay ventas registradas.</p>";
-        return;
-    }
-
-    // Agrupar ventas por producto
-    const resumen = {};
-
-    ventas.forEach(v => {
-        if (!resumen[v.productoId]) resumen[v.productoId] = 0;
-        resumen[v.productoId] += v.total;
-    });
-
-    // Convertir a lista ordenada
-    const lista = Object.entries(resumen)
-        .map(([id, total]) => {
-            const p = productos.find(x => x.id == id);
-            return {
-                nombre: p ? p.nombre : "Producto desconocido",
-                total
-            };
-        })
-        .sort((a, b) => b.total - a.total);
-
-    let html = `
-        <table>
-            <thead>
-                <tr>
-                    <th>Producto</th>
-                    <th>Total Vendido</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
-
-    lista.forEach(r => {
-        html += `
-            <tr>
-                <td>${r.nombre}</td>
-                <td><strong>$${r.total.toLocaleString("es-AR")}</strong></td>
-            </tr>
-        `;
-    });
-
-    html += `
-            </tbody>
-        </table>
-    `;
-
-    cont.innerHTML = html;
-}
-
-/* ============================================================
-   REPORTES — VENTAS, CLIENTES Y PRODUCTOS
-   ============================================================ */
-
-function generarReporteVentas() {
-    const ventas = obtenerVentas();
-    const cont = document.getElementById("reporte-ventas");
-
-    if (!cont) return;
-
-    if (ventas.length === 0) {
-        cont.innerHTML = "<p>No hay ventas registradas.</p>";
-        return;
-    }
-
-    const total = ventas.reduce((sum, v) => sum + v.total, 0);
-
-    cont.innerHTML = `
-        <table>
-            <thead>
-                <tr>
-                    <th>Total Facturado</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><strong>$${total.toLocaleString("es-AR")}</strong></td>
-                </tr>
+                <tr><td><strong>$${total.toLocaleString("es-AR")}</strong></td></tr>
             </tbody>
         </table>
     `;
@@ -938,10 +726,7 @@ function generarReporteClientes() {
     let html = `
         <table>
             <thead>
-                <tr>
-                    <th>Cliente</th>
-                    <th>Total Gastado</th>
-                </tr>
+                <tr><th>Cliente</th><th>Total Gastado</th></tr>
             </thead>
             <tbody>
     `;
@@ -955,11 +740,7 @@ function generarReporteClientes() {
         `;
     });
 
-    html += `
-            </tbody>
-        </table>
-    `;
-
+    html += "</tbody></table>";
     cont.innerHTML = html;
 }
 
@@ -995,10 +776,7 @@ function generarReporteProductos() {
     let html = `
         <table>
             <thead>
-                <tr>
-                    <th>Producto</th>
-                    <th>Total Vendido</th>
-                </tr>
+                <tr><th>Producto</th><th>Total Vendido</th></tr>
             </thead>
             <tbody>
     `;
@@ -1012,10 +790,202 @@ function generarReporteProductos() {
         `;
     });
 
-    html += `
-            </tbody>
-        </table>
-    `;
-
+    html += "</tbody></table>";
     cont.innerHTML = html;
 }
+
+/* ============================================================
+   REPORTES AVANZADOS
+   ============================================================ */
+
+/* ------------------------------
+   REPORTE MENSUAL
+   ------------------------------ */
+function generarReporteMensual(mes, anio) {
+    const ventas = obtenerVentas();
+    const cont = document.getElementById("reporte-mensual");
+
+    if (!cont) return;
+
+    const filtradas = ventas.filter(v => {
+        const f = new Date(v.fecha);
+        return f.getMonth() + 1 === mes && f.getFullYear() === anio;
+    });
+
+    if (filtradas.length === 0) {
+        cont.innerHTML = "<p>No hay ventas en ese mes.</p>";
+        return;
+    }
+
+    const total = filtradas.reduce((sum, v) => sum + v.total, 0);
+
+    cont.innerHTML = `
+        <table>
+            <thead><tr><th>Mes</th><th>Total</th></tr></thead>
+            <tbody><tr><td>${mes}/${anio}</td><td><strong>$${total.toLocaleString("es-AR")}</strong></td></tr></tbody>
+        </table>
+    `;
+}
+
+/* ------------------------------
+   REPORTE ANUAL
+   ------------------------------ */
+function generarReporteAnual(anio) {
+    const ventas = obtenerVentas();
+    const cont = document.getElementById("reporte-anual");
+
+    if (!cont) return;
+
+    const filtradas = ventas.filter(v => {
+        const f = new Date(v.fecha);
+        return f.getFullYear() === anio;
+    });
+
+    if (filtradas.length === 0) {
+        cont.innerHTML = "<p>No hay ventas en ese año.</p>";
+        return;
+    }
+
+    const total = filtradas.reduce((sum, v) => sum + v.total, 0);
+
+    cont.innerHTML = `
+        <table>
+            <thead><tr><th>Año</th><th>Total</th></tr></thead>
+            <tbody><tr><td>${anio}</td><td><strong>$${total.toLocaleString("es-AR")}</strong></td></tr></tbody>
+        </table>
+    `;
+}
+
+/* ------------------------------
+   REPORTE POR RANGO DE FECHAS
+   ------------------------------ */
+function generarReporteRango(desde, hasta) {
+    const ventas = obtenerVentas();
+    const cont = document.getElementById("reporte-rango");
+
+    if (!cont) return;
+
+    const d1 = new Date(desde);
+    const d2 = new Date(hasta);
+
+    const filtradas = ventas.filter(v => {
+        const f = new Date(v.fecha);
+        return f >= d1 && f <= d2;
+    });
+
+    if (filtradas.length === 0) {
+        cont.innerHTML = "<p>No hay ventas en ese rango.</p>";
+        return;
+    }
+
+    const total = filtradas.reduce((sum, v) => sum + v.total, 0);
+
+    cont.innerHTML = `
+        <table>
+            <thead><tr><th>Desde</th><th>Hasta</th><th>Total</th></tr></thead>
+            <tbody><tr><td>${desde}</td><td>${hasta}</td><td><strong>$${total.toLocaleString("es-AR")}</strong></td></tr></tbody>
+        </table>
+    `;
+}
+
+/* ------------------------------
+   REPORTE POR CATEGORÍA
+   ------------------------------ */
+function generarReportePorCategoria() {
+    const ventas = obtenerVentas();
+    const productos = obtenerProductos();
+    const cont = document.getElementById("reporte-categorias");
+
+    if (!cont) return;
+
+    const resumen = {};
+
+    ventas.forEach(v => {
+        const prod = productos.find(p => p.id === v.productoId);
+        if (!prod) return;
+
+        if (!resumen[prod.categoria]) resumen[prod.categoria] = 0;
+        resumen[prod.categoria] += v.total;
+    });
+
+    let html = `
+        <table>
+            <thead><tr><th>Categoría</th><th>Total Vendido</th></tr></thead>
+            <tbody>
+    `;
+
+    Object.entries(resumen).forEach(([cat, total]) => {
+        html += `
+            <tr>
+                <td>${cat}</td>
+                <td><strong>$${total.toLocaleString("es-AR")}</strong></td>
+            </tr>
+        `;
+    });
+
+    html += "</tbody></table>";
+    cont.innerHTML = html;
+}
+
+/* ------------------------------
+   REPORTE POR USUARIO
+   ------------------------------ */
+function generarReportePorUsuario() {
+    const ventas = obtenerVentas();
+    const cont = document.getElementById("reporte-usuarios");
+
+    if (!cont) return;
+
+    const resumen = {};
+
+    ventas.forEach(v => {
+        if (!resumen[v.usuario]) resumen[v.usuario] = 0;
+        resumen[v.usuario] += v.total;
+    });
+
+    let html = `
+        <table>
+            <thead><tr><th>Usuario</th><th>Total Vendido</th></tr></thead>
+            <tbody>
+    `;
+
+    Object.entries(resumen).forEach(([user, total]) => {
+        html += `
+            <tr>
+                <td>${user}</td>
+                <td><strong>$${total.toLocaleString("es-AR")}</strong></td>
+            </tr>
+        `;
+    });
+
+    html += "</tbody></table>";
+    cont.innerHTML = html;
+}
+
+
+/* ============================================================
+   EXPORTACIONES
+   ============================================================ */
+
+/* ------------------------------
+   EXPORTAR A CSV (Excel)
+   ------------------------------ */
+function exportarCSV(nombreArchivo, contenido) {
+    const blob = new Blob([contenido], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = nombreArchivo + ".csv";
+    link.click();
+}
+
+/* ------------------------------
+   EXPORTAR A PDF (Impresión)
+   ------------------------------ */
+function exportarPDF() {
+    window.print();
+}
+
+
+/* ============================================================
+   FIN DEL ARCHIVO
+   ============================================================ */
