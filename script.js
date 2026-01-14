@@ -1000,9 +1000,63 @@ function exportarPDF() {
     window.print();
 }
 
+/* ============================================================
+   MODAL DE CONFIRMACIÓN PARA RESTAURAR BACKUP
+   ============================================================ */
+
+let backupSeleccionado = null;
+
+function abrirModal(numero) {
+    backupSeleccionado = numero;
+    document.getElementById("modal-confirmacion").style.display = "flex";
+}
+
+function cerrarModal() {
+    document.getElementById("modal-confirmacion").style.display = "none";
+    backupSeleccionado = null;
+}
+
+document.getElementById("btn-confirmar").onclick = function () {
+    if (backupSeleccionado !== null) {
+        restaurarBackup(backupSeleccionado);
+    }
+    cerrarModal();
+};
+
+/* ============================================================
+   MOSTRAR LISTA DE BACKUPS
+   ============================================================ */
+
+function mostrarBackups() {
+    const tabla = document.querySelector("#tabla-backups tbody");
+    if (!tabla) return;
+
+    tabla.innerHTML = "";
+
+    const contador = parseInt(localStorage.getItem("backup_contador") || "0");
+
+    for (let i = contador; i >= 1; i--) {
+        const data = JSON.parse(localStorage.getItem(`backup_${i}`) || "null");
+        if (!data) continue;
+
+        const fila = document.createElement("tr");
+
+        fila.innerHTML = `
+            <td>${i}</td>
+            <td>${data.fecha}</td>
+            <td>
+                <button onclick="abrirModal(${i})" class="btn btn-azul">Restaurar</button>
+                <button onclick="descargarBackupEspecifico(${i})" class="btn btn-verde">Descargar</button>
+            </td>
+        `;
+
+        tabla.appendChild(fila);
+    }
+}
 
 /* ============================================================
    FIN DEL ARCHIVO
    ============================================================ */
+
 
 
