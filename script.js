@@ -1160,3 +1160,133 @@ function reporteVentas() {
 function irAMenu() {
     window.location.href = "menu.html";
 }
+
+/* ===============================
+      CREAR BACKUP
+=============================== */
+function crearBackup() {
+    const fecha = new Date().toLocaleString();
+
+    const datos = {
+        clientes: JSON.parse(localStorage.getItem("clientes")) || [],
+        productos: JSON.parse(localStorage.getItem("productos")) || [],
+        precios: JSON.parse(localStorage.getItem("precios")) || [],
+        ventas: JSON.parse(localStorage.getItem("ventas")) || [],
+        usuarios: JSON.parse(localStorage.getItem("usuarios")) || []
+    };
+
+    const backups = JSON.parse(localStorage.getItem("backups")) || [];
+
+    // Límite de 10 backups
+    if (backups.length >= 10) {
+        backups.shift(); // elimina el más viejo
+    }
+
+    backups.push({
+        fecha,
+        datos
+    });
+
+    localStorage.setItem("backups", JSON.stringify(backups));
+
+    alert("Backup creado correctamente.");
+    mostrarBackups();
+}
+
+/* ===============================
+      MOSTRAR BACKUPS
+=============================== */
+function mostrarBackups() {
+    const backups = JSON.parse(localStorage.getItem("backups")) || [];
+    const cont = document.getElementById("lista-backups");
+
+    if (backups.length === 0) {
+        cont.innerHTML = "<p>No hay backups creados.</p>";
+        return;
+    }
+
+    let html = `
+        <table>
+            <tr>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
+    `;
+
+    backups.forEach((b, index) => {
+        html += `
+            <tr>
+                <td>${b.fecha}</td>
+                <td>
+                    <button class="btn-accion" onclick="descargarBackup(${index})">Descargar</button>
+                    <button class="btn-accion" onclick="restaurarBackup(${index})">Restaurar</button>
+                    <button class="btn-accion btn-eliminar" onclick="eliminarBackup(${index})">Eliminar</button>
+                </td>
+            </tr>
+        `;
+    });
+
+    html += "</table>";
+
+    cont.innerHTML = html;
+}
+
+/* ===============================
+      DESCARGAR BACKUP (ZIP)
+=============================== */
+function descargarBackup(index) {
+    const backups = JSON.parse(localStorage.getItem("backups")) || [];
+    const backup = backups[index];
+
+    const contenido = JSON.stringify(backup, null, 2);
+
+    const blob = new Blob([contenido], { type: "application/json" });
+
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `backup_${backup.fecha.replace(/[/ :]/g, "_")}.json`;
+    a.click();
+
+    URL.revokeObjectURL(url);
+}
+
+/* ===============================
+      RESTAURAR BACKUP
+=============================== */
+function restaurarBackup(index) {
+    if (!confirm("¿Restaurar este backup? Se sobrescribirán todos los datos.")) return;
+
+    const backups = JSON.parse(localStorage.getItem("backups")) || [];
+    const backup = backups[index];
+
+    localStorage.setItem("clientes", JSON.stringify(backup.datos.clientes));
+    localStorage.setItem("productos", JSON.stringify(backup.datos.productos));
+    localStorage.setItem("precios", JSON.stringify(backup.datos.precios));
+    localStorage.setItem("ventas", JSON.stringify(backup.datos.ventas));
+    localStorage.setItem("usuarios", JSON.stringify(backup.datos.usuarios));
+
+    alert("Backup restaurado correctamente.");
+}
+
+/* ===============================
+      ELIMINAR BACKUP
+=============================== */
+function eliminarBackup(index) {
+    if (!confirm("¿Eliminar este backup?")) return;
+
+    const backups = JSON.parse(localStorage.getItem("backups")) || [];
+    backups.splice(index, 1);
+
+    localStorage.setItem("backups", JSON.stringify(backups));
+
+    mostrarBackups();
+}
+
+/* ===============================
+      VOLVER AL MENÚ
+=============================== */
+function irAMenu() {
+    window.location.href = "menu.html";
+}
