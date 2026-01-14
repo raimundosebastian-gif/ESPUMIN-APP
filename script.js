@@ -581,3 +581,143 @@ function mostrarPrecioActual() {
 function guardarPrecio() {
     const id = parseInt(document.getElementById("precio-producto").value);
     const nuevoPrecio = parseFloat(document.get
+
+/* ============================================================
+   VENTAS — REGISTRO Y LISTADO
+   ============================================================ */
+
+function cargarClientesEnVentas() {
+    const clientes = obtenerClientes();
+    const select = document.getElementById("venta-cliente");
+
+    if (!select) return;
+
+    select.innerHTML = `<option value="">Seleccione un cliente</option>` +
+        clientes
+            .sort((a, b) => a.apellido.localeCompare(b.apellido))
+            .map(c => `<option value="${c.id}">${c.apellido}, ${c.nombre}</option>`)
+            .join("");
+}
+
+function cargarProductosEnVentas() {
+    const productos = obtenerProductos();
+    const select = document.getElementById("venta-producto");
+
+    if (!select) return;
+
+    select.innerHTML = `<option value="">Seleccione un producto</option>` +
+        productos
+            .sort((a, b) => a.nombre.localeCompare(b.nombre))
+            .map(p => `<option value="${p.id}">${p.nombre}</option>`)
+            .join("");
+}
+
+function actualizarPrecioVenta() {
+    const id = parseInt(document.getElementById("venta-producto").value);
+    const productos = obtenerProductos();
+    const prod = productos.find(p => p.id === id);
+
+    const cont = document.getElementById("precio-unitario");
+
+    if (!prod) {
+        cont.innerHTML = "";
+        return;
+    }
+
+    cont.innerHTML = `Precio unitario: <strong>$${prod.precio}</strong>`;
+}
+
+function guardarVenta() {
+    const clienteId = parseInt(document.getElementById("venta-cliente").value);
+    const productoId = parseInt(document.getElementById("venta-producto").value);
+    const cantidad = parseInt(document.getElementById("venta-cantidad").value);
+
+    if (!clienteId || !productoId || isNaN(cantidad) || cantidad <= 0) {
+        alert("Complete todos los campos correctamente.");
+        return;
+    }
+
+    const productos = obtenerProductos();
+    const prod = productos.find(p => p.id === productoId);
+
+    if (!prod) {
+        alert("Producto inválido.");
+        return;
+    }
+
+    const total = prod.precio * cantidad;
+
+    const ventas = obtenerVentas();
+
+    ventas.push({
+        id: Date.now(),
+        clienteId,
+        productoId,
+        cantidad,
+        precioUnitario: prod.precio,
+        total,
+        fecha: new Date().toLocaleString()
+    });
+
+    guardarVentas(ventas);
+
+    document.getElementById("venta-cantidad").value = "";
+    actualizarPrecioVenta();
+    mostrarVentas();
+
+    alert("Venta registrada.");
+}
+
+function mostrarVentas() {
+    const ventas = obtenerVentas();
+    const clientes = obtenerClientes();
+    const productos = obtenerProductos();
+    const cont = document.getElementById("lista-ventas");
+
+    if (!cont) return;
+
+    if (ventas.length === 0) {
+        cont.innerHTML = "<p>No hay ventas registradas.</p>";
+        return;
+    }
+
+    ventas.sort((a, b) => b.id - a.id);
+
+    let html = `
+        <table>
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Cliente</th>
+                    <th>Producto</th>
+                    <th>Cant.</th>
+                    <th>Unitario</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    ventas.forEach(v => {
+        const cliente = clientes.find(c => c.id === v.clienteId);
+        const producto = productos.find(p => p.id === v.productoId);
+
+        html += `
+            <tr>
+                <td>${v.fecha}</td>
+                <td>${cliente ? cliente.apellido + ", " + cliente.nombre : "—"}</td>
+                <td>${producto ? producto.nombre : "—"}</td>
+                <td>${v.cantidad}</td>
+                <td>$${v.precioUnitario}</td>
+                <td><strong>$${v.total}</strong></td>
+            </tr>
+        `;
+    });
+
+    html += `
+            </tbody>
+        </table>
+    `;
+
+    cont.innerHTML = html;
+}
