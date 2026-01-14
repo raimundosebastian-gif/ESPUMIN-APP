@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <title>Backups - ESPUMIN</title>
 
+    <!-- JSZip para exportar ZIP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -91,6 +94,10 @@
     <h1>Backups del Sistema</h1>
 
     <button onclick="descargarBackup()" class="btn btn-verde">Descargar Backup Actual</button>
+
+    <button onclick="descargarZipBackups()" class="btn btn-verde">
+        Descargar ZIP (todos los backups)
+    </button>
 
     <h2>Historial de Backups</h2>
 
