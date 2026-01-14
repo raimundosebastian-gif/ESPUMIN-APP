@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Backups - ESPUMIN</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>Backups del Sistema</h1>
+
+    <button onclick="descargarBackup()" class="btn-azul">Descargar Backup Actual</button>
+
+    <h2>Backups Internos</h2>
+    <table id="tabla-backups">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <button onclick="window.location.href='menu.html'" class="btn-volver">Volver al menú</button>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
