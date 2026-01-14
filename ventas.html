@@ -3,6 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <title>ESPUMIN APP - Ventas</title>
+
+    <style>
+        .contenedor {
+            background: white;
+            color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 900px;
+            margin: auto;
+            box-shadow: 0 0 12px rgba(0,0,0,0.2);
+        }
+
+        .input-box {
+            padding: 10px;
+            width: 260px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin: 5px;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 5px;
+        }
+
+        .btn-guardar { background: #00c851; color: white; }
+        .btn-volver { background: #007bff; color: white; }
+        .btn-sesion { background: white; color: #007bff; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th {
+            background: #007bff;
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:nth-child(even) {
+            background: #f2f2f2;
+        }
+
+        #total-venta {
+            font-size: 20px;
+            font-weight: bold;
+            color: #007bff;
+            margin-top: 15px;
+        }
+    </style>
 </head>
 
 <body style="
@@ -13,252 +76,75 @@
     color: white;
 ">
 
+<!-- 🔐 Protección de acceso -->
 <script>
     const usuario = localStorage.getItem("loggedUser");
     const rol = localStorage.getItem("userRole");
 
     if (!usuario) {
-        window.location.href = "index.html";
+        location.href = "index.html";
     }
 
     function cerrarSesion() {
         localStorage.removeItem("loggedUser");
         localStorage.removeItem("userRole");
-        window.location.href = "index.html";
+        location.href = "index.html";
     }
 </script>
 
-<h2 style="text-align:center;">VENTAS / ÓRDENES</h2>
+<h2 style="text-align:center;">VENTAS</h2>
 
 <div style="text-align:center; margin-bottom:20px;">
     <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
 
-    <button onclick="cerrarSesion()"
-        style="
-            padding:10px 20px;
-            background:white;
-            color:#007bff;
-            border:none;
-            border-radius:5px;
-            cursor:pointer;
-            font-size:16px;
-            font-weight:bold;
-            text-transform:uppercase;
-        ">
+    <button onclick="cerrarSesion()" class="btn btn-sesion">
         Cerrar sesión
     </button>
 </div>
 
-<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
+<div class="contenedor">
 
-<!-- BOTONES TIPO DE ORDEN -->
-<div style="text-align:center; margin-bottom:20px;">
-    <button onclick="nuevaOrden('OL')"
-        style="
-            padding:12px 20px;
-            margin:5px;
-            background:white;
-            color:#007bff;
-            border:none;
-            border-radius:6px;
-            cursor:pointer;
-            font-size:16px;
-            font-weight:bold;
-            text-transform:uppercase;
-        ">
-        Nueva OL (Lavandería)
-    </button>
+    <h3>Nueva Venta</h3>
 
-    <button onclick="nuevaOrden('OT')"
-        style="
-            padding:12px 20px;
-            margin:5px;
-            background:white;
-            color:#00c851;
-            border:none;
-            border-radius:6px;
-            cursor:pointer;
-            font-size:16px;
-            font-weight:bold;
-            text-transform:uppercase;
-        ">
-        Nueva OT (Tintorería)
+    <select id="venta-cliente" class="input-box">
+        <option value="">Seleccione un cliente</option>
+    </select>
+
+    <select id="venta-producto" class="input-box" onchange="actualizarPrecioVenta()">
+        <option value="">Seleccione un producto</option>
+    </select>
+
+    <input id="venta-cantidad" type="number" placeholder="Cantidad" class="input-box">
+
+    <div id="precio-unitario" style="margin:10px 0; font-weight:bold;"></div>
+
+    <button onclick="guardarVenta()" class="btn btn-guardar">Registrar Venta</button>
+
+    <hr style="margin:20px 0;">
+
+    <h3>Historial de Ventas</h3>
+
+    <div id="lista-ventas"></div>
+
+</div>
+
+<div style="text-align:center; margin-top:20px;">
+    <button onclick="irAMenu()" class="btn btn-volver">
+        Volver al Menú
     </button>
 </div>
 
-<!-- CONTENEDOR ORDEN -->
-<div id="contenedor-orden" style="
-    background: rgba(255,255,255,0.15);
-    border-radius:8px;
-    padding:15px;
-    display:none;
-">
+<script src="script.js"></script>
 
-    <!-- TÍTULO ORDEN -->
-    <h3 id="titulo-orden" style="text-align:center; margin-top:0;"></h3>
-
-    <!-- ENCABEZADO -->
-    <div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
-        <div style="flex:1; min-width:220px;">
-            <label>Cliente:</label><br>
-            <input id="buscar-cliente" type="text" placeholder="Buscar cliente..."
-                onkeyup="filtrarClientes()"
-                style="padding:8px; width:100%; border:none; border-radius:5px; margin-bottom:5px;">
-            <select id="select-cliente"
-                onchange="seleccionarCliente()"
-                style="padding:8px; width:100%; border:none; border-radius:5px;">
-            </select>
-        </div>
-
-        <div style="flex:1; min-width:180px;">
-            <label>Teléfono:</label><br>
-            <input id="telefono-cliente" type="text" readonly
-                style="padding:8px; width:100%; border:none; border-radius:5px; background:rgba(255,255,255,0.6);">
-        </div>
-
-        <div style="flex:1; min-width:180px;">
-            <label>Fecha de entrega:</label><br>
-            <input id="fecha-entrega" type="date"
-                style="padding:8px; width:100%; border:none; border-radius:5px;">
-        </div>
-
-        <div style="flex:1; min-width:180px; display:flex; align-items:flex-end;">
-            <label style="display:flex; align-items:center; gap:5px;">
-                <input id="protocolo-mascota" type="checkbox">
-                Protocolo mascota
-            </label>
-        </div>
-    </div>
-
-    <!-- TABLA DE PRENDAS (FONDO BLANCO, LETRAS NEGRAS) -->
-    <div style="background:white; color:black; border-radius:6px; padding:10px; margin-top:10px;">
-        <!-- FILA DE CARGA -->
-        <div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
-            <div style="flex:0 0 80px;">
-                <label>Cant.</label><br>
-                <input id="venta-cantidad" type="number" min="1" value="1"
-                    style="padding:6px; width:100%; border:1px solid #ccc; border-radius:4px;">
-            </div>
-
-            <div style="flex:1; min-width:200px;">
-                <label>Producto</label><br>
-                <input id="buscar-producto-venta" type="text" placeholder="Buscar producto..."
-                    onkeyup="filtrarProductosVenta()"
-                    style="padding:6px; width:100%; border:1px solid #ccc; border-radius:4px; margin-bottom:4px;">
-                <select id="select-producto-venta"
-                    onchange="actualizarPrecioVenta()"
-                    style="padding:6px; width:100%; border:1px solid #ccc; border-radius:4px;">
-                </select>
-            </div>
-
-            <div style="flex:0 0 120px;">
-                <label>Precio</label><br>
-                <input id="venta-precio" type="text" readonly
-                    style="padding:6px; width:100%; border:1px solid #ccc; border-radius:4px; text-align:right;">
-            </div>
-
-            <div style="flex:0 0 120px;">
-                <label>Subtotal</label><br>
-                <input id="venta-subtotal" type="text" readonly
-                    style="padding:6px; width:100%; border:1px solid #ccc; border-radius:4px; text-align:right;">
-            </div>
-
-            <div style="flex:0 0 120px; display:flex; align-items:flex-end;">
-                <button onclick="agregarLineaVenta()"
-                    style="
-                        padding:8px 12px;
-                        background:#007bff;
-                        color:white;
-                        border:none;
-                        border-radius:4px;
-                        cursor:pointer;
-                        font-weight:bold;
-                    ">
-                    Agregar
-                </button>
-            </div>
-        </div>
-
-        <!-- TABLA -->
-        <div id="tabla-ventas-contenedor" style="margin-top:10px;">
-            <!-- se llena por JS -->
-        </div>
-    </div>
-
-    <!-- TOTALES -->
-    <div style="margin-top:15px; text-align:right;">
-        <div>
-            <label>Total: </label>
-            <input id="venta-total" type="text" readonly
-                style="padding:6px; width:150px; border:none; border-radius:4px; text-align:right; background:rgba(255,255,255,0.6);">
-        </div>
-        <div style="margin-top:5px;">
-            <label>Seña / anticipo: </label>
-            <input id="venta-sena" type="text"
-                oninput="actualizarSaldoVenta()"
-                style="padding:6px; width:150px; border:none; border-radius:4px; text-align:right;">
-        </div>
-        <div style="margin-top:5px;">
-            <label>Saldo: </label>
-            <input id="venta-saldo" type="text" readonly
-                style="padding:6px; width:150px; border:none; border-radius:4px; text-align:right; background:rgba(255,255,255,0.6);">
-        </div>
-    </div>
-
-    <!-- ESTADO + GUARDAR -->
-    <div style="margin-top:15px; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px;">
-        <div>
-            <label>Estado:</label>
-            <select id="venta-estado"
-                onchange="validarEstadoEntregado()"
-                style="padding:8px; border:none; border-radius:5px;">
-                <option value="Recibido">Recibido</option>
-                <option value="En proceso">En proceso</option>
-                <option value="Listo">Listo</option>
-                <option value="Entregado">Entregado</option>
-            </select>
-        </div>
-
-        <div>
-            <button onclick="guardarOrden()"
-                style="
-                    padding:10px 20px;
-                    background:white;
-                    color:#00c851;
-                    border:none;
-                    border-radius:6px;
-                    cursor:pointer;
-                    font-size:16px;
-                    font-weight:bold;
-                    text-transform:uppercase;
-                ">
-                Guardar orden
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- VOLVER AL MENÚ -->
-<button onclick="location.href='menu.html'"
-    style="
-        margin-top:30px;
-        padding:12px 20px;
-        background:white;
-        color:#007bff;
-        border:none;
-        border-radius:6px;
-        cursor:pointer;
-        font-size:16px;
-        font-weight:bold;
-        text-transform:uppercase;
-    ">
-    Volver al Menú
-</button>
-
-<script src="script.js?v=2"></script>
 <script>
     document.getElementById("usuario-log").textContent = usuario;
-    if (typeof inicializarVentas === "function") inicializarVentas();
+
+    // Cargar clientes y productos
+    cargarClientesEnVentas();
+    cargarProductosEnVentas();
+
+    // Mostrar historial
+    mostrarVentas();
 </script>
 
 </body>
