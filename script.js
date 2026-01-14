@@ -621,3 +621,185 @@ function editarProducto(index) {
 function irAMenu() {
     window.location.href = "menu.html";
 }
+
+/* ===============================
+      GUARDAR PRECIO
+=============================== */
+function guardarPrecio() {
+    const producto = document.getElementById("precio-producto").value.trim();
+    const costo = parseFloat(document.getElementById("precio-costo").value.trim());
+    const venta = parseFloat(document.getElementById("precio-venta").value.trim());
+
+    if (!producto || isNaN(costo) || isNaN(venta)) {
+        alert("Completa todos los campos correctamente.");
+        return;
+    }
+
+    if (costo <= 0 || venta <= 0) {
+        alert("Los valores deben ser mayores a 0.");
+        return;
+    }
+
+    if (venta < costo) {
+        alert("El precio de venta no puede ser menor al costo.");
+        return;
+    }
+
+    const precios = JSON.parse(localStorage.getItem("precios")) || [];
+
+    precios.push({
+        producto: capitalizar(producto),
+        costo,
+        venta
+    });
+
+    localStorage.setItem("precios", JSON.stringify(precios));
+
+    alert("Precio guardado correctamente.");
+
+    document.getElementById("precio-producto").value = "";
+    document.getElementById("precio-costo").value = "";
+    document.getElementById("precio-venta").value = "";
+
+    mostrarPrecios();
+}
+
+/* ===============================
+      MOSTRAR PRECIOS
+=============================== */
+function mostrarPrecios() {
+    const precios = JSON.parse(localStorage.getItem("precios")) || [];
+    const contenedor = document.getElementById("lista-precios");
+
+    if (precios.length === 0) {
+        contenedor.innerHTML = "<p>No hay precios cargados.</p>";
+        return;
+    }
+
+    let html = `
+        <table>
+            <tr>
+                <th>Producto</th>
+                <th>Costo</th>
+                <th>Venta</th>
+                <th>Acciones</th>
+            </tr>
+    `;
+
+    precios.forEach((p, index) => {
+        html += `
+            <tr>
+                <td>${p.producto}</td>
+                <td>$${p.costo.toFixed(2)}</td>
+                <td>$${p.venta.toFixed(2)}</td>
+                <td>
+                    <button class="btn-accion btn-editar" onclick="editarPrecio(${index})">Editar</button>
+                    <button class="btn-accion btn-eliminar" onclick="eliminarPrecio(${index})">Eliminar</button>
+                </td>
+            </tr>
+        `;
+    });
+
+    html += "</table>";
+
+    contenedor.innerHTML = html;
+}
+
+/* ===============================
+      BUSCAR PRECIOS
+=============================== */
+function buscarPrecios() {
+    const texto = document.getElementById("buscar-precio").value.toLowerCase();
+    const precios = JSON.parse(localStorage.getItem("precios")) || [];
+
+    const filtrados = precios.filter(p =>
+        p.producto.toLowerCase().includes(texto)
+    );
+
+    const contenedor = document.getElementById("lista-precios");
+
+    if (filtrados.length === 0) {
+        contenedor.innerHTML = "<p>No se encontraron coincidencias.</p>";
+        return;
+    }
+
+    let html = `
+        <table>
+            <tr>
+                <th>Producto</th>
+                <th>Costo</th>
+                <th>Venta</th>
+                <th>Acciones</th>
+            </tr>
+    `;
+
+    filtrados.forEach((p, index) => {
+        html += `
+            <tr>
+                <td>${p.producto}</td>
+                <td>$${p.costo.toFixed(2)}</td>
+                <td>$${p.venta.toFixed(2)}</td>
+                <td>
+                    <button class="btn-accion btn-editar" onclick="editarPrecio(${index})">Editar</button>
+                    <button class="btn-accion btn-eliminar" onclick="eliminarPrecio(${index})">Eliminar</button>
+                </td>
+            </tr>
+        `;
+    });
+
+    html += "</table>";
+
+    contenedor.innerHTML = html;
+}
+
+/* ===============================
+      ELIMINAR PRECIO
+=============================== */
+function eliminarPrecio(index) {
+    const precios = JSON.parse(localStorage.getItem("precios")) || [];
+
+    if (!confirm("¿Eliminar este precio?")) return;
+
+    precios.splice(index, 1);
+    localStorage.setItem("precios", JSON.stringify(precios));
+
+    mostrarPrecios();
+}
+
+/* ===============================
+      EDITAR PRECIO
+=============================== */
+function editarPrecio(index) {
+    const precios = JSON.parse(localStorage.getItem("precios")) || [];
+    const p = precios[index];
+
+    const nuevoProducto = prompt("Nuevo producto:", p.producto);
+    const nuevoCosto = parseFloat(prompt("Nuevo costo:", p.costo));
+    const nuevoVenta = parseFloat(prompt("Nuevo precio de venta:", p.venta));
+
+    if (!nuevoProducto || isNaN(nuevoCosto) || isNaN(nuevoVenta)) {
+        alert("Datos inválidos.");
+        return;
+    }
+
+    if (nuevoVenta < nuevoCosto) {
+        alert("El precio de venta no puede ser menor al costo.");
+        return;
+    }
+
+    precios[index] = {
+        producto: capitalizar(nuevoProducto),
+        costo: nuevoCosto,
+        venta: nuevoVenta
+    };
+
+    localStorage.setItem("precios", JSON.stringify(precios));
+    mostrarPrecios();
+}
+
+/* ===============================
+      VOLVER AL MENÚ
+=============================== */
+function irAMenu() {
+    window.location.href = "menu.html";
+}
