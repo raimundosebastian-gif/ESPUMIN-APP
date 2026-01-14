@@ -84,6 +84,11 @@
 
     <button onclick="irAReportes()" class="btn btn-menu">Reportes</button>
 
+    <!-- ⭐ NUEVO BOTÓN BACKUPS -->
+    <button onclick="irABackups()" class="btn btn-menu" id="btn-backups">
+        Backups
+    </button>
+
 </div>
 
 <button onclick="cerrarSesion()" class="btn btn-sesion" style="margin-top:20px;">
@@ -95,9 +100,15 @@
 <script>
     document.getElementById("usuario-log").textContent = usuario;
 
-    // Solo admin puede ver Usuarios
+    // Solo admin puede ver Usuarios y Backups
     if (rol !== "admin") {
         document.getElementById("btn-usuarios").style.display = "none";
+        document.getElementById("btn-backups").style.display = "none";
+    }
+
+    // Función para ir a la pantalla de backups
+    function irABackups() {
+        window.location.href = "backups.html";
     }
 </script>
 
