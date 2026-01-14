@@ -5,7 +5,6 @@
     <title>ESPUMIN APP - Clientes</title>
 
     <style>
-        /* Contenedor general */
         .contenedor {
             background: white;
             color: #333;
@@ -16,7 +15,6 @@
             box-shadow: 0 0 12px rgba(0,0,0,0.2);
         }
 
-        /* Inputs */
         .input-box {
             padding: 10px;
             width: 220px;
@@ -25,7 +23,6 @@
             margin: 5px;
         }
 
-        /* Botones */
         .btn {
             padding: 10px 18px;
             border: none;
@@ -37,11 +34,9 @@
         }
 
         .btn-guardar { background: #00c851; color: white; }
-        .btn-reiniciar { background: #ff4444; color: white; }
         .btn-volver { background: #007bff; color: white; }
         .btn-sesion { background: white; color: #007bff; }
 
-        /* Tabla */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -64,7 +59,6 @@
             background: #f2f2f2;
         }
 
-        /* Botones de acción */
         .btn-accion {
             padding: 6px 12px;
             border: none;
@@ -77,7 +71,6 @@
         .btn-editar { background: #00c851; color: white; }
         .btn-eliminar { background: #ff4444; color: white; }
 
-        /* Buscador */
         #buscar-cliente {
             padding: 10px;
             width: 260px;
@@ -95,7 +88,6 @@
     color: white;
 ">
 
-<!-- 🔐 Protección de acceso -->
 <script>
     const usuario = localStorage.getItem("loggedUser");
     const rol = localStorage.getItem("userRole");
@@ -113,13 +105,6 @@
     function capitalizar(texto) {
         if (!texto) return "";
         return texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase();
-    }
-
-    function reiniciarClientes() {
-        if (confirm("¿Seguro que desea eliminar TODOS los clientes?")) {
-            localStorage.removeItem("clientes");
-            mostrarClientes();
-        }
     }
 </script>
 
@@ -148,10 +133,6 @@
 
     <button onclick="guardarCliente()" class="btn btn-guardar">Guardar</button>
 
-    <button onclick="reiniciarClientes()" class="btn btn-reiniciar" id="btn-reiniciar">
-        Reiniciar Clientes
-    </button>
-
     <hr style="margin:20px 0;">
 
     <h3>Listado de Clientes</h3>
@@ -172,11 +153,6 @@
 
 <script>
     document.getElementById("usuario-log").textContent = usuario;
-
-    if (rol !== "admin") {
-        document.getElementById("btn-reiniciar").style.display = "none";
-    }
-
     mostrarClientes();
 </script>
 
