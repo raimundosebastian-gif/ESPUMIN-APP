@@ -3,6 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <title>ESPUMIN APP - Clientes</title>
+
+    <style>
+        /* Contenedor general */
+        .contenedor {
+            background: white;
+            color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 900px;
+            margin: auto;
+            box-shadow: 0 0 12px rgba(0,0,0,0.2);
+        }
+
+        /* Inputs */
+        .input-box {
+            padding: 10px;
+            width: 220px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin: 5px;
+        }
+
+        /* Botones */
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 5px;
+        }
+
+        .btn-guardar { background: #00c851; color: white; }
+        .btn-reiniciar { background: #ff4444; color: white; }
+        .btn-volver { background: #007bff; color: white; }
+        .btn-sesion { background: white; color: #007bff; }
+
+        /* Tabla */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th {
+            background: #007bff;
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:nth-child(even) {
+            background: #f2f2f2;
+        }
+
+        /* Botones de acción */
+        .btn-accion {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 5px;
+        }
+
+        .btn-editar { background: #00c851; color: white; }
+        .btn-eliminar { background: #ff4444; color: white; }
+
+        /* Buscador */
+        #buscar-cliente {
+            padding: 10px;
+            width: 260px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+    </style>
 </head>
 
 <body style="
@@ -28,7 +110,6 @@
         window.location.href = "index.html";
     }
 
-    // Función para capitalizar automáticamente
     function capitalizar(texto) {
         if (!texto) return "";
         return texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase();
@@ -40,123 +121,55 @@
 <div style="text-align:center; margin-bottom:20px;">
     <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
 
-    <button onclick="cerrarSesion()" 
-        style="
-            padding:10px 20px;
-            background:white;
-            color:#007bff;
-            border:none;
-            border-radius:5px;
-            cursor:pointer;
-            font-size:16px;
-            font-weight:bold;
-            text-transform:uppercase;
-        ">
+    <button onclick="cerrarSesion()" class="btn btn-sesion">
         Cerrar sesión
     </button>
 </div>
 
-<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
+<div class="contenedor">
 
-
-<!-- FORMULARIO DE NUEVO CLIENTE -->
-<div>
     <h3>Nuevo Cliente</h3>
 
     <input id="cliente-nombre" type="text" placeholder="Nombre"
-        onblur="this.value = capitalizar(this.value)"
-        style="padding:10px; width:220px; border:none; border-radius:5px; margin:5px;">
+        onblur="this.value = capitalizar(this.value)" class="input-box">
 
     <input id="cliente-apellido" type="text" placeholder="Apellido"
-        onblur="this.value = capitalizar(this.value)"
-        style="padding:10px; width:220px; border:none; border-radius:5px; margin:5px;">
+        onblur="this.value = capitalizar(this.value)" class="input-box">
 
     <input id="cliente-telefono" type="text" placeholder="Teléfono (10 dígitos)"
-        style="padding:10px; width:220px; border:none; border-radius:5px; margin:5px;">
+        class="input-box">
 
-    <button onclick="guardarCliente()" 
-        style="
-            padding:12px 20px;
-            background:white;
-            color:#00c851;
-            border:none;
-            border-radius:6px;
-            cursor:pointer;
-            font-size:16px;
-            font-weight:bold;
-            text-transform:uppercase;
-        ">
-        Guardar
-    </button>
+    <button onclick="guardarCliente()" class="btn btn-guardar">Guardar</button>
 
-    <!-- SOLO ADMIN -->
-    <button onclick="reiniciarClientes()"
-        style="
-            padding:12px 20px;
-            background:white;
-            color:#ff4444;
-            border:none;
-            border-radius:6px;
-            cursor:pointer;
-            font-size:16px;
-            font-weight:bold;
-            text-transform:uppercase;
-            margin-top:10px;
-        "
-        id="btn-reiniciar">
+    <button onclick="reiniciarClientes()" class="btn btn-reiniciar" id="btn-reiniciar">
         Reiniciar Clientes
     </button>
+
+    <hr style="margin:20px 0;">
+
+    <h3>Listado de Clientes</h3>
+
+    <input id="buscar-cliente" type="text" placeholder="Buscar..." onkeyup="buscarClientes()">
+
+    <div id="lista-clientes"></div>
+
 </div>
 
-<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
-
-
-<h3>Listado de Clientes</h3>
-
-<!-- 🔍 CAJA DE BÚSQUEDA -->
-<input id="buscar-cliente" type="text" placeholder="Buscar..."
-    onkeyup="buscarClientes()"
-    style="
-        padding:10px;
-        width:260px;
-        border:none;
-        border-radius:5px;
-        margin-bottom:15px;
-    ">
-
-<div id="lista-clientes" style="margin-top:10px;"></div>
-
-
-<!-- BOTÓN VOLVER AL MENÚ -->
-<button onclick="location.href='menu.html'"
-    style="
-        margin-top:30px;
-        padding:12px 20px;
-        background:white;
-        color:#007bff;
-        border:none;
-        border-radius:6px;
-        cursor:pointer;
-        font-size:16px;
-        font-weight:bold;
-        text-transform:uppercase;
-    ">
-    Volver al Menú
-</button>
-
+<div style="text-align:center;">
+    <button onclick="location.href='menu.html'" class="btn btn-volver">
+        Volver al Menú
+    </button>
+</div>
 
 <script src="script.js"></script>
 
 <script>
-    // Mostrar usuario logueado
     document.getElementById("usuario-log").textContent = usuario;
 
-    // Ocultar botón reiniciar si no es admin
     if (rol !== "admin") {
         document.getElementById("btn-reiniciar").style.display = "none";
     }
 
-    // Cargar listado
     if (typeof mostrarClientes === "function") {
         mostrarClientes();
     }
