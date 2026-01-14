@@ -5,6 +5,39 @@
 
 
 /* ============================================================
+   NAVEGACIÓN CENTRALIZADA ENTRE MÓDULOS
+   ============================================================ */
+
+function irAMenu() {
+    location.href = "menu.html";
+}
+
+function irAClientes() {
+    location.href = "clientes.html";
+}
+
+function irAProductos() {
+    location.href = "productos.html";
+}
+
+function irAUsuarios() {
+    location.href = "usuarios.html";
+}
+
+function irAPrecios() {
+    location.href = "precios.html";
+}
+
+function irAVentas() {
+    location.href = "ventas.html";
+}
+
+function irAReportes() {
+    location.href = "reportes.html";
+}
+
+
+/* ============================================================
    UTILIDADES DE LOCALSTORAGE
    ============================================================ */
 
@@ -547,18 +580,4 @@ function mostrarPrecioActual() {
 
 function guardarPrecio() {
     const id = parseInt(document.getElementById("precio-producto").value);
-    const nuevoPrecio = parseFloat(document.getElementById("precio-nuevo").value);
-
-    if (isNaN(nuevoPrecio)) {
-        alert("Ingrese un precio válido.");
-        return;
-    }
-
-    const productos = obtenerProductos();
-    const prod = productos.find(p => p.id === id);
-
-    if (!prod) return;
-
-    prod.precio = nuevoPrecio;
-
-    guardar
+    const nuevoPrecio = parseFloat(document.get
