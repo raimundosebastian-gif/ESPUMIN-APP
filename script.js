@@ -715,7 +715,7 @@ function editarProducto(id) {
 }
 
 /* ============================================================
-   PRECIOS — MÓDULO ADAPTADO A TU HTML
+   PRECIOS — MÓDULO UNIFICADO Y OPTIMIZADO
 ============================================================ */
 
 /* Cargar productos en el selector */
@@ -737,8 +737,12 @@ function cargarProductosEnPrecios() {
 
 /* Mostrar precio actual del producto seleccionado */
 function mostrarPrecioActual() {
-    const id = parseInt(document.getElementById("precio-producto").value);
+    const select = document.getElementById("precio-producto");
     const div = document.getElementById("precio-actual");
+
+    if (!select || !div) return;
+
+    const id = parseInt(select.value);
 
     if (!id) {
         div.textContent = "";
@@ -793,6 +797,7 @@ function guardarPrecio() {
 function irAMenu() {
     window.location.href = "menu.html";
 }
+
 
 /* ============================================================
    VENTAS — MÓDULO COMPLETO Y PROFESIONAL
@@ -1268,3 +1273,4 @@ function eliminarBackup(id) {
 function irAMenu() {
     window.location.href = "menu.html";
 }
+
