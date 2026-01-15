@@ -53,7 +53,6 @@ function iniciarSesion(event) {
     window.location.href = "menu.html";
 }
 
-
     localStorage.setItem("loggedUser", encontrado.usuario);
     localStorage.setItem("userRole", encontrado.rol);
 
@@ -1071,6 +1070,8 @@ document.addEventListener("DOMContentLoaded", () => {
         form.addEventListener("submit", iniciarSesion);
     }
 });
+
+
 
 
 
