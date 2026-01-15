@@ -2,115 +2,63 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ESPUMIN APP - Menú Principal</title>
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: linear-gradient(135deg, #007bff, #00c851);
-            color: white;
-            text-align: center;
-        }
-
-        .contenedor {
-            background: white;
-            color: #333;
-            padding: 25px;
-            border-radius: 12px;
-            max-width: 600px;
-            margin: auto;
-            box-shadow: 0 0 12px rgba(0,0,0,0.25);
-        }
-
-        h2 {
-            margin-bottom: 10px;
-        }
-
-        .btn {
-            width: 80%;
-            padding: 14px;
-            margin: 10px auto;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 18px;
-            font-weight: bold;
-            text-transform: uppercase;
-            display: block;
-        }
-
-        .btn-menu { background: #007bff; color: white; }
-        .btn-sesion { background: white; color: #007bff; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
+<body onload="inicializarMenu()">
 
-<!-- 🔐 Protección de acceso -->
-<script>
-    const usuario = localStorage.getItem("loggedUser");
-    const rol = localStorage.getItem("userRole");
+    <!-- ============================
+         BANNER SUPERIOR
+    ============================= -->
+    <header class="banner">
+        <h1>Menú Principal</h1>
+        <button onclick="cerrarSesion()" class="btn-sesion">Cerrar sesión</button>
+    </header>
 
-    if (!usuario) {
-        location.href = "index.html";
-    }
+    <!-- ============================
+         USUARIO LOGUEADO
+    ============================= -->
+    <section class="usuario-info">
+        <p>Bienvenido, <strong><span id="usuario-log"></span></strong></p>
+    </section>
 
-    function cerrarSesion() {
-        localStorage.removeItem("loggedUser");
-        localStorage.removeItem("userRole");
-        location.href = "index.html";
-    }
-</script>
+    <!-- ============================
+         CONTENEDOR PRINCIPAL
+    ============================= -->
+    <section class="contenedor" style="text-align:center;">
 
-<h2>MENÚ PRINCIPAL</h2>
+        <h2>Seleccione una opción</h2>
 
-<p>Usuario: <strong><span id="usuario-log"></span></strong></p>
+        <div class="menu-grid">
 
-<div class="contenedor">
+            <a href="clientes.html" class="menu-btn">Clientes</a>
+            <a href="productos.html" class="menu-btn">Productos</a>
+            <a href="precios.html" class="menu-btn">Precios</a>
+            <a href="ventas.html" class="menu-btn">Ventas</a>
+            <a href="reportes.html" class="menu-btn">Reportes</a>
 
-    <button onclick="irAClientes()" class="btn btn-menu">Clientes</button>
+        </div>
 
-    <button onclick="irAProductos()" class="btn btn-menu">Productos</button>
+    </section>
 
-    <button onclick="irAPrecios()" class="btn btn-menu">Precios</button>
+    <script>
+        function inicializarMenu() {
+            const usuario = localStorage.getItem("loggedUser");
+            if (!usuario) {
+                location.href = "index.html";
+                return;
+            }
+            document.getElementById("usuario-log").textContent = usuario;
+        }
 
-    <button onclick="irAVentas()" class="btn btn-menu">Ventas</button>
-
-    <button onclick="irAUsuarios()" class="btn btn-menu" id="btn-usuarios">
-        Usuarios
-    </button>
-
-    <button onclick="irAReportes()" class="btn btn-menu">Reportes</button>
-
-    <!-- ⭐ NUEVO BOTÓN BACKUPS -->
-    <button onclick="irABackups()" class="btn btn-menu" id="btn-backups">
-        Backups
-    </button>
-
-</div>
-
-<button onclick="cerrarSesion()" class="btn btn-sesion" style="margin-top:20px;">
-    Cerrar sesión
-</button>
-
-<script src="script.js"></script>
-
-<script>
-    document.getElementById("usuario-log").textContent = usuario;
-
-    // Solo admin puede ver Usuarios y Backups
-    if (rol !== "admin") {
-        document.getElementById("btn-usuarios").style.display = "none";
-        document.getElementById("btn-backups").style.display = "none";
-    }
-
-    // Función para ir a la pantalla de backups
-    function irABackups() {
-        window.location.href = "backups.html";
-    }
-</script>
+        function cerrarSesion() {
+            localStorage.removeItem("loggedUser");
+            localStorage.removeItem("userRole");
+            location.href = "index.html";
+        }
+    </script>
 
 </body>
 </html>
