@@ -1015,20 +1015,41 @@ function irAMenu() {
 }
 
 /* ============================================================
-   REPORTES — MÓDULO COMPLETO Y PROFESIONAL
+   REPORTES — MÓDULO COMPLETO Y PROFESIONAL (UNIFICADO CON IDs)
 ============================================================ */
 
 /* Obtener datos */
 function obtenerReporteVentas() {
-    return JSON.parse(localStorage.getItem("ventas")) || [];
+    try {
+        const data = localStorage.getItem("ventas");
+        if (!data) return [];
+        const ventas = JSON.parse(data);
+        return Array.isArray(ventas) ? ventas : [];
+    } catch {
+        return [];
+    }
 }
 
 function obtenerReporteProductos() {
-    return JSON.parse(localStorage.getItem("productos")) || [];
+    try {
+        const data = localStorage.getItem("productos");
+        if (!data) return [];
+        const productos = JSON.parse(data);
+        return Array.isArray(productos) ? productos : [];
+    } catch {
+        return [];
+    }
 }
 
 function obtenerReporteClientes() {
-    return JSON.parse(localStorage.getItem("clientes")) || [];
+    try {
+        const data = localStorage.getItem("clientes");
+        if (!data) return [];
+        const clientes = JSON.parse(data);
+        return Array.isArray(clientes) ? clientes : [];
+    } catch {
+        return [];
+    }
 }
 
 /* Render principal */
@@ -1050,25 +1071,27 @@ function mostrarReportes() {
     /* Producto más vendido */
     let rankingProductos = {};
     ventas.forEach(v => {
-        rankingProductos[v.producto] = (rankingProductos[v.producto] || 0) + v.cantidad;
+        rankingProductos[v.productoId] = (rankingProductos[v.productoId] || 0) + v.cantidad;
     });
 
     let productoMasVendido = "Sin datos";
     if (Object.keys(rankingProductos).length > 0) {
-        productoMasVendido = Object.entries(rankingProductos)
-            .sort((a, b) => b[1] - a[1])[0][0];
+        const idTop = Object.entries(rankingProductos).sort((a, b) => b[1] - a[1])[0][0];
+        const prod = productos.find(p => p.id == idTop);
+        productoMasVendido = prod ? prod.nombre : "Producto eliminado";
     }
 
     /* Cliente que más compra */
     let rankingClientes = {};
     ventas.forEach(v => {
-        rankingClientes[v.cliente] = (rankingClientes[v.cliente] || 0) + v.total;
+        rankingClientes[v.clienteId] = (rankingClientes[v.clienteId] || 0) + v.total;
     });
 
     let mejorCliente = "Sin datos";
     if (Object.keys(rankingClientes).length > 0) {
-        mejorCliente = Object.entries(rankingClientes)
-            .sort((a, b) => b[1] - a[1])[0][0];
+        const idTop = Object.entries(rankingClientes).sort((a, b) => b[1] - a[1])[0][0];
+        const cli = clientes.find(c => c.id == idTop);
+        mejorCliente = cli ? `${cli.nombre} ${cli.apellido}` : "Cliente eliminado";
     }
 
     /* ============================
@@ -1091,13 +1114,13 @@ function mostrarReportes() {
     /* Total por producto */
     let totalPorProducto = {};
     ventas.forEach(v => {
-        totalPorProducto[v.producto] = (totalPorProducto[v.producto] || 0) + v.total;
+        totalPorProducto[v.productoId] = (totalPorProducto[v.productoId] || 0) + v.total;
     });
 
     /* Total por cliente */
     let totalPorCliente = {};
     ventas.forEach(v => {
-        totalPorCliente[v.cliente] = (totalPorCliente[v.cliente] || 0) + v.total;
+        totalPorCliente[v.clienteId] = (totalPorCliente[v.clienteId] || 0) + v.total;
     });
 
     /* ============================
@@ -1129,11 +1152,14 @@ function mostrarReportes() {
             <tr><th>Producto</th><th>Total Vendido</th></tr>
     `;
 
-    for (let prod in totalPorProducto) {
+    for (let id in totalPorProducto) {
+        const prod = productos.find(p => p.id == id);
+        const nombre = prod ? prod.nombre : "Producto eliminado";
+
         html += `
             <tr>
-                <td>${prod}</td>
-                <td>$${totalPorProducto[prod].toFixed(2)}</td>
+                <td>${nombre}</td>
+                <td>$${totalPorProducto[id].toFixed(2)}</td>
             </tr>
         `;
     }
@@ -1148,11 +1174,14 @@ function mostrarReportes() {
             <tr><th>Cliente</th><th>Total Gastado</th></tr>
     `;
 
-    for (let cli in totalPorCliente) {
+    for (let id in totalPorCliente) {
+        const cli = clientes.find(c => c.id == id);
+        const nombre = cli ? `${cli.nombre} ${cli.apellido}` : "Cliente eliminado";
+
         html += `
             <tr>
-                <td>${cli}</td>
-                <td>$${totalPorCliente[cli].toFixed(2)}</td>
+                <td>${nombre}</td>
+                <td>$${totalPorCliente[id].toFixed(2)}</td>
             </tr>
         `;
     }
@@ -1314,6 +1343,7 @@ function eliminarBackup(id) {
 function irAMenu() {
     window.location.href = "menu.html";
 }
+
 
 
 
