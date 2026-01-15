@@ -2,279 +2,181 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ESPUMIN APP - Reportes</title>
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: linear-gradient(135deg, #007bff, #00c851);
-            color: white;
-        }
-
-        h2 {
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        .top-bar {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .contenedor {
-            background: white;
-            color: #333;
-            padding: 20px;
-            border-radius: 10px;
-            max-width: 1100px;
-            margin: auto;
-            box-shadow: 0 0 12px rgba(0,0,0,0.2);
-        }
-
-        .seccion {
-            margin-bottom: 30px;
-        }
-
-        .seccion h3 {
-            margin-bottom: 10px;
-        }
-
-        .filtros {
-            margin-bottom: 10px;
-        }
-
-        .filtros label {
-            margin-right: 5px;
-        }
-
-        .filtros input,
-        .filtros select {
-            padding: 6px 8px;
-            margin-right: 10px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-        }
-
-        .btn {
-            padding: 8px 14px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin: 4px;
-            font-size: 13px;
-        }
-
-        .btn-primario { background: #007bff; color: white; }
-        .btn-secundario { background: #00c851; color: white; }
-        .btn-sesion { background: white; color: #007bff; }
-        .btn-volver { background: #007bff; color: white; }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 8px;
-            font-size: 14px;
-        }
-
-        th {
-            background: #007bff;
-            color: white;
-            padding: 8px;
-            text-align: left;
-        }
-
-        td {
-            padding: 8px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        tr:nth-child(even) {
-            background: #f2f2f2;
-        }
-
-        .acciones-export {
-            margin-top: 10px;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
+<body onload="inicializarReportes()">
 
-<script>
-    const usuario = localStorage.getItem("loggedUser");
-    const rol = localStorage.getItem("userRole");
+    <!-- ============================
+         BANNER SUPERIOR
+    ============================= -->
+    <header class="banner">
+        <h1>Reportes</h1>
+        <a href="menu.html" class="btn-volver">Volver al Menú</a>
+    </header>
 
-    if (!usuario) {
-        location.href = "index.html";
-    }
+    <!-- ============================
+         USUARIO LOGUEADO
+    ============================= -->
+    <section class="usuario-info">
+        <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
+        <button onclick="cerrarSesion()" class="btn-sesion">Cerrar sesión</button>
+    </section>
 
-    function cerrarSesion() {
-        localStorage.removeItem("loggedUser");
-        localStorage.removeItem("userRole");
-        location.href = "index.html";
-    }
-</script>
+    <!-- ============================
+         CONTENEDOR PRINCIPAL
+    ============================= -->
+    <section class="contenedor">
 
-<h2>REPORTES</h2>
-
-<div class="top-bar">
-    <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
-    <button onclick="cerrarSesion()" class="btn btn-sesion">Cerrar sesión</button>
-</div>
-
-<div class="contenedor">
-
-    <!-- Reporte general -->
-    <div class="seccion">
-        <h3>Resumen general</h3>
-        <div id="reporte-ventas"></div>
-    </div>
-
-    <!-- Reporte por cliente -->
-    <div class="seccion">
-        <h3>Ventas por cliente</h3>
-        <div id="reporte-clientes"></div>
-    </div>
-
-    <!-- Reporte por producto -->
-    <div class="seccion">
-        <h3>Ventas por producto</h3>
-        <div id="reporte-productos"></div>
-    </div>
-
-    <!-- Reporte mensual -->
-    <div class="seccion">
-        <h3>Reporte mensual</h3>
-        <div class="filtros">
-            <label for="mes-mensual">Mes:</label>
-            <select id="mes-mensual">
-                <option value="1">01</option><option value="2">02</option>
-                <option value="3">03</option><option value="4">04</option>
-                <option value="5">05</option><option value="6">06</option>
-                <option value="7">07</option><option value="8">08</option>
-                <option value="9">09</option><option value="10">10</option>
-                <option value="11">11</option><option value="12">12</option>
-            </select>
-
-            <label for="anio-mensual">Año:</label>
-            <input type="number" id="anio-mensual" style="width:90px;">
-            <button class="btn btn-primario" onclick="ejecutarReporteMensual()">Ver</button>
+        <!-- Resumen general -->
+        <div class="seccion">
+            <h3>Resumen general</h3>
+            <div id="reporte-ventas"></div>
         </div>
-        <div id="reporte-mensual"></div>
-    </div>
 
-    <!-- Reporte anual -->
-    <div class="seccion">
-        <h3>Reporte anual</h3>
-        <div class="filtros">
-            <label for="anio-anual">Año:</label>
-            <input type="number" id="anio-anual" style="width:90px;">
-            <button class="btn btn-primario" onclick="ejecutarReporteAnual()">Ver</button>
+        <!-- Reporte por cliente -->
+        <div class="seccion">
+            <h3>Ventas por cliente</h3>
+            <div id="reporte-clientes"></div>
         </div>
-        <div id="reporte-anual"></div>
-    </div>
 
-    <!-- Reporte por rango -->
-    <div class="seccion">
-        <h3>Reporte por rango de fechas</h3>
-        <div class="filtros">
-            <label for="desde-rango">Desde:</label>
-            <input type="date" id="desde-rango">
-            <label for="hasta-rango">Hasta:</label>
-            <input type="date" id="hasta-rango">
-            <button class="btn btn-primario" onclick="ejecutarReporteRango()">Ver</button>
+        <!-- Reporte por producto -->
+        <div class="seccion">
+            <h3>Ventas por producto</h3>
+            <div id="reporte-productos"></div>
         </div>
-        <div id="reporte-rango"></div>
-    </div>
 
-    <!-- Reporte por categoría -->
-    <div class="seccion">
-        <h3>Ventas por categoría de producto</h3>
-        <div id="reporte-categorias"></div>
-    </div>
+        <!-- Reporte mensual -->
+        <div class="seccion">
+            <h3>Reporte mensual</h3>
+            <div class="filtros">
+                <label>Mes:</label>
+                <select id="mes-mensual">
+                    <option value="1">01</option><option value="2">02</option>
+                    <option value="3">03</option><option value="4">04</option>
+                    <option value="5">05</option><option value="6">06</option>
+                    <option value="7">07</option><option value="8">08</option>
+                    <option value="9">09</option><option value="10">10</option>
+                    <option value="11">11</option><option value="12">12</option>
+                </select>
 
-    <!-- Reporte por usuario -->
-    <div class="seccion">
-        <h3>Ventas por usuario</h3>
-        <div id="reporte-usuarios"></div>
-    </div>
+                <label>Año:</label>
+                <input type="number" id="anio-mensual" class="input-peq">
 
-    <!-- Exportaciones -->
-    <div class="seccion">
-        <h3>Exportar reportes</h3>
-        <div class="acciones-export">
-            <button class="btn btn-secundario" onclick="exportarCSV('reporte_general', generarCSVGeneral())">
-                Exportar resumen general a CSV
-            </button>
-            <button class="btn btn-secundario" onclick="exportarPDF()">
-                Exportar vista actual a PDF
-            </button>
+                <button class="btn-primario" onclick="ejecutarReporteMensual()">Ver</button>
+            </div>
+            <div id="reporte-mensual"></div>
         </div>
-    </div>
 
-</div>
+        <!-- Reporte anual -->
+        <div class="seccion">
+            <h3>Reporte anual</h3>
+            <div class="filtros">
+                <label>Año:</label>
+                <input type="number" id="anio-anual" class="input-peq">
+                <button class="btn-primario" onclick="ejecutarReporteAnual()">Ver</button>
+            </div>
+            <div id="reporte-anual"></div>
+        </div>
 
-<div style="text-align:center; margin-top:20px;">
-    <button onclick="irAMenu()" class="btn btn-volver">Volver al Menú</button>
-</div>
+        <!-- Reporte por rango -->
+        <div class="seccion">
+            <h3>Reporte por rango de fechas</h3>
+            <div class="filtros">
+                <label>Desde:</label>
+                <input type="date" id="desde-rango">
+                <label>Hasta:</label>
+                <input type="date" id="hasta-rango">
+                <button class="btn-primario" onclick="ejecutarReporteRango()">Ver</button>
+            </div>
+            <div id="reporte-rango"></div>
+        </div>
 
-<script src="script.js"></script>
+        <!-- Reporte por categoría -->
+        <div class="seccion">
+            <h3>Ventas por categoría</h3>
+            <div id="reporte-categorias"></div>
+        </div>
 
-<script>
-    document.getElementById("usuario-log").textContent = usuario;
+        <!-- Reporte por usuario -->
+        <div class="seccion">
+            <h3>Ventas por usuario</h3>
+            <div id="reporte-usuarios"></div>
+        </div>
 
-    // Iniciales
-    generarReporteVentas();
-    generarReporteClientes();
-    generarReporteProductos();
-    generarReportePorCategoria();
-    generarReportePorUsuario();
+        <!-- Exportaciones -->
+        <div class="seccion">
+            <h3>Exportar reportes</h3>
+            <div class="acciones-export">
+                <button class="btn-secundario" onclick="exportarCSV('reporte_general', generarCSVGeneral())">
+                    Exportar resumen general a CSV
+                </button>
+                <button class="btn-secundario" onclick="exportarPDF()">
+                    Exportar vista actual a PDF
+                </button>
+            </div>
+        </div>
 
-    // Helpers para botones de filtros
-    function ejecutarReporteMensual() {
-        const mes = parseInt(document.getElementById("mes-mensual").value);
-        const anio = parseInt(document.getElementById("anio-mensual").value);
-        if (!anio) {
-            alert("Ingrese un año válido.");
-            return;
+    </section>
+
+    <script src="script.js"></script>
+
+    <script>
+        function inicializarReportes() {
+            const usuario = localStorage.getItem("loggedUser");
+            if (!usuario) {
+                location.href = "index.html";
+                return;
+            }
+
+            document.getElementById("usuario-log").textContent = usuario;
+
+            generarReporteVentas();
+            generarReporteClientes();
+            generarReporteProductos();
+            generarReportePorCategoria();
+            generarReportePorUsuario();
         }
-        generarReporteMensual(mes, anio);
-    }
 
-    function ejecutarReporteAnual() {
-        const anio = parseInt(document.getElementById("anio-anual").value);
-        if (!anio) {
-            alert("Ingrese un año válido.");
-            return;
+        function ejecutarReporteMensual() {
+            const mes = parseInt(document.getElementById("mes-mensual").value);
+            const anio = parseInt(document.getElementById("anio-mensual").value);
+            if (!anio) {
+                alert("Ingrese un año válido.");
+                return;
+            }
+            generarReporteMensual(mes, anio);
         }
-        generarReporteAnual(anio);
-    }
 
-    function ejecutarReporteRango() {
-        const desde = document.getElementById("desde-rango").value;
-        const hasta = document.getElementById("hasta-rango").value;
-        if (!desde || !hasta) {
-            alert("Complete ambas fechas.");
-            return;
+        function ejecutarReporteAnual() {
+            const anio = parseInt(document.getElementById("anio-anual").value);
+            if (!anio) {
+                alert("Ingrese un año válido.");
+                return;
+            }
+            generarReporteAnual(anio);
         }
-        generarReporteRango(desde, hasta);
-    }
 
-    // Generar CSV simple del resumen general (total facturado)
-    function generarCSVGeneral() {
-        const ventas = obtenerVentas();
-        if (!ventas.length) return "Concepto;Monto\nTotal facturado;0";
+        function ejecutarReporteRango() {
+            const desde = document.getElementById("desde-rango").value;
+            const hasta = document.getElementById("hasta-rango").value;
+            if (!desde || !hasta) {
+                alert("Complete ambas fechas.");
+                return;
+            }
+            generarReporteRango(desde, hasta);
+        }
 
-        const total = ventas.reduce((sum, v) => sum + v.total, 0);
-        let csv = "Concepto;Monto\n";
-        csv += "Total facturado;" + total + "\n";
-        return csv;
-    }
-</script>
+        function generarCSVGeneral() {
+            const ventas = obtenerVentas();
+            if (!ventas.length) return "Concepto;Monto\nTotal facturado;0";
+
+            const total = ventas.reduce((sum, v) => sum + v.total, 0);
+            return "Concepto;Monto\nTotal facturado;" + total + "\n";
+        }
+    </script>
 
 </body>
 </html>
