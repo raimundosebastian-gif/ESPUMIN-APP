@@ -1,4 +1,35 @@
 /* ============================================================
+   LOGIN — VERSIÓN FINAL Y FUNCIONAL
+============================================================ */
+function iniciarSesion(event) {
+    if (event) event.preventDefault();
+
+    const usuario = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    if (!usuario || !password) {
+        alert("Completa usuario y contraseña.");
+        return;
+    }
+
+    const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+    const encontrado = usuarios.find(u =>
+        u.usuario === usuario && u.password === password
+    );
+
+    if (!encontrado) {
+        alert("Usuario o contraseña incorrectos.");
+        return;
+    }
+
+    localStorage.setItem("loggedUser", encontrado.usuario);
+    localStorage.setItem("userRole", encontrado.rol);
+
+    window.location.href = "menu.html";
+}
+
+
+/* ============================================================
    LOGIN ADAPTADO A index.html
 ============================================================ */
 function iniciarSesion(event) {
@@ -1095,6 +1126,14 @@ function eliminarBackup(i) {
     mostrarBackups();
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("loginForm");
+    if (form) {
+        form.addEventListener("submit", iniciarSesion);
+    }
+});
+
+/* Conectar el formulario al login */
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("loginForm");
     if (form) {
