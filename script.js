@@ -85,6 +85,7 @@ function iniciarSesion(event) {
     localStorage.setItem("userRole", encontrado.rol);
 
     window.location.href = "menu.html";
+}   // ← ESTE } FALTABA
 
 /* ============================================================
    CONTROL DE SESIÓN Y MENÚ
@@ -1105,6 +1106,7 @@ document.addEventListener("DOMContentLoaded", () => {
         form.addEventListener("submit", iniciarSesion);
     }
 });
+
 
 
 
