@@ -831,18 +831,26 @@ function irAMenu() {
     window.location.href = "menu.html";
 }
 
-
 /* ============================================================
    VENTAS — MÓDULO COMPLETO Y PROFESIONAL
 ============================================================ */
 
 /* Obtener ventas */
 function obtenerVentas() {
-    return JSON.parse(localStorage.getItem("ventas")) || [];
+    try {
+        const data = localStorage.getItem("ventas");
+        if (!data) return [];
+        const ventas = JSON.parse(data);
+        return Array.isArray(ventas) ? ventas : [];
+    } catch (e) {
+        console.error("Error leyendo ventas:", e);
+        return [];
+    }
 }
 
 /* Guardar ventas */
 function guardarListaVentas(lista) {
+    if (!Array.isArray(lista)) return;
     localStorage.setItem("ventas", JSON.stringify(lista));
 }
 
@@ -893,12 +901,7 @@ function actualizarPrecioVenta() {
     const productos = obtenerProductos();
     const prod = productos.find(p => p.id === id);
 
-    if (!prod) {
-        div.textContent = "";
-        return;
-    }
-
-    div.textContent = `Precio unitario: $${prod.precio.toFixed(2)}`;
+    div.textContent = prod ? `Precio unitario: $${prod.precio.toFixed(2)}` : "";
 }
 
 /* Registrar venta */
@@ -928,8 +931,10 @@ function guardarVenta() {
 
     ventas.push({
         id: Date.now(),
-        cliente: `${cliente.nombre} ${cliente.apellido}`,
-        producto: producto.nombre,
+        clienteId,
+        productoId,
+        clienteNombre: `${cliente.nombre} ${cliente.apellido}`,
+        productoNombre: producto.nombre,
         cantidad,
         precioUnitario: producto.precio,
         total,
@@ -957,6 +962,9 @@ function mostrarVentas() {
         return;
     }
 
+    // Ordenar por fecha descendente
+    ventas.sort((a, b) => b.id - a.id);
+
     let html = `
         <table>
             <tr>
@@ -973,8 +981,8 @@ function mostrarVentas() {
     ventas.forEach(v => {
         html += `
             <tr>
-                <td>${v.cliente}</td>
-                <td>${v.producto}</td>
+                <td>${v.clienteNombre}</td>
+                <td>${v.productoNombre}</td>
                 <td>${v.cantidad}</td>
                 <td>$${v.precioUnitario.toFixed(2)}</td>
                 <td>$${v.total.toFixed(2)}</td>
@@ -1306,5 +1314,6 @@ function eliminarBackup(id) {
 function irAMenu() {
     window.location.href = "menu.html";
 }
+
 
 
