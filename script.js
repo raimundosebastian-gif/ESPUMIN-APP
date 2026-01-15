@@ -795,72 +795,124 @@ function irAMenu() {
 }
 
 /* ============================================================
-   VENTAS
+   VENTAS — MÓDULO COMPLETO Y PROFESIONAL
 ============================================================ */
-function agregarVenta() {
-    const cliente = document.getElementById("venta-cliente").value.trim();
-    const producto = document.getElementById("venta-producto").value.trim();
-    const cantidad = parseInt(document.getElementById("venta-cantidad").value.trim());
 
-    if (!cliente || !producto || isNaN(cantidad) || cantidad <= 0) {
-        alert("Completa todos los campos correctamente.");
+/* Obtener ventas */
+function obtenerVentas() {
+    return JSON.parse(localStorage.getItem("ventas")) || [];
+}
+
+/* Guardar ventas */
+function guardarListaVentas(lista) {
+    localStorage.setItem("ventas", JSON.stringify(lista));
+}
+
+/* Cargar clientes en selector */
+function cargarClientesEnVentas() {
+    const clientes = obtenerClientes();
+    const select = document.getElementById("venta-cliente");
+
+    if (!select) return;
+
+    select.innerHTML = `<option value="">Seleccione un cliente</option>`;
+
+    clientes.forEach(c => {
+        const option = document.createElement("option");
+        option.value = c.id;
+        option.textContent = `${c.nombre} ${c.apellido}`;
+        select.appendChild(option);
+    });
+}
+
+/* Cargar productos en selector */
+function cargarProductosEnVentas() {
+    const productos = obtenerProductos();
+    const select = document.getElementById("venta-producto");
+
+    if (!select) return;
+
+    select.innerHTML = `<option value="">Seleccione un producto</option>`;
+
+    productos.forEach(p => {
+        const option = document.createElement("option");
+        option.value = p.id;
+        option.textContent = p.nombre;
+        select.appendChild(option);
+    });
+}
+
+/* Mostrar precio unitario */
+function actualizarPrecioVenta() {
+    const id = parseInt(document.getElementById("venta-producto").value);
+    const div = document.getElementById("precio-unitario");
+
+    if (!id) {
+        div.textContent = "";
         return;
     }
 
-    const productos = JSON.parse(localStorage.getItem("productos")) || [];
-    const precios = JSON.parse(localStorage.getItem("precios")) || [];
-
-    const prod = productos.find(p => p.nombre === producto);
-    const precioProd = precios.find(p => p.producto === producto);
+    const productos = obtenerProductos();
+    const prod = productos.find(p => p.id === id);
 
     if (!prod) {
-        alert("El producto no existe.");
+        div.textContent = "";
         return;
     }
 
-    if (!precioProd) {
-        alert("No hay precio cargado para este producto.");
+    div.textContent = `Precio unitario: $${prod.precio.toFixed(2)}`;
+}
+
+/* Registrar venta */
+function guardarVenta() {
+    const clienteId = parseInt(document.getElementById("venta-cliente").value);
+    const productoId = parseInt(document.getElementById("venta-producto").value);
+    const cantidad = parseInt(document.getElementById("venta-cantidad").value);
+
+    if (!clienteId || !productoId || isNaN(cantidad) || cantidad <= 0) {
+        alert("Complete todos los campos correctamente.");
         return;
     }
 
-    if (cantidad > prod.stock) {
-        alert("No hay stock suficiente.");
+    const clientes = obtenerClientes();
+    const productos = obtenerProductos();
+    const ventas = obtenerVentas();
+
+    const cliente = clientes.find(c => c.id === clienteId);
+    const producto = productos.find(p => p.id === productoId);
+
+    if (!cliente || !producto) {
+        alert("Cliente o producto no encontrado.");
         return;
     }
 
-    const total = precioProd.venta * cantidad;
-
-    const ventas = JSON.parse(localStorage.getItem("ventas")) || [];
+    const total = producto.precio * cantidad;
 
     ventas.push({
-        cliente,
-        producto,
+        id: Date.now(),
+        cliente: `${cliente.nombre} ${cliente.apellido}`,
+        producto: producto.nombre,
         cantidad,
-        precioUnitario: precioProd.venta,
+        precioUnitario: producto.precio,
         total,
         fecha: new Date().toLocaleString()
     });
 
-    localStorage.setItem("ventas", JSON.stringify(ventas));
+    guardarListaVentas(ventas);
 
-    // Descontar stock
-    prod.stock -= cantidad;
-    localStorage.setItem("productos", JSON.stringify(productos));
+    document.getElementById("venta-cantidad").value = "";
+    actualizarPrecioVenta();
+    mostrarVentas();
 
     alert("Venta registrada correctamente.");
-
-    document.getElementById("venta-cliente").value = "";
-    document.getElementById("venta-producto").value = "";
-    document.getElementById("venta-cantidad").value = "";
-
-    mostrarVentas();
 }
 
+/* Mostrar historial de ventas */
 function mostrarVentas() {
     const cont = document.getElementById("lista-ventas");
     if (!cont) return;
 
-    const ventas = JSON.parse(localStorage.getItem("ventas")) || [];
+    const ventas = obtenerVentas();
 
     if (ventas.length === 0) {
         cont.innerHTML = "<p>No hay ventas registradas.</p>";
@@ -880,7 +932,7 @@ function mostrarVentas() {
             </tr>
     `;
 
-    ventas.forEach((v, i) => {
+    ventas.forEach(v => {
         html += `
             <tr>
                 <td>${v.cliente}</td>
@@ -890,7 +942,7 @@ function mostrarVentas() {
                 <td>$${v.total.toFixed(2)}</td>
                 <td>${v.fecha}</td>
                 <td>
-                    <button onclick="eliminarVenta(${i})">Eliminar</button>
+                    <button class="btn-accion btn-eliminar" onclick="eliminarVenta(${v.id})">Eliminar</button>
                 </td>
             </tr>
         `;
@@ -900,72 +952,20 @@ function mostrarVentas() {
     cont.innerHTML = html;
 }
 
-function buscarVentas() {
-    const texto = document.getElementById("buscar-venta").value.toLowerCase();
-    const cont = document.getElementById("lista-ventas");
-    const ventas = JSON.parse(localStorage.getItem("ventas")) || [];
-
-    const filtradas = ventas.filter(v =>
-        v.cliente.toLowerCase().includes(texto) ||
-        v.producto.toLowerCase().includes(texto)
-    );
-
-    if (filtradas.length === 0) {
-        cont.innerHTML = "<p>No se encontraron coincidencias.</p>";
-        return;
-    }
-
-    let html = `
-        <table>
-            <tr>
-                <th>Cliente</th>
-                <th>Producto</th>
-                <th>Cantidad</th>
-                <th>Precio Unit.</th>
-                <th>Total</th>
-                <th>Fecha</th>
-                <th>Acciones</th>
-            </tr>
-    `;
-
-    filtradas.forEach((v, i) => {
-        html += `
-            <tr>
-                <td>${v.cliente}</td>
-                <td>${v.producto}</td>
-                <td>${v.cantidad}</td>
-                <td>$${v.precioUnitario.toFixed(2)}</td>
-                <td>$${v.total.toFixed(2)}</td>
-                <td>${v.fecha}</td>
-                <td>
-                    <button onclick="eliminarVenta(${i})">Eliminar</button>
-                </td>
-            </tr>
-        `;
-    });
-
-    html += "</table>";
-    cont.innerHTML = html;
-}
-
-function eliminarVenta(i) {
-    const ventas = JSON.parse(localStorage.getItem("ventas")) || [];
-    const productos = JSON.parse(localStorage.getItem("productos")) || [];
-
-    const venta = ventas[i];
-
+/* Eliminar venta */
+function eliminarVenta(id) {
+    let ventas = obtenerVentas();
     if (!confirm("¿Eliminar esta venta?")) return;
 
-    const prod = productos.find(p => p.nombre === venta.producto);
-    if (prod) {
-        prod.stock += venta.cantidad;
-        localStorage.setItem("productos", JSON.stringify(productos));
-    }
+    ventas = ventas.filter(v => v.id !== id);
 
-    ventas.splice(i, 1);
-    localStorage.setItem("ventas", JSON.stringify(ventas));
-
+    guardarListaVentas(ventas);
     mostrarVentas();
+}
+
+/* Volver al menú */
+function irAMenu() {
+    window.location.href = "menu.html";
 }
 
 /* ============================================================
@@ -1222,6 +1222,7 @@ document.addEventListener("DOMContentLoaded", () => {
         form.addEventListener("submit", iniciarSesion);
     }
 });
+
 
 
 
