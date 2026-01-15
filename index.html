@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ESPUMIN - Acceso</title>
+    <link rel="stylesheet" href="style.css">
 
     <style>
+        /* Fondo general */
         body {
-            font-family: Arial, sans-serif;
             background: linear-gradient(135deg, #4CAF50, #2E7D32);
             height: 100vh;
             margin: 0;
@@ -16,13 +17,14 @@
             align-items: center;
         }
 
+        /* Caja de login */
         .login-container {
             background: white;
             padding: 30px;
-            border-radius: 10px;
-            width: 320px;
+            border-radius: 12px;
+            width: 330px;
             text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
         }
 
         .login-container h2 {
@@ -30,26 +32,27 @@
             color: #2E7D32;
         }
 
-        input {
+        .login-input {
             width: 90%;
             padding: 10px;
             margin: 8px 0;
-            border-radius: 5px;
+            border-radius: 6px;
             border: 1px solid #ccc;
         }
 
-        button {
+        .login-btn {
             width: 95%;
             padding: 10px;
             background: #2E7D32;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 6px;
             cursor: pointer;
             margin-top: 10px;
+            font-weight: bold;
         }
 
-        button:hover {
+        .login-btn:hover {
             background: #1B5E20;
         }
 
@@ -67,57 +70,53 @@
         <h2>ESPUMIN - Acceso</h2>
 
         <form id="loginForm">
-            <input type="text" id="username" placeholder="Usuario" required>
-            <input type="password" id="password" placeholder="Contraseña" required>
-            <button type="submit">Ingresar</button>
+            <input type="text" id="username" class="login-input" placeholder="Usuario" required>
+            <input type="password" id="password" class="login-input" placeholder="Contraseña" required>
+            <button type="submit" class="login-btn">Ingresar</button>
         </form>
 
         <p id="loginError">Usuario o contraseña incorrectos</p>
     </div>
 
-    <!-- Línea agregada correctamente -->
     <script src="script.js"></script>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-    const form = document.getElementById("loginForm");
-    const error = document.getElementById("loginError");
 
-    if (error) error.style.display = "none";
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const form = document.getElementById("loginForm");
+            const error = document.getElementById("loginError");
 
-    if (form) {
-        form.addEventListener("submit", function (event) {
-            event.preventDefault();
+            if (error) error.style.display = "none";
 
-            const usuario = document.getElementById("username").value.trim();
-            const password = document.getElementById("password").value.trim();
+            form.addEventListener("submit", function (event) {
+                event.preventDefault();
 
-            if (!usuario || !password) {
-                alert("Completa usuario y contraseña.");
-                return;
-            }
+                const usuario = document.getElementById("username").value.trim();
+                const password = document.getElementById("password").value.trim();
 
-            const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+                if (!usuario || !password) {
+                    alert("Completa usuario y contraseña.");
+                    return;
+                }
 
-            const encontrado = usuarios.find(u =>
-                u.usuario.toLowerCase() === usuario.toLowerCase() &&
-                u.password === password
-            );
+                const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
 
-            if (!encontrado) {
-                if (error) error.style.display = "block";
-                return;
-            }
+                const encontrado = usuarios.find(u =>
+                    u.usuario.toLowerCase() === usuario.toLowerCase() &&
+                    u.password === password
+                );
 
-            localStorage.setItem("loggedUser", encontrado.usuario);
-            localStorage.setItem("userRole", encontrado.rol);
+                if (!encontrado) {
+                    error.style.display = "block";
+                    return;
+                }
 
-            window.location.href = "menu.html";
+                localStorage.setItem("loggedUser", encontrado.usuario);
+                localStorage.setItem("userRole", encontrado.rol);
+
+                window.location.href = "menu.html";
+            });
         });
-    }
-});
-</script>
+    </script>
 
 </body>
 </html>
-
-
