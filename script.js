@@ -322,44 +322,93 @@ function irAMenu() {
 }
 
 /* ============================================================
-   USUARIOS
+   USUARIOS — MÓDULO COMPLETO Y PROFESIONAL
 ============================================================ */
-function guardarUsuario() {
-    const nombre = document.getElementById("usuario-nombre").value.trim();
-    const apellido = document.getElementById("usuario-apellido").value.trim();
-    const usuario = document.getElementById("usuario-usuario").value.trim();
-    const password = document.getElementById("usuario-password").value.trim();
-    const rol = document.getElementById("usuario-rol").value;
 
-    if (!nombre || !apellido || !usuario || !password || !rol) {
-        alert("Completa todos los campos.");
+/* Crear admin por defecto */
+(function crearAdminPorDefecto() {
+    const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+    const existe = usuarios.some(u => u.usuario === "EU");
+
+    if (!existe) {
+        usuarios.push({
+            id: Date.now(),
+            nombre: "Administrador Principal",
+            usuario: "EU",
+            password: "villatita",
+            rol: "admin",
+            estado: "Activo"
+        });
+        localStorage.setItem("usuarios", JSON.stringify(usuarios));
+    }
+})();
+
+/* Capitalizar cada palabra */
+function capitalizar(texto) {
+    if (!texto) return "";
+    return texto
+        .trim()
+        .split(/\s+/)
+        .map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase())
+        .join(" ");
+}
+
+/* Obtener lista */
+function obtenerUsuarios() {
+    return JSON.parse(localStorage.getItem("usuarios")) || [];
+}
+
+/* Guardar lista */
+function guardarListaUsuarios(lista) {
+    localStorage.setItem("usuarios", JSON.stringify(lista));
+}
+
+/* Guardar usuario nuevo */
+function guardarUsuario() {
+    const nombre = capitalizar(document.getElementById("user-nombre").value);
+    const usuario = document.getElementById("user-usuario").value.trim();
+    const pass = document.getElementById("user-pass").value.trim();
+    const rol = document.getElementById("user-rol").value;
+    const estado = document.getElementById("user-estado").value;
+
+    if (!nombre || !usuario || !pass) {
+        alert("Completa todos los campos obligatorios.");
         return;
     }
 
-    const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+    const usuarios = obtenerUsuarios();
 
-    if (usuarios.some(u => u.usuario === usuario)) {
-        alert("El usuario ya existe.");
+    if (usuarios.some(u => u.usuario.toLowerCase() === usuario.toLowerCase())) {
+        alert("Ese nombre de usuario ya existe.");
         return;
     }
 
     usuarios.push({
-        nombre: capitalizar(nombre),
-        apellido: capitalizar(apellido),
+        id: Date.now(),
+        nombre,
         usuario,
-        password,
-        rol
+        password: pass,
+        rol,
+        estado
     });
 
-    localStorage.setItem("usuarios", JSON.stringify(usuarios));
+    guardarListaUsuarios(usuarios);
+
+    document.getElementById("user-nombre").value = "";
+    document.getElementById("user-usuario").value = "";
+    document.getElementById("user-pass").value = "";
+    document.getElementById("user-rol").value = "operador";
+    document.getElementById("user-estado").value = "Activo";
+
     mostrarUsuarios();
 }
 
+/* Mostrar usuarios */
 function mostrarUsuarios() {
+    const usuarios = obtenerUsuarios();
     const cont = document.getElementById("lista-usuarios");
-    if (!cont) return;
 
-    const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+    if (!cont) return;
 
     if (usuarios.length === 0) {
         cont.innerHTML = "<p>No hay usuarios cargados.</p>";
@@ -368,38 +417,46 @@ function mostrarUsuarios() {
 
     let html = `
         <table>
-            <tr><th>Nombre</th><th>Apellido</th><th>Usuario</th><th>Rol</th><th>Acciones</th></tr>
+            <tr>
+                <th>Nombre</th>
+                <th>Usuario</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
     `;
 
-    usuarios.forEach((u, i) => {
+    usuarios.forEach(u => {
         html += `
             <tr>
                 <td>${u.nombre}</td>
-                <td>${u.apellido}</td>
                 <td>${u.usuario}</td>
                 <td>${u.rol}</td>
+                <td>${u.estado}</td>
                 <td>
-                    <button onclick="editarUsuario(${i})">Editar</button>
-                    <button onclick="eliminarUsuario(${i})">Eliminar</button>
+                    <button class="btn-accion btn-editar" onclick="editarUsuario(${u.id})">Editar</button>
+                    <button class="btn-accion btn-eliminar" onclick="eliminarUsuario(${u.id})">Eliminar</button>
                 </td>
             </tr>
         `;
     });
 
     html += "</table>";
+
     cont.innerHTML = html;
 }
 
+/* Buscar usuarios */
 function buscarUsuarios() {
     const texto = document.getElementById("buscar-usuario").value.toLowerCase();
+    const usuarios = obtenerUsuarios();
     const cont = document.getElementById("lista-usuarios");
-    const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
 
     const filtrados = usuarios.filter(u =>
         u.nombre.toLowerCase().includes(texto) ||
-        u.apellido.toLowerCase().includes(texto) ||
         u.usuario.toLowerCase().includes(texto) ||
-        u.rol.toLowerCase().includes(texto)
+        u.rol.toLowerCase().includes(texto) ||
+        u.estado.toLowerCase().includes(texto)
     );
 
     if (filtrados.length === 0) {
@@ -409,61 +466,76 @@ function buscarUsuarios() {
 
     let html = `
         <table>
-            <tr><th>Nombre</th><th>Apellido</th><th>Usuario</th><th>Rol</th><th>Acciones</th></tr>
+            <tr>
+                <th>Nombre</th>
+                <th>Usuario</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
     `;
 
-    filtrados.forEach((u, i) => {
+    filtrados.forEach(u => {
         html += `
             <tr>
                 <td>${u.nombre}</td>
-                <td>${u.apellido}</td>
                 <td>${u.usuario}</td>
                 <td>${u.rol}</td>
+                <td>${u.estado}</td>
                 <td>
-                    <button onclick="editarUsuario(${i})">Editar</button>
-                    <button onclick="eliminarUsuario(${i})">Eliminar</button>
+                    <button class="btn-accion btn-editar" onclick="editarUsuario(${u.id})">Editar</button>
+                    <button class="btn-accion btn-eliminar" onclick="eliminarUsuario(${u.id})">Eliminar</button>
                 </td>
             </tr>
         `;
     });
 
     html += "</table>";
+
     cont.innerHTML = html;
 }
 
-function eliminarUsuario(i) {
-    const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
-    if (!confirm("¿Eliminar este usuario?")) return;
+/* Editar usuario */
+function editarUsuario(id) {
+    const usuarios = obtenerUsuarios();
+    const u = usuarios.find(x => x.id === id);
+    if (!u) return;
 
-    usuarios.splice(i, 1);
-    localStorage.setItem("usuarios", JSON.stringify(usuarios));
-    mostrarUsuarios();
-}
+    const nuevoNombre = prompt("Nuevo nombre:", u.nombre);
+    const nuevoUsuario = prompt("Nuevo usuario:", u.usuario);
+    const nuevoPass = prompt("Nueva contraseña:", u.password);
+    const nuevoRol = prompt("Nuevo rol (admin/operador/cajero/supervisor):", u.rol);
+    const nuevoEstado = prompt("Nuevo estado (Activo/Inactivo):", u.estado);
 
-function editarUsuario(i) {
-    const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
-    const u = usuarios[i];
-
-    const nombre = prompt("Nuevo nombre:", u.nombre);
-    const apellido = prompt("Nuevo apellido:", u.apellido);
-    const usuario = prompt("Nuevo usuario:", u.usuario);
-    const rol = prompt("Nuevo rol (admin/empleado):", u.rol);
-
-    if (!nombre || !apellido || !usuario || !rol) {
-        alert("Datos inválidos.");
+    if (!nuevoNombre || !nuevoUsuario || !nuevoPass || !nuevoRol || !nuevoEstado) {
+        alert("Todos los campos son obligatorios.");
         return;
     }
 
-    usuarios[i] = {
-        nombre: capitalizar(nombre),
-        apellido: capitalizar(apellido),
-        usuario,
-        password: u.password,
-        rol
-    };
+    u.nombre = capitalizar(nuevoNombre);
+    u.usuario = nuevoUsuario.trim();
+    u.password = nuevoPass.trim();
+    u.rol = nuevoRol.trim();
+    u.estado = capitalizar(nuevoEstado.trim());
 
-    localStorage.setItem("usuarios", JSON.stringify(usuarios));
+    guardarListaUsuarios(usuarios);
     mostrarUsuarios();
+}
+
+/* Eliminar usuario */
+function eliminarUsuario(id) {
+    if (!confirm("¿Eliminar este usuario?")) return;
+
+    let usuarios = obtenerUsuarios();
+    usuarios = usuarios.filter(u => u.id !== id);
+
+    guardarListaUsuarios(usuarios);
+    mostrarUsuarios();
+}
+
+/* Volver al menú */
+function irAMenu() {
+    window.location.href = "menu.html";
 }
 
 /* ============================================================
@@ -1162,6 +1234,7 @@ document.addEventListener("DOMContentLoaded", () => {
         form.addEventListener("submit", iniciarSesion);
     }
 });
+
 
 
 
