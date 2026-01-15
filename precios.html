@@ -2,117 +2,66 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ESPUMIN APP - Precios</title>
-
-    <style>
-        .contenedor {
-            background: white;
-            color: #333;
-            padding: 20px;
-            border-radius: 10px;
-            max-width: 900px;
-            margin: auto;
-            box-shadow: 0 0 12px rgba(0,0,0,0.2);
-        }
-
-        .input-box {
-            padding: 10px;
-            width: 260px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            margin: 5px;
-        }
-
-        .btn {
-            padding: 10px 18px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin: 5px;
-        }
-
-        .btn-guardar { background: #00c851; color: white; }
-        .btn-volver { background: #007bff; color: white; }
-        .btn-sesion { background: white; color: #007bff; }
-
-        #precio-actual {
-            margin-top: 10px;
-            font-size: 18px;
-            font-weight: bold;
-            color: #007bff;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 
-<body style="
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
-    background: linear-gradient(135deg, #007bff, #00c851);
-    color: white;
-">
+<body onload="inicializarPrecios()">
 
-<!-- 🔐 Protección de acceso -->
-<script>
-    const usuario = localStorage.getItem("loggedUser");
-    const rol = localStorage.getItem("userRole");
+    <!-- ============================
+         BANNER SUPERIOR
+    ============================= -->
+    <header class="banner">
+        <h1>Gestión de Precios</h1>
+        <a href="menu.html" class="btn-volver">Volver al Menú</a>
+    </header>
 
-    if (!usuario) {
-        location.href = "index.html";
-    }
+    <!-- ============================
+         USUARIO LOGUEADO
+    ============================= -->
+    <section class="usuario-info">
+        <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
+        <button onclick="cerrarSesion()" class="btn-sesion">Cerrar sesión</button>
+    </section>
 
-    function cerrarSesion() {
-        localStorage.removeItem("loggedUser");
-        localStorage.removeItem("userRole");
-        location.href = "index.html";
-    }
-</script>
+    <!-- ============================
+         CONTENEDOR PRINCIPAL
+    ============================= -->
+    <section class="contenedor">
 
-<h2 style="text-align:center;">PRECIOS</h2>
+        <h2>Modificar Precio</h2>
 
-<div style="text-align:center; margin-bottom:20px;">
-    <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
+        <label>Producto</label>
+        <select id="precio-producto" class="input-box" onchange="mostrarPrecioActual()">
+            <option value="">Seleccione un producto</option>
+        </select>
 
-    <button onclick="cerrarSesion()" class="btn btn-sesion">
-        Cerrar sesión
-    </button>
-</div>
+        <div id="precio-actual" class="precio-actual"></div>
 
-<div class="contenedor">
+        <label>Nuevo Precio</label>
+        <input id="precio-nuevo" type="number" step="0.01" placeholder="Nuevo precio" class="input-box">
 
-    <h3>Modificar Precio</h3>
+        <button onclick="guardarPrecio()" class="btn-guardar">Guardar Precio</button>
 
-    <select id="precio-producto" class="input-box" onchange="mostrarPrecioActual()">
-        <option value="">Seleccione un producto</option>
-    </select>
+    </section>
 
-    <div id="precio-actual"></div>
+    <script src="script.js"></script>
 
-    <input id="precio-nuevo" type="number" placeholder="Nuevo precio" class="input-box">
+    <script>
+        function inicializarPrecios() {
+            const usuario = localStorage.getItem("loggedUser");
+            if (!usuario) {
+                location.href = "index.html";
+                return;
+            }
 
-    <button onclick="guardarPrecio()" class="btn btn-guardar">Guardar Precio</button>
+            document.getElementById("usuario-log").textContent = usuario;
 
-</div>
-
-<div style="text-align:center; margin-top:20px;">
-    <button onclick="irAMenu()" class="btn btn-volver">
-        Volver al Menú
-    </button>
-</div>
-
-<script src="script.js"></script>
-
-<script>
-    document.getElementById("usuario-log").textContent = usuario;
-
-    // Cargar productos en el selector
-    cargarProductosEnPrecios();
-
-    // Mostrar precio del primer producto si existe
-    mostrarPrecioActual();
-</script>
+            cargarProductosEnPrecios();
+            mostrarPrecioActual();
+        }
+    </script>
 
 </body>
 </html>
