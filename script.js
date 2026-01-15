@@ -1122,57 +1122,91 @@ function irAMenu() {
 }
 
 /* ============================================================
-   BACKUPS
+   BACKUPS — MÓDULO COMPLETO Y PROFESIONAL
 ============================================================ */
+
+/* Obtener backups */
+function obtenerBackups() {
+    return JSON.parse(localStorage.getItem("backups")) || [];
+}
+
+/* Guardar backups */
+function guardarListaBackups(lista) {
+    localStorage.setItem("backups", JSON.stringify(lista));
+}
+
+/* Crear backup manual */
 function crearBackup() {
     const fecha = new Date().toLocaleString();
 
-    const datos = {
+    const data = {
+        fecha,
+        usuarios: JSON.parse(localStorage.getItem("usuarios")) || [],
         clientes: JSON.parse(localStorage.getItem("clientes")) || [],
         productos: JSON.parse(localStorage.getItem("productos")) || [],
-        precios: JSON.parse(localStorage.getItem("precios")) || [],
         ventas: JSON.parse(localStorage.getItem("ventas")) || [],
-        usuarios: JSON.parse(localStorage.getItem("usuarios")) || []
+        precios: JSON.parse(localStorage.getItem("precios")) || []
     };
 
-    const backups = JSON.parse(localStorage.getItem("backups")) || [];
+    let backups = obtenerBackups();
 
-    if (backups.length >= 10) {
-        backups.shift();
+    backups.push({
+        id: Date.now(),
+        fecha,
+        data
+    });
+
+    /* Mantener máximo 10 backups */
+    if (backups.length > 10) {
+        backups = backups.slice(backups.length - 10);
     }
 
-    backups.push({ fecha, datos });
-
-    localStorage.setItem("backups", JSON.stringify(backups));
+    guardarListaBackups(backups);
+    mostrarBackups();
 
     alert("Backup creado correctamente.");
-    mostrarBackups();
 }
 
+/* Backup automático diario */
+function backupAutomatico() {
+    const hoy = new Date().toLocaleDateString();
+    const backups = obtenerBackups();
+
+    const existe = backups.some(b => b.fecha.startsWith(hoy));
+
+    if (!existe) {
+        crearBackup();
+    }
+}
+
+/* Mostrar backups */
 function mostrarBackups() {
     const cont = document.getElementById("lista-backups");
     if (!cont) return;
 
-    const backups = JSON.parse(localStorage.getItem("backups")) || [];
+    const backups = obtenerBackups();
 
     if (backups.length === 0) {
-        cont.innerHTML = "<p>No hay backups creados.</p>";
+        cont.innerHTML = "<p>No hay backups guardados.</p>";
         return;
     }
 
     let html = `
         <table>
-            <tr><th>Fecha</th><th>Acciones</th></tr>
+            <tr>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
     `;
 
-    backups.forEach((b, i) => {
+    backups.forEach(b => {
         html += `
             <tr>
                 <td>${b.fecha}</td>
                 <td>
-                    <button onclick="descargarBackup(${i})">Descargar</button>
-                    <button onclick="restaurarBackup(${i})">Restaurar</button>
-                    <button onclick="eliminarBackup(${i})">Eliminar</button>
+                    <button class="btn-accion btn-editar" onclick="descargarBackup(${b.id})">Descargar</button>
+                    <button class="btn-accion btn-editar" onclick="restaurarBackup(${b.id})">Restaurar</button>
+                    <button class="btn-accion btn-eliminar" onclick="eliminarBackup(${b.id})">Eliminar</button>
                 </td>
             </tr>
         `;
@@ -1182,75 +1216,55 @@ function mostrarBackups() {
     cont.innerHTML = html;
 }
 
-function descargarBackup(i) {
-    const backups = JSON.parse(localStorage.getItem("backups")) || [];
-    const backup = backups[i];
+/* Descargar backup */
+function descargarBackup(id) {
+    const backups = obtenerBackups();
+    const b = backups.find(x => x.id === id);
+    if (!b) return;
 
-    const contenido = JSON.stringify(backup, null, 2);
+    const contenido = JSON.stringify(b.data, null, 2);
     const blob = new Blob([contenido], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
 
+    const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
+
     a.href = url;
-    a.download = `backup_${backup.fecha.replace(/[/ :]/g, "_")}.json`;
+    a.download = `backup_${b.fecha.replace(/[/ :]/g, "-")}.json`;
     a.click();
 
     URL.revokeObjectURL(url);
 }
 
-function restaurarBackup(i) {
-    if (!confirm("¿Restaurar este backup? Se sobrescribirán todos los datos.")) return;
+/* Restaurar backup */
+function restaurarBackup(id) {
+    if (!confirm("¿Restaurar este backup? Se reemplazarán todos los datos.")) return;
 
-    const backups = JSON.parse(localStorage.getItem("backups")) || [];
-    const backup = backups[i];
+    const backups = obtenerBackups();
+    const b = backups.find(x => x.id === id);
+    if (!b) return;
 
-    localStorage.setItem("clientes", JSON.stringify(backup.datos.clientes));
-    localStorage.setItem("productos", JSON.stringify(backup.datos.productos));
-    localStorage.setItem("precios", JSON.stringify(backup.datos.precios));
-    localStorage.setItem("ventas", JSON.stringify(backup.datos.ventas));
-    localStorage.setItem("usuarios", JSON.stringify(backup.datos.usuarios));
+    localStorage.setItem("usuarios", JSON.stringify(b.data.usuarios));
+    localStorage.setItem("clientes", JSON.stringify(b.data.clientes));
+    localStorage.setItem("productos", JSON.stringify(b.data.productos));
+    localStorage.setItem("ventas", JSON.stringify(b.data.ventas));
+    localStorage.setItem("precios", JSON.stringify(b.data.precios));
 
     alert("Backup restaurado correctamente.");
+    location.reload();
 }
 
-function eliminarBackup(i) {
-    const backups = JSON.parse(localStorage.getItem("backups")) || [];
+/* Eliminar backup */
+function eliminarBackup(id) {
     if (!confirm("¿Eliminar este backup?")) return;
 
-    backups.splice(i, 1);
-    localStorage.setItem("backups", JSON.stringify(backups));
+    let backups = obtenerBackups();
+    backups = backups.filter(b => b.id !== id);
 
+    guardarListaBackups(backups);
     mostrarBackups();
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    const form = document.getElementById("loginForm");
-    if (form) {
-        form.addEventListener("submit", iniciarSesion);
-    }
-});
-
-/* Conectar el formulario al login */
-document.addEventListener("DOMContentLoaded", () => {
-    const form = document.getElementById("loginForm");
-    if (form) {
-        form.addEventListener("submit", iniciarSesion);
-    }
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/* Volver al menú */
+function irAMenu() {
+    window.location.href = "menu.html";
+}
