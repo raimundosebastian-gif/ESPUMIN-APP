@@ -539,37 +539,62 @@ function irAMenu() {
 }
 
 /* ============================================================
-   PRODUCTOS
+   PRODUCTOS — MÓDULO COMPLETO Y PROFESIONAL
 ============================================================ */
-function guardarProducto() {
-    const nombre = document.getElementById("producto-nombre").value.trim();
-    const descripcion = document.getElementById("producto-descripcion").value.trim();
-    const precio = parseFloat(document.getElementById("producto-precio").value.trim());
-    const stock = parseInt(document.getElementById("producto-stock").value.trim());
 
-    if (!nombre || !descripcion || isNaN(precio) || isNaN(stock)) {
-        alert("Completa todos los campos.");
+/* Obtener lista */
+function obtenerProductos() {
+    return JSON.parse(localStorage.getItem("productos")) || [];
+}
+
+/* Guardar lista */
+function guardarListaProductos(lista) {
+    localStorage.setItem("productos", JSON.stringify(lista));
+}
+
+/* Guardar producto nuevo */
+function guardarProducto() {
+    const nombre = capitalizar(document.getElementById("prod-nombre").value);
+    const precio = parseFloat(document.getElementById("prod-precio").value.trim());
+    const categoria = capitalizar(document.getElementById("prod-categoria").value.trim());
+    const estado = capitalizar(document.getElementById("prod-estado").value.trim());
+
+    if (!nombre || isNaN(precio) || precio < 0 || !categoria || !estado) {
+        alert("Completa todos los campos correctamente.");
         return;
     }
 
-    const productos = JSON.parse(localStorage.getItem("productos")) || [];
+    const productos = obtenerProductos();
+
+    if (productos.some(p => p.nombre.toLowerCase() === nombre.toLowerCase())) {
+        alert("Ya existe un producto con ese nombre.");
+        return;
+    }
 
     productos.push({
-        nombre: capitalizar(nombre),
-        descripcion,
+        id: Date.now(),
+        nombre,
         precio,
-        stock
+        categoria,
+        estado
     });
 
-    localStorage.setItem("productos", JSON.stringify(productos));
+    guardarListaProductos(productos);
+
+    document.getElementById("prod-nombre").value = "";
+    document.getElementById("prod-precio").value = "";
+    document.getElementById("prod-categoria").value = "";
+    document.getElementById("prod-estado").value = "Activo";
+
     mostrarProductos();
 }
 
+/* Mostrar productos */
 function mostrarProductos() {
     const cont = document.getElementById("lista-productos");
     if (!cont) return;
 
-    const productos = JSON.parse(localStorage.getItem("productos")) || [];
+    const productos = obtenerProductos();
 
     if (productos.length === 0) {
         cont.innerHTML = "<p>No hay productos cargados.</p>";
@@ -578,19 +603,25 @@ function mostrarProductos() {
 
     let html = `
         <table>
-            <tr><th>Nombre</th><th>Descripción</th><th>Precio</th><th>Stock</th><th>Acciones</th></tr>
+            <tr>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Categoría</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
     `;
 
-    productos.forEach((p, i) => {
+    productos.forEach(p => {
         html += `
             <tr>
                 <td>${p.nombre}</td>
-                <td>${p.descripcion}</td>
                 <td>$${p.precio.toFixed(2)}</td>
-                <td>${p.stock}</td>
+                <td>${p.categoria}</td>
+                <td>${p.estado}</td>
                 <td>
-                    <button onclick="editarProducto(${i})">Editar</button>
-                    <button onclick="eliminarProducto(${i})">Eliminar</button>
+                    <button class="btn-accion btn-editar" onclick="editarProducto(${p.id})">Editar</button>
+                    <button class="btn-accion btn-eliminar" onclick="eliminarProducto(${p.id})">Eliminar</button>
                 </td>
             </tr>
         `;
@@ -600,14 +631,16 @@ function mostrarProductos() {
     cont.innerHTML = html;
 }
 
+/* Buscar productos */
 function buscarProductos() {
     const texto = document.getElementById("buscar-producto").value.toLowerCase();
     const cont = document.getElementById("lista-productos");
-    const productos = JSON.parse(localStorage.getItem("productos")) || [];
+    const productos = obtenerProductos();
 
     const filtrados = productos.filter(p =>
         p.nombre.toLowerCase().includes(texto) ||
-        p.descripcion.toLowerCase().includes(texto)
+        p.categoria.toLowerCase().includes(texto) ||
+        p.estado.toLowerCase().includes(texto)
     );
 
     if (filtrados.length === 0) {
@@ -617,19 +650,25 @@ function buscarProductos() {
 
     let html = `
         <table>
-            <tr><th>Nombre</th><th>Descripción</th><th>Precio</th><th>Stock</th><th>Acciones</th></tr>
+            <tr>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Categoría</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
     `;
 
-    filtrados.forEach((p, i) => {
+    filtrados.forEach(p => {
         html += `
             <tr>
                 <td>${p.nombre}</td>
-                <td>${p.descripcion}</td>
                 <td>$${p.precio.toFixed(2)}</td>
-                <td>${p.stock}</td>
+                <td>${p.categoria}</td>
+                <td>${p.estado}</td>
                 <td>
-                    <button onclick="editarProducto(${i})">Editar</button>
-                    <button onclick="eliminarProducto(${i})">Eliminar</button>
+                    <button class="btn-accion btn-editar" onclick="editarProducto(${p.id})">Editar</button>
+                    <button class="btn-accion btn-eliminar" onclick="eliminarProducto(${p.id})">Eliminar</button>
                 </td>
             </tr>
         `;
@@ -639,37 +678,39 @@ function buscarProductos() {
     cont.innerHTML = html;
 }
 
-function eliminarProducto(i) {
-    const productos = JSON.parse(localStorage.getItem("productos")) || [];
+/* Eliminar producto */
+function eliminarProducto(id) {
+    let productos = obtenerProductos();
     if (!confirm("¿Eliminar este producto?")) return;
 
-    productos.splice(i, 1);
-    localStorage.setItem("productos", JSON.stringify(productos));
+    productos = productos.filter(p => p.id !== id);
+
+    guardarListaProductos(productos);
     mostrarProductos();
 }
 
-function editarProducto(i) {
-    const productos = JSON.parse(localStorage.getItem("productos")) || [];
-    const p = productos[i];
+/* Editar producto */
+function editarProducto(id) {
+    const productos = obtenerProductos();
+    const p = productos.find(x => x.id === id);
+    if (!p) return;
 
     const nombre = prompt("Nuevo nombre:", p.nombre);
-    const descripcion = prompt("Nueva descripción:", p.descripcion);
     const precio = parseFloat(prompt("Nuevo precio:", p.precio));
-    const stock = parseInt(prompt("Nuevo stock:", p.stock));
+    const categoria = prompt("Nueva categoría:", p.categoria);
+    const estado = prompt("Nuevo estado (Activo/Inactivo):", p.estado);
 
-    if (!nombre || !descripcion || isNaN(precio) || isNaN(stock)) {
+    if (!nombre || isNaN(precio) || precio < 0 || !categoria || !estado) {
         alert("Datos inválidos.");
         return;
     }
 
-    productos[i] = {
-        nombre: capitalizar(nombre),
-        descripcion,
-        precio,
-        stock
-    };
+    p.nombre = capitalizar(nombre);
+    p.precio = precio;
+    p.categoria = capitalizar(categoria);
+    p.estado = capitalizar(estado);
 
-    localStorage.setItem("productos", JSON.stringify(productos));
+    guardarListaProductos(productos);
     mostrarProductos();
 }
 
@@ -1234,6 +1275,7 @@ document.addEventListener("DOMContentLoaded", () => {
         form.addEventListener("submit", iniciarSesion);
     }
 });
+
 
 
 
