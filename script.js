@@ -28,9 +28,11 @@ function capitalizar(texto) {
 /* ============================================================
    LOGIN
 ============================================================ */
-function iniciarSesion() {
-    const usuario = document.getElementById("login-usuario").value.trim();
-    const password = document.getElementById("login-password").value.trim();
+function iniciarSesion(event) {
+    if (event) event.preventDefault();
+
+    const usuario = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
 
     if (!usuario || !password) {
         alert("Completa usuario y contraseña.");
@@ -44,6 +46,13 @@ function iniciarSesion() {
         alert("Usuario o contraseña incorrectos.");
         return;
     }
+
+    localStorage.setItem("loggedUser", encontrado.usuario);
+    localStorage.setItem("userRole", encontrado.rol);
+
+    window.location.href = "menu.html";
+}
+
 
     localStorage.setItem("loggedUser", encontrado.usuario);
     localStorage.setItem("userRole", encontrado.rol);
@@ -1055,6 +1064,14 @@ function eliminarBackup(i) {
 
     mostrarBackups();
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("loginForm");
+    if (form) {
+        form.addEventListener("submit", iniciarSesion);
+    }
+});
+
 
 
 
