@@ -131,27 +131,55 @@ function irAReportes() { window.location.href = "reportes.html"; }
 function irABackups() { window.location.href = "backups.html"; }
 
 /* ============================================================
-   CLIENTES
+   CLIENTES — MÓDULO COMPLETO Y ESTABLE
 ============================================================ */
+
+/* Capitalizar cada palabra */
+function capitalizar(texto) {
+    if (!texto) return "";
+    return texto
+        .trim()
+        .split(/\s+/)
+        .map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase())
+        .join(" ");
+}
+
+/* Obtener lista de clientes */
+function obtenerClientes() {
+    return JSON.parse(localStorage.getItem("clientes")) || [];
+}
+
+/* Guardar lista de clientes */
+function guardarListaClientes(lista) {
+    localStorage.setItem("clientes", JSON.stringify(lista));
+}
+
+/* Guardar un cliente nuevo */
 function guardarCliente() {
-    const nombre = document.getElementById("cliente-nombre").value.trim();
-    const apellido = document.getElementById("cliente-apellido").value.trim();
+    const nombre = capitalizar(document.getElementById("cliente-nombre").value);
+    const apellido = capitalizar(document.getElementById("cliente-apellido").value);
     const telefono = document.getElementById("cliente-telefono").value.trim();
 
-    if (!nombre || !apellido || telefono.length !== 10) {
-        alert("Completa todos los campos correctamente.");
+    if (!nombre || !apellido || !telefono) {
+        alert("Completa todos los campos.");
         return;
     }
 
-    const clientes = JSON.parse(localStorage.getItem("clientes")) || [];
+    if (!/^\d{10}$/.test(telefono)) {
+        alert("El teléfono debe tener 10 dígitos.");
+        return;
+    }
+
+    const clientes = obtenerClientes();
 
     clientes.push({
-        nombre: capitalizar(nombre),
-        apellido: capitalizar(apellido),
+        id: Date.now(),
+        nombre,
+        apellido,
         telefono
     });
 
-    localStorage.setItem("clientes", JSON.stringify(clientes));
+    guardarListaClientes(clientes);
 
     document.getElementById("cliente-nombre").value = "";
     document.getElementById("cliente-apellido").value = "";
@@ -160,44 +188,51 @@ function guardarCliente() {
     mostrarClientes();
 }
 
+/* Mostrar clientes en tabla */
 function mostrarClientes() {
-    const cont = document.getElementById("lista-clientes");
-    if (!cont) return;
+    const clientes = obtenerClientes();
+    const contenedor = document.getElementById("lista-clientes");
 
-    const clientes = JSON.parse(localStorage.getItem("clientes")) || [];
+    if (!contenedor) return;
 
     if (clientes.length === 0) {
-        cont.innerHTML = "<p>No hay clientes cargados.</p>";
+        contenedor.innerHTML = "<p>No hay clientes cargados.</p>";
         return;
     }
 
     let html = `
         <table>
-            <tr><th>Nombre</th><th>Apellido</th><th>Teléfono</th><th>Acciones</th></tr>
+            <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Teléfono</th>
+                <th>Acciones</th>
+            </tr>
     `;
 
-    clientes.forEach((c, i) => {
+    clientes.forEach(c => {
         html += `
             <tr>
                 <td>${c.nombre}</td>
                 <td>${c.apellido}</td>
                 <td>${c.telefono}</td>
                 <td>
-                    <button onclick="editarCliente(${i})">Editar</button>
-                    <button onclick="eliminarCliente(${i})">Eliminar</button>
+                    <button class="btn-accion btn-editar" onclick="editarCliente(${c.id})">Editar</button>
+                    <button class="btn-accion btn-eliminar" onclick="eliminarCliente(${c.id})">Eliminar</button>
                 </td>
             </tr>
         `;
     });
 
     html += "</table>";
-    cont.innerHTML = html;
+
+    contenedor.innerHTML = html;
 }
 
+/* Buscar clientes */
 function buscarClientes() {
     const texto = document.getElementById("buscar-cliente").value.toLowerCase();
-    const cont = document.getElementById("lista-clientes");
-    const clientes = JSON.parse(localStorage.getItem("clientes")) || [];
+    const clientes = obtenerClientes();
 
     const filtrados = clientes.filter(c =>
         c.nombre.toLowerCase().includes(texto) ||
@@ -205,64 +240,85 @@ function buscarClientes() {
         c.telefono.includes(texto)
     );
 
+    const contenedor = document.getElementById("lista-clientes");
+
     if (filtrados.length === 0) {
-        cont.innerHTML = "<p>No se encontraron coincidencias.</p>";
+        contenedor.innerHTML = "<p>No se encontraron coincidencias.</p>";
         return;
     }
 
     let html = `
         <table>
-            <tr><th>Nombre</th><th>Apellido</th><th>Teléfono</th><th>Acciones</th></tr>
+            <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Teléfono</th>
+                <th>Acciones</th>
+            </tr>
     `;
 
-    filtrados.forEach((c, i) => {
+    filtrados.forEach(c => {
         html += `
             <tr>
                 <td>${c.nombre}</td>
                 <td>${c.apellido}</td>
                 <td>${c.telefono}</td>
                 <td>
-                    <button onclick="editarCliente(${i})">Editar</button>
-                    <button onclick="eliminarCliente(${i})">Eliminar</button>
+                    <button class="btn-accion btn-editar" onclick="editarCliente(${c.id})">Editar</button>
+                    <button class="btn-accion btn-eliminar" onclick="eliminarCliente(${c.id})">Eliminar</button>
                 </td>
             </tr>
         `;
     });
 
     html += "</table>";
-    cont.innerHTML = html;
+
+    contenedor.innerHTML = html;
 }
 
-function eliminarCliente(i) {
-    const clientes = JSON.parse(localStorage.getItem("clientes")) || [];
-    if (!confirm("¿Eliminar este cliente?")) return;
+/* Editar cliente */
+function editarCliente(id) {
+    const clientes = obtenerClientes();
+    const cliente = clientes.find(c => c.id === id);
 
-    clientes.splice(i, 1);
-    localStorage.setItem("clientes", JSON.stringify(clientes));
-    mostrarClientes();
-}
+    if (!cliente) return;
 
-function editarCliente(i) {
-    const clientes = JSON.parse(localStorage.getItem("clientes")) || [];
-    const c = clientes[i];
+    const nuevoNombre = prompt("Nuevo nombre:", cliente.nombre);
+    const nuevoApellido = prompt("Nuevo apellido:", cliente.apellido);
+    const nuevoTelefono = prompt("Nuevo teléfono (10 dígitos):", cliente.telefono);
 
-    const nombre = prompt("Nuevo nombre:", c.nombre);
-    const apellido = prompt("Nuevo apellido:", c.apellido);
-    const telefono = prompt("Nuevo teléfono:", c.telefono);
-
-    if (!nombre || !apellido || telefono.length !== 10) {
-        alert("Datos inválidos.");
+    if (!nuevoNombre || !nuevoApellido || !nuevoTelefono) {
+        alert("Todos los campos son obligatorios.");
         return;
     }
 
-    clientes[i] = {
-        nombre: capitalizar(nombre),
-        apellido: capitalizar(apellido),
-        telefono
-    };
+    if (!/^\d{10}$/.test(nuevoTelefono)) {
+        alert("El teléfono debe tener 10 dígitos.");
+        return;
+    }
 
-    localStorage.setItem("clientes", JSON.stringify(clientes));
+    cliente.nombre = capitalizar(nuevoNombre);
+    cliente.apellido = capitalizar(nuevoApellido);
+    cliente.telefono = nuevoTelefono;
+
+    guardarListaClientes(clientes);
     mostrarClientes();
+}
+
+/* Eliminar cliente */
+function eliminarCliente(id) {
+    if (!confirm("¿Eliminar este cliente?")) return;
+
+    let clientes = obtenerClientes();
+    clientes = clientes.filter(c => c.id !== id);
+
+    guardarListaClientes(clientes);
+    mostrarClientes();
+}
+
+/* Volver al menú */
+function irAMenu() {
+    window.location.href = "menu.html";
 }
 
 /* ============================================================
@@ -1106,6 +1162,7 @@ document.addEventListener("DOMContentLoaded", () => {
         form.addEventListener("submit", iniciarSesion);
     }
 });
+
 
 
 
