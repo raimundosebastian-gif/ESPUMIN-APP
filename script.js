@@ -969,141 +969,156 @@ function irAMenu() {
 }
 
 /* ============================================================
-   REPORTES
+   REPORTES — MÓDULO COMPLETO Y PROFESIONAL
 ============================================================ */
-function reporteClientes() {
-    const cont = document.getElementById("reporte-clientes");
-    if (!cont) return;
 
-    const clientes = JSON.parse(localStorage.getItem("clientes")) || [];
-
-    if (clientes.length === 0) {
-        cont.innerHTML = "<p>No hay clientes cargados.</p>";
-        return;
-    }
-
-    let html = `
-        <h3>Listado de Clientes</h3>
-        <table>
-            <tr><th>Nombre</th><th>Apellido</th><th>Teléfono</th></tr>
-    `;
-
-    clientes.forEach(c => {
-        html += `
-            <tr>
-                <td>${c.nombre}</td>
-                <td>${c.apellido}</td>
-                <td>${c.telefono}</td>
-            </tr>
-        `;
-    });
-
-    html += "</table>";
-    cont.innerHTML = html;
+/* Obtener datos */
+function obtenerReporteVentas() {
+    return JSON.parse(localStorage.getItem("ventas")) || [];
 }
 
-function reporteProductos() {
-    const cont = document.getElementById("reporte-productos");
-    if (!cont) return;
-
-    const productos = JSON.parse(localStorage.getItem("productos")) || [];
-
-    if (productos.length === 0) {
-        cont.innerHTML = "<p>No hay productos cargados.</p>";
-        return;
-    }
-
-    let html = `
-        <h3>Listado de Productos</h3>
-        <table>
-            <tr><th>Producto</th><th>Descripción</th><th>Precio</th><th>Stock</th></tr>
-    `;
-
-    productos.forEach(p => {
-        html += `
-            <tr>
-                <td>${p.nombre}</td>
-                <td>${p.descripcion}</td>
-                <td>$${p.precio.toFixed(2)}</td>
-                <td>${p.stock}</td>
-            </tr>
-        `;
-    });
-
-    html += "</table>";
-    cont.innerHTML = html;
+function obtenerReporteProductos() {
+    return JSON.parse(localStorage.getItem("productos")) || [];
 }
 
-function reportePrecios() {
-    const cont = document.getElementById("reporte-precios");
-    if (!cont) return;
-
-    const precios = JSON.parse(localStorage.getItem("precios")) || [];
-
-    if (precios.length === 0) {
-        cont.innerHTML = "<p>No hay precios cargados.</p>";
-        return;
-    }
-
-    let html = `
-        <h3>Listado de Precios</h3>
-        <table>
-            <tr><th>Producto</th><th>Costo</th><th>Venta</th></tr>
-    `;
-
-    precios.forEach(p => {
-        html += `
-            <tr>
-                <td>${p.producto}</td>
-                <td>$${p.costo.toFixed(2)}</td>
-                <td>$${p.venta.toFixed(2)}</td>
-            </tr>
-        `;
-    });
-
-    html += "</table>";
-    cont.innerHTML = html;
+function obtenerReporteClientes() {
+    return JSON.parse(localStorage.getItem("clientes")) || [];
 }
 
-function reporteVentas() {
-    const cont = document.getElementById("reporte-ventas");
+/* Render principal */
+function mostrarReportes() {
+    const cont = document.getElementById("lista-reportes");
     if (!cont) return;
 
-    const ventas = JSON.parse(localStorage.getItem("ventas")) || [];
+    const ventas = obtenerReporteVentas();
+    const productos = obtenerReporteProductos();
+    const clientes = obtenerReporteClientes();
 
-    if (ventas.length === 0) {
-        cont.innerHTML = "<p>No hay ventas registradas.</p>";
-        return;
-    }
+    /* ============================
+       A) REPORTE DE VENTAS
+    ============================ */
 
-    let totalGeneral = 0;
+    const totalVentas = ventas.length;
+    const totalFacturado = ventas.reduce((acc, v) => acc + v.total, 0);
 
-    let html = `
-        <h3>Listado de Ventas</h3>
-        <table>
-            <tr><th>Cliente</th><th>Producto</th><th>Cantidad</th><th>Total</th><th>Fecha</th></tr>
-    `;
-
+    /* Producto más vendido */
+    let rankingProductos = {};
     ventas.forEach(v => {
-        totalGeneral += v.total;
+        rankingProductos[v.producto] = (rankingProductos[v.producto] || 0) + v.cantidad;
+    });
 
+    let productoMasVendido = "Sin datos";
+    if (Object.keys(rankingProductos).length > 0) {
+        productoMasVendido = Object.entries(rankingProductos)
+            .sort((a, b) => b[1] - a[1])[0][0];
+    }
+
+    /* Cliente que más compra */
+    let rankingClientes = {};
+    ventas.forEach(v => {
+        rankingClientes[v.cliente] = (rankingClientes[v.cliente] || 0) + v.total;
+    });
+
+    let mejorCliente = "Sin datos";
+    if (Object.keys(rankingClientes).length > 0) {
+        mejorCliente = Object.entries(rankingClientes)
+            .sort((a, b) => b[1] - a[1])[0][0];
+    }
+
+    /* ============================
+       B) REPORTE DE PRODUCTOS
+    ============================ */
+
+    const productosActivos = productos.filter(p => p.estado === "Activo").length;
+    const productosInactivos = productos.filter(p => p.estado === "Inactivo").length;
+
+    /* ============================
+       C) REPORTE DE CLIENTES
+    ============================ */
+
+    const clientesActivos = clientes.length;
+
+    /* ============================
+       D) REPORTE ECONÓMICO
+    ============================ */
+
+    /* Total por producto */
+    let totalPorProducto = {};
+    ventas.forEach(v => {
+        totalPorProducto[v.producto] = (totalPorProducto[v.producto] || 0) + v.total;
+    });
+
+    /* Total por cliente */
+    let totalPorCliente = {};
+    ventas.forEach(v => {
+        totalPorCliente[v.cliente] = (totalPorCliente[v.cliente] || 0) + v.total;
+    });
+
+    /* ============================
+       RENDER HTML
+    ============================ */
+
+    let html = `
+        <h3>Resumen General</h3>
+        <p><strong>Total de ventas:</strong> ${totalVentas}</p>
+        <p><strong>Total facturado:</strong> $${totalFacturado.toFixed(2)}</p>
+        <p><strong>Producto más vendido:</strong> ${productoMasVendido}</p>
+        <p><strong>Cliente que más compra:</strong> ${mejorCliente}</p>
+
+        <hr>
+
+        <h3>Productos</h3>
+        <p><strong>Activos:</strong> ${productosActivos}</p>
+        <p><strong>Inactivos:</strong> ${productosInactivos}</p>
+
+        <hr>
+
+        <h3>Clientes</h3>
+        <p><strong>Total de clientes registrados:</strong> ${clientesActivos}</p>
+
+        <hr>
+
+        <h3>Total por Producto</h3>
+        <table>
+            <tr><th>Producto</th><th>Total Vendido</th></tr>
+    `;
+
+    for (let prod in totalPorProducto) {
         html += `
             <tr>
-                <td>${v.cliente}</td>
-                <td>${v.producto}</td>
-                <td>${v.cantidad}</td>
-                <td>$${v.total.toFixed(2)}</td>
-                <td>${v.fecha}</td>
+                <td>${prod}</td>
+                <td>$${totalPorProducto[prod].toFixed(2)}</td>
             </tr>
         `;
-    });
+    }
 
     html += `
         </table>
-        <h3>Total General: $${totalGeneral.toFixed(2)}</h3>
+
+        <hr>
+
+        <h3>Total por Cliente</h3>
+        <table>
+            <tr><th>Cliente</th><th>Total Gastado</th></tr>
     `;
 
+    for (let cli in totalPorCliente) {
+        html += `
+            <tr>
+                <td>${cli}</td>
+                <td>$${totalPorCliente[cli].toFixed(2)}</td>
+            </tr>
+        `;
+    }
+
+    html += `</table>`;
+
     cont.innerHTML = html;
+}
+
+/* Volver al menú */
+function irAMenu() {
+    window.location.href = "menu.html";
 }
 
 /* ============================================================
@@ -1222,6 +1237,7 @@ document.addEventListener("DOMContentLoaded", () => {
         form.addEventListener("submit", iniciarSesion);
     }
 });
+
 
 
 
