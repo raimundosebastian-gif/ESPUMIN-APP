@@ -539,44 +539,37 @@ function irAMenu() {
 }
 
 /* ============================================================
-   PRODUCTOS — MÓDULO COMPLETO Y PROFESIONAL
+   GENERADOR DE ID ÚNICO PARA PRODUCTOS
 ============================================================ */
-
-/* Obtener lista */
-function obtenerProductos() {
-    return JSON.parse(localStorage.getItem("productos")) || [];
+function generarIdProducto() {
+    const id = parseInt(localStorage.getItem("ultimoIdProducto")) || 0;
+    const nuevoId = id + 1;
+    localStorage.setItem("ultimoIdProducto", nuevoId);
+    return nuevoId;
 }
 
-/* Guardar lista */
-function guardarListaProductos(lista) {
-    localStorage.setItem("productos", JSON.stringify(lista));
-}
-
-/* Guardar producto nuevo */
+/* ============================================================
+   GUARDAR PRODUCTO
+============================================================ */
 function guardarProducto() {
-    const nombre = capitalizar(document.getElementById("prod-nombre").value);
+    const nombre = document.getElementById("prod-nombre").value.trim();
     const precio = parseFloat(document.getElementById("prod-precio").value.trim());
-    const categoria = capitalizar(document.getElementById("prod-categoria").value.trim());
-    const estado = capitalizar(document.getElementById("prod-estado").value.trim());
+    const categoria = document.getElementById("prod-categoria").value.trim();
+    const estado = document.getElementById("prod-estado").value.trim();
 
-    if (!nombre || isNaN(precio) || precio < 0 || !categoria || !estado) {
-        alert("Completa todos los campos correctamente.");
+    if (!nombre || isNaN(precio) || !categoria || !estado) {
+        alert("Completa todos los campos.");
         return;
     }
 
     const productos = obtenerProductos();
 
-    if (productos.some(p => p.nombre.toLowerCase() === nombre.toLowerCase())) {
-        alert("Ya existe un producto con ese nombre.");
-        return;
-    }
-
     productos.push({
-        id: Date.now(),
-        nombre,
+        id: generarIdProducto(),
+        nombre: capitalizar(nombre),
         precio,
-        categoria,
-        estado
+        categoria: capitalizar(categoria),
+        estado: capitalizar(estado)
     });
 
     guardarListaProductos(productos);
@@ -589,7 +582,9 @@ function guardarProducto() {
     mostrarProductos();
 }
 
-/* Mostrar productos */
+/* ============================================================
+   MOSTRAR PRODUCTOS
+============================================================ */
 function mostrarProductos() {
     const cont = document.getElementById("lista-productos");
     if (!cont) return;
@@ -631,7 +626,9 @@ function mostrarProductos() {
     cont.innerHTML = html;
 }
 
-/* Buscar productos */
+/* ============================================================
+   BUSCAR PRODUCTOS
+============================================================ */
 function buscarProductos() {
     const texto = document.getElementById("buscar-producto").value.toLowerCase();
     const cont = document.getElementById("lista-productos");
@@ -678,39 +675,75 @@ function buscarProductos() {
     cont.innerHTML = html;
 }
 
-/* Eliminar producto */
+/* ============================================================
+   ELIMINAR PRODUCTO
+============================================================ */
 function eliminarProducto(id) {
-    let productos = obtenerProductos();
+    const productos = obtenerProductos();
+    const index = productos.findIndex(p => p.id === id);
+
+    if (index === -1) return;
+
     if (!confirm("¿Eliminar este producto?")) return;
 
-    productos = productos.filter(p => p.id !== id);
-
+    productos.splice(index, 1);
     guardarListaProductos(productos);
+
     mostrarProductos();
 }
 
-/* Editar producto */
+/* ============================================================
+   EDITAR PRODUCTO (USANDO MODAL)
+============================================================ */
+let productoEditId = null;
+
 function editarProducto(id) {
     const productos = obtenerProductos();
     const p = productos.find(x => x.id === id);
+
     if (!p) return;
 
-    const nombre = prompt("Nuevo nombre:", p.nombre);
-    const precio = parseFloat(prompt("Nuevo precio:", p.precio));
-    const categoria = prompt("Nueva categoría:", p.categoria);
-    const estado = prompt("Nuevo estado (Activo/Inactivo):", p.estado);
+    productoEditId = id;
 
-    if (!nombre || isNaN(precio) || precio < 0 || !categoria || !estado) {
-        alert("Datos inválidos.");
+    document.getElementById("edit-prod-nombre").value = p.nombre;
+    document.getElementById("edit-prod-precio").value = p.precio;
+    document.getElementById("edit-prod-categoria").value = p.categoria;
+    document.getElementById("edit-prod-estado").value = p.estado;
+
+    document.getElementById("modal-editar-producto").style.display = "flex";
+}
+
+function cerrarModalProducto() {
+    document.getElementById("modal-editar-producto").style.display = "none";
+    productoEditId = null;
+}
+
+function guardarEdicionProducto() {
+    const productos = obtenerProductos();
+    const index = productos.findIndex(p => p.id === productoEditId);
+
+    if (index === -1) return;
+
+    const nombre = document.getElementById("edit-prod-nombre").value.trim();
+    const precio = parseFloat(document.getElementById("edit-prod-precio").value.trim());
+    const categoria = document.getElementById("edit-prod-categoria").value.trim();
+    const estado = document.getElementById("edit-prod-estado").value.trim();
+
+    if (!nombre || isNaN(precio) || !categoria || !estado) {
+        alert("Completa todos los campos.");
         return;
     }
 
-    p.nombre = capitalizar(nombre);
-    p.precio = precio;
-    p.categoria = capitalizar(categoria);
-    p.estado = capitalizar(estado);
+    productos[index] = {
+        id: productoEditId,
+        nombre: capitalizar(nombre),
+        precio,
+        categoria: capitalizar(categoria),
+        estado: capitalizar(estado)
+    };
 
     guardarListaProductos(productos);
+    cerrarModalProducto();
     mostrarProductos();
 }
 
@@ -1273,4 +1306,5 @@ function eliminarBackup(id) {
 function irAMenu() {
     window.location.href = "menu.html";
 }
+
 
