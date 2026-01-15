@@ -103,8 +103,15 @@
     }
 
     function capitalizar(texto) {
-        if (!texto) return "";
-        return texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase();
+    if (!texto) return "";
+    return texto
+        .trim()
+        .split(" ")
+        .filter(p => p.length > 0)
+        .map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase())
+        .join(" ");
+}
+
     }
 </script>
 
@@ -161,3 +168,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
 </body>
 </html>
+
