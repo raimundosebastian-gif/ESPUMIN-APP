@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Impuestos / IVA / Retenciones</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="js/core.js"></script>
+</head>
+
+<body onload="protegerModulo(); cargarImpuestos();">
+
+    <!-- ENCABEZADO -->
+    <header class="header">
+        <h1>Impuestos / IVA / Retenciones</h1>
+        <button class="btn-primary" onclick="abrirModal()">Nuevo registro</button>
+    </header>
+
+    <!-- TABLA -->
+    <section class="tabla-contenedor">
+        <table>
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Tipo</th>
+                    <th>Descripción</th>
+                    <th>Tasa (%)</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="tablaImpuestos"></tbody>
+        </table>
+    </section>
+
+    <!-- MODAL -->
+    <div id="modalImpuestos" class="modal">
+        <div class="modal-contenido">
+            <h2 id="modalTitulo">Nuevo registro</h2>
+
+            <input type="hidden" id="impId">
+
+            <label>Fecha</label>
+            <input type="date" id="impFecha">
+
+            <label>Tipo</label>
+            <select id="impTipo">
+                <option value="iva">IVA</option>
+                <option value="percepcion">Percepción</option>
+                <option value="retencion">Retención</option>
+            </select>
+
+            <label>Descripción</label>
+            <input type="text" id="impDescripcion">
+
+            <label>Tasa (%)</label>
+            <input type="number" id="impTasa" min="0" step="0.01">
+
+            <div class="modal-botones">
+                <button class="btn-primary" onclick="guardarImpuesto()">Guardar</button>
+                <button class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ============================
+           CARGA DE TABLA
+        ============================ */
+        function cargarImpuestos() {
+            const registros = getImpuestos();
+            const tbody = document.getElementById("tablaImpuestos");
+            tbody.innerHTML = "";
+
+            registros.sort((a, b) => a.fecha.localeCompare(b.fecha));
+
+            registros.forEach(r => {
+                const tr = document.createElement("tr");
+
+                tr.innerHTML = `
+                    <td>${formatDate(r.fecha)}</td>
+                    <td>${formatearTipo(r.tipo)}</td>
+                    <td>${r.descripcion}</td>
+                    <td>${r.tasa}%</td>
+                    <td>
+                        <button class="btn-small" onclick="editarImpuesto(${r.id})">✏️</button>
+                        <button class="btn-small btn-danger" onclick="eliminarImpuesto(${r.id})">🗑️</button>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        function formatearTipo(tipo) {
+            switch (tipo) {
+                case "iva": return "IVA";
+                case "percepcion": return "Percepción";
+                case "retencion": return "Retención";
+                default: return tipo;
+            }
+        }
+
+        /* ============================
+           MODAL
+        ============================ */
+        function abrirModal() {
+            document.getElementById("modalImpuestos").style.display = "flex";
+            document.getElementById("modalTitulo").innerText = "Nuevo registro";
+
+            document.getElementById("impId").value = "";
+            document.getElementById("impFecha").value = new Date().toISOString().split("T")[0];
+            document.getElementById("impTipo").value = "iva";
+            document.getElementById("impDescripcion").value = "";
+            document.getElementById("impTasa").value = "";
+        }
+
+        function cerrarModal() {
+            document.getElementById("modalImpuestos").style.display = "none";
+        }
+
+        /* ============================
+           CRUD
+        ============================ */
+        function guardarImpuesto() {
+            const id = document.getElementById("impId").value;
+            const fecha = document.getElementById("impFecha").value;
+            const tipo = document.getElementById("impTipo").value;
+            const descripcion = document.getElementById("impDescripcion").value;
+            const tasa = parseFloat(document.getElementById("impTasa").value);
+
+            if (!validarCampos([fecha, tipo, descripcion, tasa])) {
+                alert("Todos los campos obligatorios deben estar completos.");
+                return;
+            }
+
+            const registro = {
+                id: id || generarID(),
+                fecha,
+                tipo,
+                descripcion,
+                tasa
+            };
+
+            if (id) {
+                updateImpuesto(parseInt(id), registro);
+            } else {
+                addImpuesto(registro);
+            }
+
+            cerrarModal();
+            cargarImpuestos();
+        }
+
+        function editarImpuesto(id) {
+            const r = getImpuestos().find(x => x.id === id);
+
+            abrirModal();
+            document.getElementById("modalTitulo").innerText = "Editar registro";
+
+            document.getElementById("impId").value = r.id;
+            document.getElementById("impFecha").value = r.fecha;
+            document.getElementById("impTipo").value = r.tipo;
+            document.getElementById("impDescripcion").value = r.descripcion;
+            document.getElementById("impTasa").value = r.tasa;
+        }
+
+        function eliminarImpuesto(id) {
+            if (confirm("¿Eliminar este registro?")) {
+                deleteImpuesto(id);
+                cargarImpuestos();
+            }
+        }
+    </script>
+
+</body>
+</html>
