@@ -1,28 +1,28 @@
-/* ============================================
-   LOGIN DEL SISTEMA - ESPUMIN ERP
-   Conexión directa al core y auditoría
-============================================ */
+/* ============================================================
+   LOGIN DEL SISTEMA ESPUMIN ERP
+   ============================================================ */
 
 document.addEventListener("DOMContentLoaded", () => {
-
-    const btn = document.getElementById("btnLogin");
-    if (!btn) return; // Seguridad por si el botón no existe
+    const btn = document.getElementById("loginBtn");
 
     btn.addEventListener("click", () => {
         const usuario = document.getElementById("usuario").value.trim();
         const clave = document.getElementById("clave").value.trim();
 
         if (!usuario || !clave) {
-            alert("Por favor complete usuario y contraseña");
+            alert("Complete usuario y clave");
             return;
         }
 
-        // Llama a la función login() del core
-        if (login(usuario, clave)) {
-            location.href = "dashboard.html";
-        } else {
-            alert("Usuario o contraseña incorrectos");
-        }
-    });
+        // Usamos el login centralizado del core
+        const acceso = login(usuario, clave);
 
+        if (!acceso) {
+            alert("Usuario o clave incorrectos");
+            return;
+        }
+
+        // Redirección al dashboard
+        window.location.href = "dashboard.html";
+    });
 });
