@@ -3,146 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESPUMIN APP - Proveedores</title>
+    <title>ESPUMIN - Proveedores</title>
     <link rel="stylesheet" href="style.css">
 </head>
+<body>
 
-<body onload="inicializarProveedores()">
+    <!-- Menú -->
+    <div id="menu-container"></div>
 
-    <!-- ============================
-         BANNER SUPERIOR
-    ============================= -->
-    <header class="banner">
-        <h1>Gestión de Proveedores</h1>
-        <a href="menu.html" class="btn-volver">Volver al Menú</a>
-    </header>
+    <main class="modulo-container">
+        <h1>Proveedores</h1>
 
-    <!-- ============================
-         USUARIO LOGUEADO
-    ============================= -->
-    <section class="usuario-info">
-        <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
-        <button onclick="cerrarSesion()" class="btn-sesion">Cerrar sesión</button>
-    </section>
+        <!-- Formulario -->
+        <section class="form-section">
+            <input type="hidden" id="id">
 
-    <!-- ============================
-         CONTENEDOR PRINCIPAL
-    ============================= -->
-    <section class="contenedor">
+            <label>Nombre del proveedor</label>
+            <input type="text" id="nombre" placeholder="Ej: Químicos S.A.">
 
-        <h2>Proveedores registrados</h2>
+            <label>Contacto</label>
+            <input type="text" id="contacto" placeholder="Ej: 2477-555555">
 
-        <!-- Buscador -->
-        <input type="text" id="buscar-proveedor" placeholder="Buscar proveedor..." oninput="filtrarProveedores()">
-
-        <!-- Botón crear -->
-        <button class="btn-primario" onclick="abrirModalNuevoProveedor()">+ Crear proveedor</button>
+            <button id="guardarBtn">Guardar</button>
+            <button id="cancelarBtn" class="btn-secundario">Cancelar</button>
+        </section>
 
         <!-- Tabla -->
-        <div id="lista-proveedores" style="margin-top:20px;"></div>
+        <section class="tabla-section">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Contacto</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaProveedores"></tbody>
+            </table>
+        </section>
+    </main>
 
-    </section>
-
-    <!-- ============================
-         MODAL NUEVO PROVEEDOR
-    ============================= -->
-    <div id="modal-nuevo-proveedor" class="modal">
-        <div class="modal-contenido">
-            <h3>Nuevo proveedor</h3>
-
-            <label>Nombre:</label>
-            <input type="text" id="nuevo-nombre">
-
-            <label>Teléfono:</label>
-            <input type="text" id="nuevo-telefono">
-
-            <label>Dirección:</label>
-            <input type="text" id="nuevo-direccion">
-
-            <label>Email:</label>
-            <input type="email" id="nuevo-email">
-
-            <label>Productos que provee:</label>
-            <textarea id="nuevo-productos"></textarea>
-
-            <label>Notas (opcional):</label>
-            <textarea id="nuevo-notas"></textarea>
-
-            <div class="modal-botones">
-                <button class="btn-secundario" onclick="guardarNuevoProveedor()">Guardar</button>
-                <button class="btn-eliminar" onclick="cerrarModalNuevoProveedor()">Cancelar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ============================
-         MODAL EDITAR PROVEEDOR
-    ============================= -->
-    <div id="modal-editar-proveedor" class="modal">
-        <div class="modal-contenido">
-            <h3>Editar proveedor</h3>
-
-            <input type="hidden" id="edit-id">
-
-            <label>Nombre:</label>
-            <input type="text" id="edit-nombre">
-
-            <label>Teléfono:</label>
-            <input type="text" id="edit-telefono">
-
-            <label>Dirección:</label>
-            <input type="text" id="edit-direccion">
-
-            <label>Email:</label>
-            <input type="email" id="edit-email">
-
-            <label>Productos que provee:</label>
-            <textarea id="edit-productos"></textarea>
-
-            <label>Notas:</label>
-            <textarea id="edit-notas"></textarea>
-
-            <div class="modal-botones">
-                <button class="btn-secundario" onclick="guardarEdicionProveedor()">Guardar cambios</button>
-                <button class="btn-eliminar" onclick="cerrarModalEditarProveedor()">Cancelar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ============================
-         MODAL HISTORIAL DE COMPRAS
-    ============================= -->
-    <div id="modal-historial-proveedor" class="modal">
-        <div class="modal-contenido">
-            <h3>Historial de compras</h3>
-
-            <div id="tabla-historial-proveedor"></div>
-
-            <div class="modal-botones">
-                <button class="btn-eliminar" onclick="cerrarModalHistorialProveedor()">Cerrar</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
-
+    <script src="js/core.js"></script>
     <script>
-        function inicializarProveedores() {
-            const usuario = localStorage.getItem("loggedUser");
-            if (!usuario) {
-                location.href = "index.html";
+        // Seguridad
+        protegerModulo();
+
+        // Cargar menú
+        fetch("menu.html")
+            .then(r => r.text())
+            .then(html => document.getElementById("menu-container").innerHTML = html);
+
+        // Renderizar tabla
+        function cargarTabla() {
+            const proveedores = getData("proveedores");
+            const tbody = document.getElementById("tablaProveedores");
+            tbody.innerHTML = "";
+
+            proveedores.forEach(prov => {
+                const tr = document.createElement("tr");
+
+                tr.innerHTML = `
+                    <td>${prov.nombre}</td>
+                    <td>${prov.contacto}</td>
+                    <td>
+                        <button onclick="editar('${prov.id}')">Editar</button>
+                        <button onclick="eliminar('${prov.id}')" class="btn-eliminar">Eliminar</button>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Guardar proveedor
+        document.getElementById("guardarBtn").addEventListener("click", () => {
+            const id = document.getElementById("id").value;
+            const nombre = document.getElementById("nombre").value.trim();
+            const contacto = document.getElementById("contacto").value.trim();
+
+            if (!nombre) {
+                alert("El nombre es obligatorio");
                 return;
             }
 
-            document.getElementById("usuario-log").textContent = usuario;
-            cargarProveedores();
+            let proveedores = getData("proveedores");
+
+            if (id) {
+                // Editar
+                const prov = proveedores.find(p => p.id === id);
+                prov.nombre = nombre;
+                prov.contacto = contacto;
+
+                registrarAuditoria("Proveedores", "Edición", `Editó ${nombre}`);
+            } else {
+                // Nuevo
+                proveedores.push({
+                    id: generarID(),
+                    nombre,
+                    contacto
+                });
+
+                registrarAuditoria("Proveedores", "Alta", `Creó ${nombre}`);
+            }
+
+            setData("proveedores", proveedores);
+            limpiarFormulario();
+            cargarTabla();
+        });
+
+        // Editar
+        function editar(id) {
+            const prov = getData("proveedores").find(p => p.id === id);
+            document.getElementById("id").value = prov.id;
+            document.getElementById("nombre").value = prov.nombre;
+            document.getElementById("contacto").value = prov.contacto;
         }
 
-        function cerrarSesion() {
-            localStorage.removeItem("loggedUser");
-            localStorage.removeItem("userRole");
-            location.href = "index.html";
+        // Eliminar
+        function eliminar(id) {
+            if (!confirm("¿Eliminar proveedor?")) return;
+
+            let proveedores = getData("proveedores");
+            const prov = proveedores.find(p => p.id === id);
+
+            proveedores = proveedores.filter(p => p.id !== id);
+            setData("proveedores", proveedores);
+
+            registrarAuditoria("Proveedores", "Baja", `Eliminó ${prov.nombre}`);
+
+            cargarTabla();
         }
+
+        // Cancelar
+        document.getElementById("cancelarBtn").addEventListener("click", limpiarFormulario);
+
+        function limpiarFormulario() {
+            document.getElementById("id").value = "";
+            document.getElementById("nombre").value = "";
+            document.getElementById("contacto").value = "";
+        }
+
+        // Inicializar
+        cargarTabla();
     </script>
 
 </body>
