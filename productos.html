@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Productos - ESPUMIN APP</title>
+    <title>ESPUMIN APP - Productos</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
-<body onload="mostrarProductos()">
+<body onload="inicializarProductos()">
 
     <!-- ============================
          BANNER SUPERIOR
@@ -18,72 +18,119 @@
     </header>
 
     <!-- ============================
-         FORMULARIO DE ALTA
+         USUARIO LOGUEADO
     ============================= -->
-    <section class="formulario">
-        <h2>Agregar Producto</h2>
-
-        <label>Nombre</label>
-        <input type="text" id="prod-nombre" placeholder="Ej: Detergente Espuma">
-
-        <label>Precio</label>
-        <input type="number" id="prod-precio" step="0.01" placeholder="Ej: 1500">
-
-        <label>Categoría</label>
-        <input type="text" id="prod-categoria" placeholder="Ej: Limpieza">
-
-        <label>Estado</label>
-        <select id="prod-estado">
-            <option value="Activo">Activo</option>
-            <option value="Inactivo">Inactivo</option>
-        </select>
-
-        <button class="btn-guardar" onclick="guardarProducto()">Guardar Producto</button>
+    <section class="usuario-info">
+        <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
+        <button onclick="cerrarSesion()" class="btn-sesion">Cerrar sesión</button>
     </section>
 
     <!-- ============================
-         BUSCADOR
+         CONTENEDOR PRINCIPAL
     ============================= -->
-    <section class="buscador">
-        <input type="text" id="buscar-producto" placeholder="Buscar por nombre, categoría o estado" onkeyup="buscarProductos()">
+    <section class="contenedor">
+
+        <h2>Productos registrados</h2>
+
+        <!-- Buscador -->
+        <input type="text" id="buscar-producto" placeholder="Buscar producto..." oninput="filtrarProductos()">
+
+        <!-- Botón crear -->
+        <button class="btn-primario" onclick="abrirModalNuevoProducto()">+ Crear producto</button>
+
+        <!-- Tabla -->
+        <div id="lista-productos" style="margin-top:20px;"></div>
+
     </section>
 
     <!-- ============================
-         LISTA DE PRODUCTOS
+         MODAL NUEVO PRODUCTO
     ============================= -->
-    <section id="lista-productos" class="tabla-contenedor">
-        <!-- Se llena dinámicamente -->
-    </section>
+    <div id="modal-nuevo-producto" class="modal">
+        <div class="modal-contenido">
+            <h3>Nuevo producto</h3>
+
+            <label>Nombre:</label>
+            <input type="text" id="nuevo-nombre">
+
+            <label>Categoría:</label>
+            <input type="text" id="nuevo-categoria">
+
+            <label>Precio:</label>
+            <input type="number" id="nuevo-precio" min="0">
+
+            <label>Stock:</label>
+            <input type="number" id="nuevo-stock" min="0">
+
+            <label>Código (opcional):</label>
+            <input type="text" id="nuevo-codigo">
+
+            <label>Imagen:</label>
+            <input type="file" id="nuevo-imagen" accept="image/*" onchange="previewNuevaImagen()">
+            <img id="preview-nueva" style="width:100px; margin-top:10px; display:none;">
+
+            <div class="modal-botones">
+                <button class="btn-secundario" onclick="guardarNuevoProducto()">Guardar</button>
+                <button class="btn-eliminar" onclick="cerrarModalNuevoProducto()">Cancelar</button>
+            </div>
+        </div>
+    </div>
 
     <!-- ============================
          MODAL EDITAR PRODUCTO
     ============================= -->
     <div id="modal-editar-producto" class="modal">
         <div class="modal-contenido">
-            <h2>Editar Producto</h2>
+            <h3>Editar producto</h3>
 
-            <label>Nombre</label>
-            <input type="text" id="edit-prod-nombre">
+            <input type="hidden" id="edit-id">
 
-            <label>Precio</label>
-            <input type="number" id="edit-prod-precio" step="0.01">
+            <label>Nombre:</label>
+            <input type="text" id="edit-nombre">
 
-            <label>Categoría</label>
-            <input type="text" id="edit-prod-categoria">
+            <label>Categoría:</label>
+            <input type="text" id="edit-categoria">
 
-            <label>Estado</label>
-            <select id="edit-prod-estado">
-                <option value="Activo">Activo</option>
-                <option value="Inactivo">Inactivo</option>
-            </select>
+            <label>Precio:</label>
+            <input type="number" id="edit-precio" min="0">
+
+            <label>Stock:</label>
+            <input type="number" id="edit-stock" min="0">
+
+            <label>Código:</label>
+            <input type="text" id="edit-codigo">
+
+            <label>Imagen:</label>
+            <input type="file" id="edit-imagen" accept="image/*" onchange="previewEditarImagen()">
+            <img id="preview-editar" style="width:100px; margin-top:10px; display:none;">
 
             <div class="modal-botones">
-                <button class="btn-guardar" onclick="guardarEdicionProducto()">Guardar</button>
-                <button class="btn-cancelar" onclick="cerrarModalProducto()">Cancelar</button>
+                <button class="btn-secundario" onclick="guardarEdicionProducto()">Guardar cambios</button>
+                <button class="btn-eliminar" onclick="cerrarModalEditarProducto()">Cancelar</button>
             </div>
         </div>
     </div>
 
     <script src="script.js"></script>
+
+    <script>
+        function inicializarProductos() {
+            const usuario = localStorage.getItem("loggedUser");
+            if (!usuario) {
+                location.href = "index.html";
+                return;
+            }
+
+            document.getElementById("usuario-log").textContent = usuario;
+            cargarProductos();
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem("loggedUser");
+            localStorage.removeItem("userRole");
+            location.href = "index.html";
+        }
+    </script>
+
 </body>
 </html>
