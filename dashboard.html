@@ -8,69 +8,189 @@
     <script src="js/core.js"></script>
 
     <style>
+        :root {
+            --bg: #f4f4f4;
+            --card: #ffffff;
+            --text: #222;
+            --accent: #3f51b5;
+            --danger: #d32f2f;
+        }
+
+        body.dark {
+            --bg: #121212;
+            --card: #1e1e1e;
+            --text: #f5f5f5;
+            --accent: #90caf9;
+            --danger: #ef5350;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            transition: background 0.3s, color 0.3s;
+        }
+
         .dashboard {
-            max-width: 1100px;
-            margin: 30px auto;
+            max-width: 1150px;
+            margin: 20px auto 40px;
             padding: 10px;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .top-bar h1 {
+            margin: 0;
+        }
+
+        .top-info {
+            text-align: right;
+            font-size: 14px;
+        }
+
+        .toggle-dark {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            background: var(--card);
+            color: var(--text);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .section-title {
+            margin-top: 25px;
+            margin-bottom: 8px;
+            font-size: 20px;
+            font-weight: bold;
         }
 
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
         }
 
         .kpi {
-            background: #f5f5f5;
-            padding: 18px;
+            background: var(--card);
+            padding: 14px;
             border-radius: 10px;
             text-align: center;
-            font-size: 18px;
-            font-weight: bold;
+            font-size: 15px;
+            font-weight: 600;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.15);
         }
 
         .kpi span {
             display: block;
-            font-size: 26px;
-            margin-top: 8px;
-            color: #333;
+            font-size: 22px;
+            margin-top: 6px;
         }
 
-        .section-title {
-            margin-top: 40px;
-            margin-bottom: 10px;
-            font-size: 22px;
-            font-weight: bold;
+        .kpi-small {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .kpi-area {
+            margin-top: 10px;
+            font-size: 13px;
+            opacity: 0.8;
         }
 
         .quick-links {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 10px;
         }
 
         .quick-links a {
             display: block;
-            padding: 14px;
-            background: #eaeaea;
+            padding: 12px;
+            background: var(--card);
             border-radius: 8px;
             text-align: center;
             text-decoration: none;
-            color: #333;
-            font-weight: bold;
+            color: var(--text);
+            font-weight: 600;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
         }
 
         .quick-links a:hover {
-            background: #dcdcdc;
+            background: var(--accent);
+            color: #fff;
         }
 
         .alerta {
             background: #ffe0e0;
-            padding: 12px;
-            border-left: 5px solid #d00;
-            margin-bottom: 10px;
+            padding: 10px;
+            border-left: 5px solid var(--danger);
+            margin-bottom: 8px;
             border-radius: 6px;
+            font-size: 14px;
+        }
+
+        body.dark .alerta {
+            background: #3b1f1f;
+        }
+
+        .alertas-criticas {
+            background: var(--card);
+            padding: 12px;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+        }
+
+        .chart-container {
+            background: var(--card);
+            padding: 14px;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+        }
+
+        .chart-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            height: 140px;
+            margin-top: 10px;
+        }
+
+        .bar {
+            flex: 1;
+            background: var(--accent);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+        }
+
+        .bar span {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        .bar-label {
+            text-align: center;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        @media (max-width: 600px) {
+            .top-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .top-info {
+                text-align: left;
+            }
         }
     </style>
 </head>
@@ -79,47 +199,106 @@
 
     <div class="dashboard">
 
-        <h1>Dashboard General</h1>
-        <p id="fechaHoy"></p>
-
-        <!-- ALERTAS -->
-        <div id="alertas"></div>
-
-        <!-- KPIs -->
-        <div class="section-title">Indicadores generales</div>
-        <div class="kpi-grid">
-            <div class="kpi">Ventas del día <span id="kpiVentasDia">-</span></div>
-            <div class="kpi">Ventas del mes <span id="kpiVentasMes">-</span></div>
-            <div class="kpi">Entregas pendientes <span id="kpiEntregasPendientes">-</span></div>
-            <div class="kpi">Productos con bajo stock <span id="kpiStockBajo">-</span></div>
-            <div class="kpi">Saldo de caja <span id="kpiCaja">-</span></div>
-            <div class="kpi">Eventos próximos <span id="kpiEventos">-</span></div>
+        <div class="top-bar">
+            <h1>Dashboard General</h1>
+            <div class="top-info">
+                <div id="fechaHoy"></div>
+                <div id="usuarioActual"></div>
+            </div>
+            <button class="toggle-dark" onclick="toggleDarkMode()">Modo oscuro</button>
         </div>
 
-        <!-- ACCESOS RÁPIDOS -->
+        <!-- ALERTAS CRÍTICAS -->
+        <div class="section-title">Alertas críticas</div>
+        <div class="alertas-criticas" id="alertas"></div>
+
+        <!-- KPIs GENERALES -->
+        <div class="section-title">Indicadores generales</div>
+        <div class="kpi-grid">
+            <div class="kpi">
+                Ventas del día
+                <span id="kpiVentasDia">-</span>
+                <div class="kpi-small" id="kpiVentasDiaCant"></div>
+            </div>
+            <div class="kpi">
+                Ventas del mes
+                <span id="kpiVentasMes">-</span>
+                <div class="kpi-small" id="kpiVentasMesCant"></div>
+            </div>
+            <div class="kpi">
+                Entregas pendientes
+                <span id="kpiEntregasPendientes">-</span>
+                <div class="kpi-area">Logística</div>
+            </div>
+            <div class="kpi">
+                Productos con bajo stock
+                <span id="kpiStockBajo">-</span>
+                <div class="kpi-area">Stock</div>
+            </div>
+            <div class="kpi">
+                Saldo de caja
+                <span id="kpiCaja">-</span>
+                <div class="kpi-area">Finanzas</div>
+            </div>
+            <div class="kpi">
+                Eventos próximos
+                <span id="kpiEventos">-</span>
+                <div class="kpi-area">Administración</div>
+            </div>
+        </div>
+
+        <!-- GRÁFICO SIMPLE DE VENTAS (ÚLTIMOS 5 DÍAS) -->
+        <div class="section-title">Ventas últimos días</div>
+        <div class="chart-container">
+            <div class="chart-bars" id="chartVentas"></div>
+            <div id="chartLabels" style="display:flex;justify-content:space-between;margin-top:4px;font-size:11px;"></div>
+        </div>
+
+        <!-- ACCESOS RÁPIDOS POR ÁREA -->
         <div class="section-title">Accesos rápidos</div>
         <div class="quick-links">
             <a href="ventas.html">Ventas</a>
+            <a href="clientes.html">Clientes</a>
+            <a href="cuentas-clientes.html">Cuentas Clientes</a>
+            <a href="logistica.html">Logística / Entregas</a>
+
             <a href="compras.html">Compras</a>
+            <a href="proveedores.html">Proveedores</a>
+            <a href="cuentas-proveedores.html">Cuentas Proveedores</a>
+
             <a href="productos.html">Productos</a>
+            <a href="precios.html">Precios</a>
             <a href="inventario.html">Inventario</a>
-            <a href="caja.html">Caja</a>
-            <a href="logistica.html">Logística</a>
             <a href="produccion.html">Producción</a>
-            <a href="agenda.html">Agenda</a>
+
+            <a href="caja.html">Caja / Tesorería</a>
             <a href="impuestos.html">Impuestos</a>
+
+            <a href="agenda.html">Agenda</a>
+            <a href="usuarios.html">Usuarios</a>
+            <a href="configuracion.html">Configuración</a>
+
             <a href="auditoria.html">Auditoría</a>
+            <a href="backups.html">Backups</a>
         </div>
 
     </div>
 
     <script>
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark");
+        }
+
         function cargarDashboard() {
+            const hoy = new Date();
             document.getElementById("fechaHoy").innerText =
-                "Hoy es " + new Date().toLocaleDateString("es-AR");
+                "Hoy es " + hoy.toLocaleDateString("es-AR");
+            document.getElementById("usuarioActual").innerText =
+                "Usuario: " + (localStorage.getItem("loggedUser") || "admin");
 
             cargarKPIs();
             cargarAlertas();
+            cargarGraficoVentas();
         }
 
         /* ============================
@@ -130,35 +309,31 @@
             const hoy = new Date().toISOString().split("T")[0];
             const mesActual = new Date().toISOString().slice(0, 7);
 
-            // Ventas del día
-            const ventasDia = ventas
-                .filter(v => v.fecha === hoy)
-                .reduce((acc, v) => acc + (v.total || 0), 0);
+            const ventasHoy = ventas.filter(v => v.fecha === hoy);
+            const ventasMes = ventas.filter(v => v.fecha && v.fecha.startsWith(mesActual));
 
-            // Ventas del mes
-            const ventasMes = ventas
-                .filter(v => v.fecha.startsWith(mesActual))
-                .reduce((acc, v) => acc + (v.total || 0), 0);
+            const totalDia = ventasHoy.reduce((acc, v) => acc + (v.total || 0), 0);
+            const totalMes = ventasMes.reduce((acc, v) => acc + (v.total || 0), 0);
 
-            // Entregas pendientes
             const entregasPendientes = getLogistica()
                 .filter(e => e.estado === "pendiente").length;
 
-            // Stock bajo
             const stockBajo = getData("productos")
                 .filter(p => p.stock !== undefined && p.stock < 5).length;
 
-            // Saldo de caja
             const caja = getCaja()
                 .reduce((acc, m) => acc + (m.tipo === "ingreso" ? m.monto : -m.monto), 0);
 
-            // Eventos próximos
             const eventos = getAgenda()
                 .filter(ev => ev.fecha >= hoy)
-                .slice(0, 5).length;
+                .slice(0, 10).length;
 
-            document.getElementById("kpiVentasDia").innerText = formatCurrency(ventasDia);
-            document.getElementById("kpiVentasMes").innerText = formatCurrency(ventasMes);
+            document.getElementById("kpiVentasDia").innerText = formatCurrency(totalDia);
+            document.getElementById("kpiVentasDiaCant").innerText = ventasHoy.length + " comprobantes";
+
+            document.getElementById("kpiVentasMes").innerText = formatCurrency(totalMes);
+            document.getElementById("kpiVentasMesCant").innerText = ventasMes.length + " comprobantes";
+
             document.getElementById("kpiEntregasPendientes").innerText = entregasPendientes;
             document.getElementById("kpiStockBajo").innerText = stockBajo;
             document.getElementById("kpiCaja").innerText = formatCurrency(caja);
@@ -172,35 +347,87 @@
             const alertas = [];
             const hoy = new Date().toISOString().split("T")[0];
 
-            // Stock bajo
             const stockBajo = getData("productos")
                 .filter(p => p.stock !== undefined && p.stock < 5);
             if (stockBajo.length > 0) {
-                alertas.push("Hay productos con bajo stock.");
+                alertas.push("Hay " + stockBajo.length + " productos con bajo stock.");
             }
 
-            // Entregas atrasadas
             const atrasadas = getLogistica()
                 .filter(e => e.estado !== "entregado" && e.fecha < hoy);
             if (atrasadas.length > 0) {
-                alertas.push("Hay entregas atrasadas.");
+                alertas.push("Hay " + atrasadas.length + " entregas atrasadas.");
             }
 
-            // Eventos del día
             const eventosHoy = getAgenda().filter(ev => ev.fecha === hoy);
             if (eventosHoy.length > 0) {
-                alertas.push("Tenés eventos programados para hoy.");
+                alertas.push("Tenés " + eventosHoy.length + " eventos programados para hoy.");
             }
 
-            // Mostrar alertas
+            const caja = getCaja()
+                .reduce((acc, m) => acc + (m.tipo === "ingreso" ? m.monto : -m.monto), 0);
+            if (caja < 0) {
+                alertas.push("Atención: el saldo de caja es negativo.");
+            }
+
             const cont = document.getElementById("alertas");
             cont.innerHTML = "";
+
+            if (alertas.length === 0) {
+                cont.innerHTML = "<div style='font-size:14px;opacity:0.8;'>Sin alertas críticas por el momento.</div>";
+                return;
+            }
 
             alertas.forEach(a => {
                 const div = document.createElement("div");
                 div.className = "alerta";
                 div.innerText = a;
                 cont.appendChild(div);
+            });
+        }
+
+        /* ============================
+           GRÁFICO SIMPLE DE VENTAS
+        ============================ */
+        function cargarGraficoVentas() {
+            const ventas = getData("ventas");
+            const hoy = new Date();
+            const dias = [];
+
+            for (let i = 4; i >= 0; i--) {
+                const d = new Date(hoy);
+                d.setDate(hoy.getDate() - i);
+                const clave = d.toISOString().split("T")[0];
+                const total = ventas
+                    .filter(v => v.fecha === clave)
+                    .reduce((acc, v) => acc + (v.total || 0), 0);
+                dias.push({ fecha: clave, total });
+            }
+
+            const max = Math.max(...dias.map(d => d.total), 1);
+
+            const chart = document.getElementById("chartVentas");
+            const labels = document.getElementById("chartLabels");
+            chart.innerHTML = "";
+            labels.innerHTML = "";
+
+            dias.forEach(d => {
+                const bar = document.createElement("div");
+                bar.className = "bar";
+                const altura = (d.total / max) * 100;
+                bar.style.height = (altura || 5) + "%";
+
+                const span = document.createElement("span");
+                span.innerText = d.total > 0 ? formatCurrency(d.total) : "";
+                bar.appendChild(span);
+
+                chart.appendChild(bar);
+
+                const lbl = document.createElement("div");
+                lbl.className = "bar-label";
+                const fechaObj = new Date(d.fecha);
+                lbl.innerText = fechaObj.toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit" });
+                labels.appendChild(lbl);
             });
         }
     </script>
