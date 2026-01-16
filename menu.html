@@ -3,60 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESPUMIN APP - Menú Principal</title>
+    <title>Menú Principal</title>
     <link rel="stylesheet" href="style.css">
-</head>
+    <script src="js/core.js"></script>
 
-<body onload="inicializarMenu()">
-
-    <!-- ============================
-         BANNER SUPERIOR
-    ============================= -->
-    <header class="banner">
-        <h1>Menú Principal</h1>
-        <button onclick="cerrarSesion()" class="btn-sesion">Cerrar sesión</button>
-    </header>
-
-    <!-- ============================
-         USUARIO LOGUEADO
-    ============================= -->
-    <section class="usuario-info">
-        <p>Bienvenido, <strong><span id="usuario-log"></span></strong></p>
-    </section>
-
-    <!-- ============================
-         CONTENEDOR PRINCIPAL
-    ============================= -->
-    <section class="contenedor" style="text-align:center;">
-
-        <h2>Seleccione una opción</h2>
-
-        <div class="menu-grid">
-
-            <a href="clientes.html" class="menu-btn">Clientes</a>
-            <a href="productos.html" class="menu-btn">Productos</a>
-            <a href="precios.html" class="menu-btn">Precios</a>
-            <a href="ventas.html" class="menu-btn">Ventas</a>
-            <a href="reportes.html" class="menu-btn">Reportes</a>
-
-        </div>
-
-    </section>
-
-    <script>
-        function inicializarMenu() {
-            const usuario = localStorage.getItem("loggedUser");
-            if (!usuario) {
-                location.href = "index.html";
-                return;
-            }
-            document.getElementById("usuario-log").textContent = usuario;
+    <style>
+        .menu-container {
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 20px;
         }
 
-        function cerrarSesion() {
-            localStorage.removeItem("loggedUser");
-            localStorage.removeItem("userRole");
-            location.href = "index.html";
+        .menu-section {
+            background: #f5f5f5;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .menu-header {
+            padding: 12px 16px;
+            background: #ddd;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-items {
+            display: none;
+            padding: 10px 16px;
+        }
+
+        .menu-items a {
+            display: block;
+            padding: 6px 0;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .menu-items a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body onload="protegerModulo();">
+
+    <div class="menu-container">
+        <h1>Menú Principal</h1>
+
+        <!-- VENTAS -->
+        <div class="menu-section">
+            <div class="menu-header" onclick="toggleMenu(this)">
+                Ventas <span>▼</span>
+            </div>
+            <div class="menu-items">
+                <a href="ventas.html">Ventas</a>
+                <a href="clientes.html">Clientes</a>
+                <a href="cuentas-clientes.html">Cuentas Clientes</a>
+                <a href="logistica.html">Logística / Entregas</a>
+            </div>
+        </div>
+
+        <!-- COMPRAS -->
+        <div class="menu-section">
+            <div class="menu-header" onclick="toggleMenu(this)">
+                Compras <span>▼</span>
+            </div>
+            <div class="menu-items">
+                <a href="compras.html">Compras</a>
+                <a href="proveedores.html">Proveedores</a>
+                <a href="cuentas-proveedores.html">Cuentas Proveedores</a>
+            </div>
+        </div>
+
+        <!-- STOCK -->
+        <div class="menu-section">
+            <div class="menu-header" onclick="toggleMenu(this)">
+                Stock <span>▼</span>
+            </div>
+            <div class="menu-items">
+                <a href="productos.html">Productos</a>
+                <a href="precios.html">Precios</a>
+                <a href="inventario.html">Inventario</a>
+                <a href="produccion.html">Producción</a>
+            </div>
+        </div>
+
+        <!-- FINANZAS -->
+        <div class="menu-section">
+            <div class="menu-header" onclick="toggleMenu(this)">
+                Finanzas <span>▼</span>
+            </div>
+            <div class="menu-items">
+                <a href="caja.html">Caja / Tesorería</a>
+                <a href="impuestos.html">Impuestos</a>
+            </div>
+        </div>
+
+        <!-- ADMINISTRACIÓN -->
+        <div class="menu-section">
+            <div class="menu-header" onclick="toggleMenu(this)">
+                Administración <span>▼</span>
+            </div>
+            <div class="menu-items">
+                <a href="agenda.html">Agenda</a>
+                <a href="usuarios.html">Usuarios</a>
+                <a href="configuracion.html">Configuración</a>
+            </div>
+        </div>
+
+        <!-- SISTEMA -->
+        <div class="menu-section">
+            <div class="menu-header" onclick="toggleMenu(this)">
+                Sistema <span>▼</span>
+            </div>
+            <div class="menu-items">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="auditoria.html">Auditoría</a>
+                <a href="backups.html">Backups</a>
+                <a href="index.html" onclick="logout()">Cerrar sesión</a>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function toggleMenu(header) {
+            const items = header.nextElementSibling;
+            const visible = items.style.display === "block";
+            items.style.display = visible ? "none" : "block";
         }
     </script>
 
