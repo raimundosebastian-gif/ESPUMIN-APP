@@ -30,21 +30,87 @@
     ============================= -->
     <section class="contenedor">
 
-        <h2>Modificar Precio</h2>
+        <h2>Precios registrados</h2>
 
-        <label>Producto</label>
-        <select id="precio-producto" class="input-box" onchange="mostrarPrecioActual()">
-            <option value="">Seleccione un producto</option>
-        </select>
+        <!-- Buscador -->
+        <input type="text" id="buscar-precio" placeholder="Buscar por producto..." oninput="filtrarPrecios()">
 
-        <div id="precio-actual" class="precio-actual"></div>
+        <!-- Botón crear -->
+        <button class="btn-primario" onclick="abrirModalNuevoPrecio()">+ Crear precio</button>
 
-        <label>Nuevo Precio</label>
-        <input id="precio-nuevo" type="number" step="0.01" placeholder="Nuevo precio" class="input-box">
-
-        <button onclick="guardarPrecio()" class="btn-guardar">Guardar Precio</button>
+        <!-- Tabla -->
+        <div id="lista-precios" style="margin-top:20px;"></div>
 
     </section>
+
+    <!-- ============================
+         MODAL NUEVO PRECIO
+    ============================= -->
+    <div id="modal-nuevo-precio" class="modal">
+        <div class="modal-contenido">
+            <h3>Nuevo precio</h3>
+
+            <label>Producto:</label>
+            <select id="nuevo-producto"></select>
+
+            <label>Precio:</label>
+            <input type="number" id="nuevo-precio" min="0">
+
+            <label>Fecha de vigencia:</label>
+            <input type="date" id="nuevo-fecha">
+
+            <label>Notas (opcional):</label>
+            <textarea id="nuevo-notas"></textarea>
+
+            <div class="modal-botones">
+                <button class="btn-secundario" onclick="guardarNuevoPrecio()">Guardar</button>
+                <button class="btn-eliminar" onclick="cerrarModalNuevoPrecio()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================
+         MODAL EDITAR PRECIO
+    ============================= -->
+    <div id="modal-editar-precio" class="modal">
+        <div class="modal-contenido">
+            <h3>Editar precio</h3>
+
+            <input type="hidden" id="edit-id">
+
+            <label>Producto:</label>
+            <select id="edit-producto"></select>
+
+            <label>Precio:</label>
+            <input type="number" id="edit-precio" min="0">
+
+            <label>Fecha de vigencia:</label>
+            <input type="date" id="edit-fecha">
+
+            <label>Notas:</label>
+            <textarea id="edit-notas"></textarea>
+
+            <div class="modal-botones">
+                <button class="btn-secundario" onclick="guardarEdicionPrecio()">Guardar cambios</button>
+                <button class="btn-eliminar" onclick="cerrarModalEditarPrecio()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================
+         MODAL HISTORIAL DE PRECIOS
+    ============================= -->
+    <div id="modal-historial" class="modal">
+        <div class="modal-contenido">
+            <h3>Historial de precios</h3>
+
+            <div id="tabla-historial"></div>
+
+            <div class="modal-botones">
+                <button class="btn-eliminar" onclick="cerrarModalHistorial()">Cerrar</button>
+            </div>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 
@@ -58,8 +124,14 @@
 
             document.getElementById("usuario-log").textContent = usuario;
 
-            cargarProductosEnPrecios();
-            mostrarPrecioActual();
+            cargarPrecios();
+            cargarProductosEnSelects();
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem("loggedUser");
+            localStorage.removeItem("userRole");
+            location.href = "index.html";
         }
     </script>
 
