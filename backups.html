@@ -2,137 +2,90 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Backups - ESPUMIN</title>
-
-    <!-- JSZip para exportar ZIP -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: linear-gradient(135deg, #007bff, #00c851);
-            color: white;
-            text-align: center;
-        }
-
-        .contenedor {
-            background: white;
-            color: #333;
-            padding: 25px;
-            border-radius: 12px;
-            max-width: 800px;
-            margin: auto;
-            box-shadow: 0 0 12px rgba(0,0,0,0.25);
-        }
-
-        h1 {
-            margin-bottom: 20px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-
-        th, td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        th {
-            background: #007bff;
-            color: white;
-        }
-
-        tr:hover {
-            background: #f1f1f1;
-        }
-
-        .btn {
-            padding: 10px 18px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            margin: 5px;
-        }
-
-        .btn-azul { background: #007bff; color: white; }
-        .btn-verde { background: #00c851; color: white; }
-        .btn-rojo { background: #ff4444; color: white; }
-        .btn-volver { background: #444; color: white; margin-top: 20px; }
-
-        /* Modal */
-        #modal-confirmacion {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
-            display: none;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-contenido {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            width: 350px;
-            text-align: center;
-            color: #333;
-            box-shadow: 0 0 12px rgba(0,0,0,0.3);
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESPUMIN APP - Backups</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
+<body onload="inicializarBackups()">
 
-<div class="contenedor">
-    <h1>Backups del Sistema</h1>
+    <!-- ============================
+         BANNER SUPERIOR
+    ============================= -->
+    <header class="banner">
+        <h1>Gestión de Backups</h1>
+        <a href="menu.html" class="btn-volver">Volver al Menú</a>
+    </header>
 
-    <button onclick="descargarBackup()" class="btn btn-verde">Descargar Backup Actual</button>
+    <!-- ============================
+         USUARIO LOGUEADO
+    ============================= -->
+    <section class="usuario-info">
+        <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
+        <button onclick="cerrarSesion()" class="btn-sesion">Cerrar sesión</button>
+    </section>
 
-    <button onclick="descargarZipBackups()" class="btn btn-verde">
-        Descargar ZIP (todos los backups)
-    </button>
+    <!-- ============================
+         CONTENEDOR PRINCIPAL
+    ============================= -->
+    <section class="contenedor">
 
-    <h2>Historial de Backups</h2>
+        <h2>Backups del sistema</h2>
 
-    <table id="tabla-backups">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Fecha</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+        <!-- Botones principales -->
+        <button class="btn-primario" onclick="crearBackup()">+ Crear backup</button>
 
-    <button onclick="window.location.href='menu.html'" class="btn btn-volver">Volver al menú</button>
-</div>
+        <div id="lista-backups" style="margin-top:20px;"></div>
 
-<!-- Modal -->
-<div id="modal-confirmacion">
-    <div class="modal-contenido">
-        <h3>¿Restaurar este backup?</h3>
-        <p>Se reemplazarán todos los datos actuales.</p>
+    </section>
 
-        <button id="btn-confirmar" class="btn btn-verde">Sí, restaurar</button>
-        <button onclick="cerrarModal()" class="btn btn-rojo">Cancelar</button>
+    <!-- ============================
+         MODAL CONFIRMAR RESTAURACIÓN
+    ============================= -->
+    <div id="modal-restaurar" class="modal">
+        <div class="modal-contenido">
+            <h3>Restaurar backup</h3>
+
+            <p>¿Estás seguro de que querés restaurar este backup?</p>
+            <p><strong>Se reemplazarán todos los datos actuales del sistema.</strong></p>
+
+            <input type="hidden" id="restore-id">
+
+            <div class="modal-botones">
+                <button class="btn-secundario" onclick="confirmarRestauracion()">Restaurar</button>
+                <button class="btn-eliminar" onclick="cerrarModalRestaurar()">Cancelar</button>
+            </div>
+        </div>
     </div>
-</div>
 
-<script src="script.js"></script>
+    <script src="script.js"></script>
 
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        mostrarBackups();
-    });
-</script>
+    <script>
+        function inicializarBackups() {
+            const usuario = localStorage.getItem("loggedUser");
+            const rol = localStorage.getItem("userRole");
+
+            if (!usuario) {
+                location.href = "index.html";
+                return;
+            }
+
+            if (rol !== "Admin") {
+                alert("Acceso denegado. Solo un administrador puede gestionar backups.");
+                location.href = "menu.html";
+                return;
+            }
+
+            document.getElementById("usuario-log").textContent = usuario;
+            cargarBackups();
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem("loggedUser");
+            localStorage.removeItem("userRole");
+            location.href = "index.html";
+        }
+    </script>
 
 </body>
 </html>
