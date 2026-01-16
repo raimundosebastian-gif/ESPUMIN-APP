@@ -3,22 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESPUMIN - Login</title>
+    <title>ESPUMIN - Ingreso</title>
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-    <div class="login-container">
-        <h1>ESPUMIN</h1>
+    <main class="modulo-container" style="max-width: 400px; margin-top: 80px; text-align: center;">
+        <h1>ESPUMIN ERP</h1>
+        <h3>Ingreso al sistema</h3>
 
-        <input type="text" id="usuario" placeholder="Usuario">
-        <input type="password" id="clave" placeholder="Contraseña">
+        <section class="form-section">
+            <label>Usuario</label>
+            <input type="text" id="usuario" placeholder="Ingrese usuario">
 
-        <button id="btnLogin">Ingresar</button>
-    </div>
+            <label>Clave</label>
+            <input type="password" id="clave" placeholder="Ingrese clave">
 
-    <!-- Scripts del sistema -->
+            <button id="loginBtn">Ingresar</button>
+        </section>
+    </main>
+
     <script src="js/core.js"></script>
     <script src="js/login.js"></script>
 
