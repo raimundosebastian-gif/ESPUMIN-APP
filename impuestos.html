@@ -3,87 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Impuestos / IVA / Retenciones</title>
+    <title>ESPUMIN - Impuestos</title>
     <link rel="stylesheet" href="style.css">
-    <script src="js/core.js"></script>
 </head>
+<body>
 
-<body onload="protegerModulo(); cargarImpuestos();">
+    <!-- Menú -->
+    <div id="menu-container"></div>
 
-    <!-- ENCABEZADO -->
-    <header class="header">
-        <h1>Impuestos / IVA / Retenciones</h1>
-        <button class="btn-primary" onclick="abrirModal()">Nuevo registro</button>
-    </header>
+    <main class="modulo-container">
+        <h1>Impuestos</h1>
 
-    <!-- TABLA -->
-    <section class="tabla-contenedor">
-        <table>
-            <thead>
-                <tr>
-                    <th>Fecha</th>
-                    <th>Tipo</th>
-                    <th>Descripción</th>
-                    <th>Tasa (%)</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody id="tablaImpuestos"></tbody>
-        </table>
-    </section>
+        <!-- Formulario -->
+        <section class="form-section">
+            <input type="hidden" id="id">
 
-    <!-- MODAL -->
-    <div id="modalImpuestos" class="modal">
-        <div class="modal-contenido">
-            <h2 id="modalTitulo">Nuevo registro</h2>
+            <label>Tipo de impuesto</label>
+            <input type="text" id="tipo" placeholder="Ej: IVA, Ingresos Brutos">
 
-            <input type="hidden" id="impId">
+            <label>Monto ($)</label>
+            <input type="number" id="monto" placeholder="Ej: 12000">
 
-            <label>Fecha</label>
-            <input type="date" id="impFecha">
+            <label>Fecha de vencimiento</label>
+            <input type="date" id="vencimiento">
 
-            <label>Tipo</label>
-            <select id="impTipo">
-                <option value="iva">IVA</option>
-                <option value="percepcion">Percepción</option>
-                <option value="retencion">Retención</option>
+            <label>Estado</label>
+            <select id="estado">
+                <option value="Pendiente">Pendiente</option>
+                <option value="Pagado">Pagado</option>
             </select>
 
-            <label>Descripción</label>
-            <input type="text" id="impDescripcion">
+            <button id="guardarBtn">Guardar</button>
+            <button id="cancelarBtn" class="btn-secundario">Cancelar</button>
+        </section>
 
-            <label>Tasa (%)</label>
-            <input type="number" id="impTasa" min="0" step="0.01">
+        <!-- Tabla -->
+        <section class="tabla-section">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Impuesto</th>
+                        <th>Monto</th>
+                        <th>Vencimiento</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaImpuestos"></tbody>
+            </table>
+        </section>
+    </main>
 
-            <div class="modal-botones">
-                <button class="btn-primary" onclick="guardarImpuesto()">Guardar</button>
-                <button class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
-            </div>
-        </div>
-    </div>
-
+    <script src="js/core.js"></script>
     <script>
-        /* ============================
-           CARGA DE TABLA
-        ============================ */
-        function cargarImpuestos() {
-            const registros = getImpuestos();
+        protegerModulo();
+
+        // Cargar menú
+        fetch("menu.html")
+            .then(r => r.text())
+            .then(html => document.getElementById("menu-container").innerHTML = html);
+
+        // Renderizar tabla
+        function cargarTabla() {
+            const impuestos = getData("impuestos");
             const tbody = document.getElementById("tablaImpuestos");
             tbody.innerHTML = "";
 
-            registros.sort((a, b) => a.fecha.localeCompare(b.fecha));
-
-            registros.forEach(r => {
+            impuestos.forEach(imp => {
                 const tr = document.createElement("tr");
 
                 tr.innerHTML = `
-                    <td>${formatDate(r.fecha)}</td>
-                    <td>${formatearTipo(r.tipo)}</td>
-                    <td>${r.descripcion}</td>
-                    <td>${r.tasa}%</td>
+                    <td>${imp.tipo}</td>
+                    <td>$ ${imp.monto}</td>
+                    <td>${formatDate(imp.vencimiento)}</td>
+                    <td>${imp.estado}</td>
                     <td>
-                        <button class="btn-small" onclick="editarImpuesto(${r.id})">✏️</button>
-                        <button class="btn-small btn-danger" onclick="eliminarImpuesto(${r.id})">🗑️</button>
+                        <button onclick="editar('${imp.id}')">Editar</button>
+                        <button onclick="eliminar('${imp.id}')" class="btn-eliminar">Eliminar</button>
                     </td>
                 `;
 
@@ -91,85 +87,85 @@
             });
         }
 
-        function formatearTipo(tipo) {
-            switch (tipo) {
-                case "iva": return "IVA";
-                case "percepcion": return "Percepción";
-                case "retencion": return "Retención";
-                default: return tipo;
-            }
-        }
+        // Guardar impuesto
+        document.getElementById("guardarBtn").addEventListener("click", () => {
+            const id = document.getElementById("id").value;
+            const tipo = document.getElementById("tipo").value.trim();
+            const monto = Number(document.getElementById("monto").value);
+            const vencimiento = document.getElementById("vencimiento").value;
+            const estado = document.getElementById("estado").value;
 
-        /* ============================
-           MODAL
-        ============================ */
-        function abrirModal() {
-            document.getElementById("modalImpuestos").style.display = "flex";
-            document.getElementById("modalTitulo").innerText = "Nuevo registro";
-
-            document.getElementById("impId").value = "";
-            document.getElementById("impFecha").value = new Date().toISOString().split("T")[0];
-            document.getElementById("impTipo").value = "iva";
-            document.getElementById("impDescripcion").value = "";
-            document.getElementById("impTasa").value = "";
-        }
-
-        function cerrarModal() {
-            document.getElementById("modalImpuestos").style.display = "none";
-        }
-
-        /* ============================
-           CRUD
-        ============================ */
-        function guardarImpuesto() {
-            const id = document.getElementById("impId").value;
-            const fecha = document.getElementById("impFecha").value;
-            const tipo = document.getElementById("impTipo").value;
-            const descripcion = document.getElementById("impDescripcion").value;
-            const tasa = parseFloat(document.getElementById("impTasa").value);
-
-            if (!validarCampos([fecha, tipo, descripcion, tasa])) {
-                alert("Todos los campos obligatorios deben estar completos.");
+            if (!tipo || monto <= 0 || !vencimiento) {
+                alert("Complete todos los campos");
                 return;
             }
 
-            const registro = {
-                id: id || generarID(),
-                fecha,
-                tipo,
-                descripcion,
-                tasa
-            };
+            let impuestos = getData("impuestos");
 
             if (id) {
-                updateImpuesto(parseInt(id), registro);
+                // Editar
+                const imp = impuestos.find(i => i.id === id);
+                imp.tipo = tipo;
+                imp.monto = monto;
+                imp.vencimiento = vencimiento;
+                imp.estado = estado;
+
+                registrarAuditoria("Impuestos", "Edición", `Editó ${tipo}`);
             } else {
-                addImpuesto(registro);
+                // Nuevo
+                impuestos.push({
+                    id: generarID(),
+                    tipo,
+                    monto,
+                    vencimiento,
+                    estado
+                });
+
+                registrarAuditoria("Impuestos", "Alta", `Registró ${tipo}`);
             }
 
-            cerrarModal();
-            cargarImpuestos();
+            setData("impuestos", impuestos);
+            limpiarFormulario();
+            cargarTabla();
+        });
+
+        // Editar
+        function editar(id) {
+            const imp = getData("impuestos").find(i => i.id === id);
+            document.getElementById("id").value = imp.id;
+            document.getElementById("tipo").value = imp.tipo;
+            document.getElementById("monto").value = imp.monto;
+            document.getElementById("vencimiento").value = imp.vencimiento;
+            document.getElementById("estado").value = imp.estado;
         }
 
-        function editarImpuesto(id) {
-            const r = getImpuestos().find(x => x.id === id);
+        // Eliminar
+        function eliminar(id) {
+            if (!confirm("¿Eliminar impuesto?")) return;
 
-            abrirModal();
-            document.getElementById("modalTitulo").innerText = "Editar registro";
+            let impuestos = getData("impuestos");
+            const imp = impuestos.find(i => i.id === id);
 
-            document.getElementById("impId").value = r.id;
-            document.getElementById("impFecha").value = r.fecha;
-            document.getElementById("impTipo").value = r.tipo;
-            document.getElementById("impDescripcion").value = r.descripcion;
-            document.getElementById("impTasa").value = r.tasa;
+            impuestos = impuestos.filter(i => i.id !== id);
+            setData("impuestos", impuestos);
+
+            registrarAuditoria("Impuestos", "Baja", `Eliminó ${imp.tipo}`);
+
+            cargarTabla();
         }
 
-        function eliminarImpuesto(id) {
-            if (confirm("¿Eliminar este registro?")) {
-                deleteImpuesto(id);
-                cargarImpuestos();
-            }
+        // Cancelar
+        document.getElementById("cancelarBtn").addEventListener("click", limpiarFormulario);
+
+        function limpiarFormulario() {
+            document.getElementById("id").value = "";
+            document.getElementById("tipo").value = "";
+            document.getElementById("monto").value = "";
+            document.getElementById("vencimiento").value = "";
         }
+
+        // Inicializar
+        cargarTabla();
     </script>
 
 </body>
