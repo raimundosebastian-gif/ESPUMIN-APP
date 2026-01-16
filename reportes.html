@@ -3,178 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESPUMIN APP - Reportes</title>
+    <title>ESPUMIN - Reportes</title>
     <link rel="stylesheet" href="style.css">
 </head>
+<body>
 
-<body onload="inicializarReportes()">
+    <!-- Menú -->
+    <div id="menu-container"></div>
 
-    <!-- ============================
-         BANNER SUPERIOR
-    ============================= -->
-    <header class="banner">
-        <h1>Reportes</h1>
-        <a href="menu.html" class="btn-volver">Volver al Menú</a>
-    </header>
+    <main class="modulo-container">
+        <h1>Reportes del Sistema</h1>
 
-    <!-- ============================
-         USUARIO LOGUEADO
-    ============================= -->
-    <section class="usuario-info">
-        <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
-        <button onclick="cerrarSesion()" class="btn-sesion">Cerrar sesión</button>
-    </section>
+        <!-- Selector -->
+        <section class="form-section">
+            <label>Seleccionar reporte</label>
+            <select id="tipoReporte">
+                <option value="ventas">Ventas</option>
+                <option value="compras">Compras</option>
+                <option value="produccion">Producción</option>
+                <option value="caja">Caja</option>
+                <option value="inventario">Inventario</option>
+                <option value="cuentasClientes">Cuentas Clientes</option>
+                <option value="cuentasProveedores">Cuentas Proveedores</option>
+            </select>
 
-    <!-- ============================
-         CONTENEDOR PRINCIPAL
-    ============================= -->
-    <section class="contenedor">
+            <button id="generarBtn">Generar</button>
+        </section>
 
-        <!-- Resumen general -->
-        <div class="seccion">
-            <h3>Resumen general</h3>
-            <div id="reporte-ventas"></div>
-        </div>
+        <!-- Tabla -->
+        <section class="tabla-section">
+            <table>
+                <thead id="thead"></thead>
+                <tbody id="tbody"></tbody>
+            </table>
+        </section>
+    </main>
 
-        <!-- Reporte por cliente -->
-        <div class="seccion">
-            <h3>Ventas por cliente</h3>
-            <div id="reporte-clientes"></div>
-        </div>
-
-        <!-- Reporte por producto -->
-        <div class="seccion">
-            <h3>Ventas por producto</h3>
-            <div id="reporte-productos"></div>
-        </div>
-
-        <!-- Reporte mensual -->
-        <div class="seccion">
-            <h3>Reporte mensual</h3>
-            <div class="filtros">
-                <label>Mes:</label>
-                <select id="mes-mensual">
-                    <option value="1">01</option><option value="2">02</option>
-                    <option value="3">03</option><option value="4">04</option>
-                    <option value="5">05</option><option value="6">06</option>
-                    <option value="7">07</option><option value="8">08</option>
-                    <option value="9">09</option><option value="10">10</option>
-                    <option value="11">11</option><option value="12">12</option>
-                </select>
-
-                <label>Año:</label>
-                <input type="number" id="anio-mensual" class="input-peq">
-
-                <button class="btn-primario" onclick="ejecutarReporteMensual()">Ver</button>
-            </div>
-            <div id="reporte-mensual"></div>
-        </div>
-
-        <!-- Reporte anual -->
-        <div class="seccion">
-            <h3>Reporte anual</h3>
-            <div class="filtros">
-                <label>Año:</label>
-                <input type="number" id="anio-anual" class="input-peq">
-                <button class="btn-primario" onclick="ejecutarReporteAnual()">Ver</button>
-            </div>
-            <div id="reporte-anual"></div>
-        </div>
-
-        <!-- Reporte por rango -->
-        <div class="seccion">
-            <h3>Reporte por rango de fechas</h3>
-            <div class="filtros">
-                <label>Desde:</label>
-                <input type="date" id="desde-rango">
-                <label>Hasta:</label>
-                <input type="date" id="hasta-rango">
-                <button class="btn-primario" onclick="ejecutarReporteRango()">Ver</button>
-            </div>
-            <div id="reporte-rango"></div>
-        </div>
-
-        <!-- Reporte por categoría -->
-        <div class="seccion">
-            <h3>Ventas por categoría</h3>
-            <div id="reporte-categorias"></div>
-        </div>
-
-        <!-- Reporte por usuario -->
-        <div class="seccion">
-            <h3>Ventas por usuario</h3>
-            <div id="reporte-usuarios"></div>
-        </div>
-
-        <!-- Exportaciones -->
-        <div class="seccion">
-            <h3>Exportar reportes</h3>
-            <div class="acciones-export">
-                <button class="btn-secundario" onclick="exportarCSV('reporte_general', generarCSVGeneral())">
-                    Exportar resumen general a CSV
-                </button>
-                <button class="btn-secundario" onclick="exportarPDF()">
-                    Exportar vista actual a PDF
-                </button>
-            </div>
-        </div>
-
-    </section>
-
-    <script src="script.js"></script>
-
+    <script src="js/core.js"></script>
     <script>
-        function inicializarReportes() {
-            const usuario = localStorage.getItem("loggedUser");
-            if (!usuario) {
-                location.href = "index.html";
-                return;
-            }
+        protegerModulo();
 
-            document.getElementById("usuario-log").textContent = usuario;
+        // Cargar menú
+        fetch("menu.html")
+            .then(r => r.text())
+            .then(html => document.getElementById("menu-container").innerHTML = html);
 
-            generarReporteVentas();
-            generarReporteClientes();
-            generarReporteProductos();
-            generarReportePorCategoria();
-            generarReportePorUsuario();
+        // Configuración de columnas por reporte
+        const columnas = {
+            ventas: ["Fecha", "Cliente", "Producto", "Cantidad", "Total"],
+            compras: ["Fecha", "Proveedor", "Producto", "Cantidad", "Total"],
+            produccion: ["Producto", "Cantidad", "Fecha", "Estado"],
+            caja: ["Fecha", "Tipo", "Monto", "Detalle"],
+            inventario: ["Producto", "Stock"],
+            cuentasClientes: ["Fecha", "Cliente", "Monto", "Detalle"],
+            cuentasProveedores: ["Fecha", "Proveedor", "Monto", "Detalle"]
+        };
+
+        // Generar reporte
+        document.getElementById("generarBtn").addEventListener("click", () => {
+            const tipo = document.getElementById("tipoReporte").value;
+            const data = getData(tipo);
+
+            cargarEncabezado(tipo);
+            cargarCuerpo(tipo, data);
+
+            registrarAuditoria("Reportes", "Consulta", `Generó reporte: ${tipo}`);
+        });
+
+        // Encabezado dinámico
+        function cargarEncabezado(tipo) {
+            const thead = document.getElementById("thead");
+            thead.innerHTML = "";
+
+            const tr = document.createElement("tr");
+            columnas[tipo].forEach(col => {
+                const th = document.createElement("th");
+                th.textContent = col;
+                tr.appendChild(th);
+            });
+
+            thead.appendChild(tr);
         }
 
-        function ejecutarReporteMensual() {
-            const mes = parseInt(document.getElementById("mes-mensual").value);
-            const anio = parseInt(document.getElementById("anio-mensual").value);
-            if (!anio) {
-                alert("Ingrese un año válido.");
-                return;
-            }
-            generarReporteMensual(mes, anio);
-        }
+        // Cuerpo dinámico
+        function cargarCuerpo(tipo, data) {
+            const tbody = document.getElementById("tbody");
+            tbody.innerHTML = "";
 
-        function ejecutarReporteAnual() {
-            const anio = parseInt(document.getElementById("anio-anual").value);
-            if (!anio) {
-                alert("Ingrese un año válido.");
-                return;
-            }
-            generarReporteAnual(anio);
-        }
+            data.forEach(item => {
+                const tr = document.createElement("tr");
 
-        function ejecutarReporteRango() {
-            const desde = document.getElementById("desde-rango").value;
-            const hasta = document.getElementById("hasta-rango").value;
-            if (!desde || !hasta) {
-                alert("Complete ambas fechas.");
-                return;
-            }
-            generarReporteRango(desde, hasta);
-        }
+                switch (tipo) {
+                    case "ventas":
+                        tr.innerHTML = `
+                            <td>${formatDate(item.fecha)}</td>
+                            <td>${item.cliente}</td>
+                            <td>${item.producto}</td>
+                            <td>${item.cantidad}</td>
+                            <td>$ ${item.total}</td>
+                        `;
+                        break;
 
-        function generarCSVGeneral() {
-            const ventas = obtenerVentas();
-            if (!ventas.length) return "Concepto;Monto\nTotal facturado;0";
+                    case "compras":
+                        tr.innerHTML = `
+                            <td>${formatDate(item.fecha)}</td>
+                            <td>${item.proveedor}</td>
+                            <td>${item.producto}</td>
+                            <td>${item.cantidad}</td>
+                            <td>$ ${item.total}</td>
+                        `;
+                        break;
 
-            const total = ventas.reduce((sum, v) => sum + v.total, 0);
-            return "Concepto;Monto\nTotal facturado;" + total + "\n";
+                    case "produccion":
+                        tr.innerHTML = `
+                            <td>${item.producto}</td>
+                            <td>${item.cantidad}</td>
+                            <td>${formatDate(item.fecha)}</td>
+                            <td>${item.estado}</td>
+                        `;
+                        break;
+
+                    case "caja":
+                        tr.innerHTML = `
+                            <td>${formatDate(item.fecha)}</td>
+                            <td>${item.tipo}</td>
+                            <td>$ ${item.monto}</td>
+                            <td>${item.detalle}</td>
+                        `;
+                        break;
+
+                    case "inventario":
+                        tr.innerHTML = `
+                            <td>${item.producto}</td>
+                            <td>${item.stock}</td>
+                        `;
+                        break;
+
+                    case "cuentasClientes":
+                        tr.innerHTML = `
+                            <td>${formatDate(item.fecha)}</td>
+                            <td>${item.cliente}</td>
+                            <td>$ ${item.monto}</td>
+                            <td>${item.detalle}</td>
+                        `;
+                        break;
+
+                    case "cuentasProveedores":
+                        tr.innerHTML = `
+                            <td>${formatDate(item.fecha)}</td>
+                            <td>${item.proveedor}</td>
+                            <td>$ ${item.monto}</td>
+                            <td>${item.detalle}</td>
+                        `;
+                        break;
+                }
+
+                tbody.appendChild(tr);
+            });
         }
     </script>
 
