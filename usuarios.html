@@ -1,122 +1,202 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESPUMIN - Acceso</title>
-    <link rel="stylesheet" href="style.css">
+/* ============================================================
+   USUARIOS — MÓDULO PROFESIONAL Y UNIFICADO
+============================================================ */
 
-    <style>
-        /* Fondo general */
-        body {
-            background: linear-gradient(135deg, #4CAF50, #2E7D32);
-            height: 100vh;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+/* Usuario raíz protegido */
+const USUARIO_RAIZ = {
+    usuario: "EU",
+    password: "Villatia1974",
+    rol: "Admin",
+    estado: "Activo"
+};
 
-        /* Caja de login */
-        .login-container {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            width: 330px;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-        }
+/* Obtener usuarios */
+function obtenerUsuarios() {
+    let lista = JSON.parse(localStorage.getItem("usuarios")) || [];
 
-        .login-container h2 {
-            margin-bottom: 20px;
-            color: #2E7D32;
-        }
+    // Si el usuario raíz no existe, lo creamos
+    const existeRaiz = lista.some(u => u.usuario === USUARIO_RAIZ.usuario);
 
-        .login-input {
-            width: 90%;
-            padding: 10px;
-            margin: 8px 0;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-        }
+    if (!existeRaiz) {
+        lista.push(USUARIO_RAIZ);
+        localStorage.setItem("usuarios", JSON.stringify(lista));
+    }
 
-        .login-btn {
-            width: 95%;
-            padding: 10px;
-            background: #2E7D32;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-top: 10px;
-            font-weight: bold;
-        }
+    return lista;
+}
 
-        .login-btn:hover {
-            background: #1B5E20;
-        }
+/* Guardar usuarios */
+function guardarUsuarios(lista) {
+    localStorage.setItem("usuarios", JSON.stringify(lista));
+}
 
-        #loginError {
-            color: red;
-            margin-top: 10px;
-            display: none;
-        }
-    </style>
-</head>
+/* ============================================================
+   LISTAR USUARIOS
+============================================================ */
 
-<body>
+function cargarUsuarios() {
+    const cont = document.getElementById("lista-usuarios");
+    if (!cont) return;
 
-    <div class="login-container">
-        <h2>ESPUMIN - Acceso</h2>
+    const usuarios = obtenerUsuarios();
 
-        <form id="loginForm">
-            <input type="text" id="username" class="login-input" placeholder="Usuario" required>
-            <input type="password" id="password" class="login-input" placeholder="Contraseña" required>
-            <button type="submit" class="login-btn">Ingresar</button>
-        </form>
+    if (usuarios.length === 0) {
+        cont.innerHTML = "<p>No hay usuarios registrados.</p>";
+        return;
+    }
 
-        <p id="loginError">Usuario o contraseña incorrectos</p>
-    </div>
+    let html = `
+        <table>
+            <tr>
+                <th>Usuario</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+    `;
 
-    <script src="script.js"></script>
+    usuarios.forEach(u => {
+        const esRaiz = u.usuario === USUARIO_RAIZ.usuario;
 
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const form = document.getElementById("loginForm");
-            const error = document.getElementById("loginError");
+        html += `
+            <tr>
+                <td>${u.usuario}</td>
+                <td>${u.rol}</td>
+                <td>${u.estado}</td>
+                <td>
+                    <button class="btn-editar" onclick="abrirModalEditarUsuario('${u.usuario}')">Editar</button>
+                    ${esRaiz ? "" : `<button class="btn-eliminar" onclick="eliminarUsuario('${u.usuario}')">Eliminar</button>`}
+                </td>
+            </tr>
+        `;
+    });
 
-            if (error) error.style.display = "none";
+    html += "</table>";
+    cont.innerHTML = html;
+}
 
-            form.addEventListener("submit", function (event) {
-                event.preventDefault();
+/* ============================================================
+   NUEVO USUARIO
+============================================================ */
 
-                const usuario = document.getElementById("username").value.trim();
-                const password = document.getElementById("password").value.trim();
+function abrirModalNuevoUsuario() {
+    document.getElementById("modal-nuevo").style.display = "flex";
+}
 
-                if (!usuario || !password) {
-                    alert("Completa usuario y contraseña.");
-                    return;
-                }
+function cerrarModalNuevoUsuario() {
+    document.getElementById("modal-nuevo").style.display = "none";
+}
 
-                const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+function guardarNuevoUsuario() {
+    const usuario = document.getElementById("nuevo-usuario").value.trim();
+    const password = document.getElementById("nuevo-password").value.trim();
+    const rol = document.getElementById("nuevo-rol").value;
 
-                const encontrado = usuarios.find(u =>
-                    u.usuario.toLowerCase() === usuario.toLowerCase() &&
-                    u.password === password
-                );
+    if (!usuario || !password) {
+        alert("Complete todos los campos.");
+        return;
+    }
 
-                if (!encontrado) {
-                    error.style.display = "block";
-                    return;
-                }
+    let usuarios = obtenerUsuarios();
 
-                localStorage.setItem("loggedUser", encontrado.usuario);
-                localStorage.setItem("userRole", encontrado.rol);
+    if (usuarios.some(u => u.usuario.toLowerCase() === usuario.toLowerCase())) {
+        alert("Ese usuario ya existe.");
+        return;
+    }
 
-                window.location.href = "menu.html";
-            });
-        });
-    </script>
+    usuarios.push({
+        usuario,
+        password,
+        rol,
+        estado: "Activo"
+    });
 
-</body>
-</html>
+    guardarUsuarios(usuarios);
+    cerrarModalNuevoUsuario();
+    cargarUsuarios();
+    alert("Usuario creado correctamente.");
+}
+
+/* ============================================================
+   EDITAR USUARIO
+============================================================ */
+
+function abrirModalEditarUsuario(usuario) {
+    const usuarios = obtenerUsuarios();
+    const u = usuarios.find(x => x.usuario === usuario);
+
+    if (!u) return;
+
+    document.getElementById("edit-id").value = u.usuario;
+    document.getElementById("edit-usuario").value = u.usuario;
+    document.getElementById("edit-password").value = "";
+    document.getElementById("edit-rol").value = u.rol;
+    document.getElementById("edit-estado").value = u.estado;
+
+    // Proteger usuario raíz
+    if (u.usuario === USUARIO_RAIZ.usuario) {
+        document.getElementById("edit-rol").disabled = true;
+        document.getElementById("edit-estado").disabled = true;
+    } else {
+        document.getElementById("edit-rol").disabled = false;
+        document.getElementById("edit-estado").disabled = false;
+    }
+
+    document.getElementById("modal-editar").style.display = "flex";
+}
+
+function cerrarModalEditarUsuario() {
+    document.getElementById("modal-editar").style.display = "none";
+}
+
+function guardarEdicionUsuario() {
+    const id = document.getElementById("edit-id").value;
+    const usuarioNuevo = document.getElementById("edit-usuario").value.trim();
+    const passwordNuevo = document.getElementById("edit-password").value.trim();
+    const rolNuevo = document.getElementById("edit-rol").value;
+    const estadoNuevo = document.getElementById("edit-estado").value;
+
+    let usuarios = obtenerUsuarios();
+    let u = usuarios.find(x => x.usuario === id);
+
+    if (!u) return;
+
+    // Proteger usuario raíz
+    if (u.usuario === USUARIO_RAIZ.usuario) {
+        u.usuario = USUARIO_RAIZ.usuario; // No permitir cambiar nombre
+        u.rol = "Admin";
+        u.estado = "Activo";
+    } else {
+        u.usuario = usuarioNuevo;
+        u.rol = rolNuevo;
+        u.estado = estadoNuevo;
+    }
+
+    if (passwordNuevo) {
+        u.password = passwordNuevo;
+    }
+
+    guardarUsuarios(usuarios);
+    cerrarModalEditarUsuario();
+    cargarUsuarios();
+    alert("Usuario actualizado correctamente.");
+}
+
+/* ============================================================
+   ELIMINAR USUARIO
+============================================================ */
+
+function eliminarUsuario(usuario) {
+    if (usuario === USUARIO_RAIZ.usuario) {
+        alert("El usuario raíz no puede ser eliminado.");
+        return;
+    }
+
+    if (!confirm("¿Eliminar este usuario?")) return;
+
+    let usuarios = obtenerUsuarios();
+    usuarios = usuarios.filter(u => u.usuario !== usuario);
+
+    guardarUsuarios(usuarios);
+    cargarUsuarios();
+}
