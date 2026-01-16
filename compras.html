@@ -18,19 +18,19 @@
         <section class="form-section">
             <input type="hidden" id="id">
 
-            <label>Proveedor</label>
+            <label for="proveedor">Proveedor</label>
             <select id="proveedor"></select>
 
-            <label>Producto</label>
+            <label for="producto">Producto</label>
             <select id="producto"></select>
 
-            <label>Cantidad</label>
+            <label for="cantidad">Cantidad</label>
             <input type="number" id="cantidad" min="1" placeholder="Ej: 10">
 
-            <label>Precio unitario ($)</label>
+            <label for="precio">Precio unitario ($)</label>
             <input type="number" id="precio" placeholder="Ej: 800">
 
-            <label>Total ($)</label>
+            <label for="total">Total ($)</label>
             <input type="number" id="total" readonly>
 
             <button id="guardarBtn">Registrar Compra</button>
@@ -55,7 +55,7 @@
         </section>
     </main>
 
-    <script src="js/core.js"></script>
+    <script src="core.js"></script>
     <script>
         protegerModulo();
 
@@ -91,7 +91,7 @@
             });
         }
 
-        // Total
+        // Total dinámico
         function actualizarTotal() {
             const cant = Number(document.getElementById("cantidad").value);
             const precio = Number(document.getElementById("precio").value);
@@ -143,7 +143,6 @@
             let item = inventario.find(i => i.producto === producto);
 
             if (!item) {
-                // Si no existe en inventario, lo creamos
                 item = { id: generarID(), producto, stock: 0 };
                 inventario.push(item);
             }
