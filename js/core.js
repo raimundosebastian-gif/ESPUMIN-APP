@@ -1,14 +1,12 @@
 /* ============================================================
-   CORE DEL SISTEMA - ESPUMIN ERP BASE
-   Este archivo contiene:
-   - Helpers globales
-   - Manejo de storage
-   - Auditoría
-   - Notificaciones
-   - Configuración global
-   - Seguridad (login + roles)
-   - Inicialización del sistema
-   ============================================================ */
+   CORE DEL SISTEMA - ESPUMIN ERP BASE (EXTENDIDO)
+   Nuevos módulos agregados:
+   - Caja / Tesorería
+   - Agenda / Calendario
+   - Logística / Entregas
+   - Producción / Ensamblado
+   - Impuestos / IVA / Retenciones
+============================================================ */
 
 /* ============================
    HELPERS GENERALES
@@ -71,7 +69,15 @@ function initStorage() {
         cuentasProveedores: [],
         auditoria: [],
         notificaciones: [],
-        configuracion: {}
+        configuracion: {},
+
+        // NUEVOS MÓDULOS
+        caja: [],
+        cuentasBancarias: [],
+        agenda: [],
+        logistica: [],
+        produccion: [],
+        impuestos: []
     };
 
     Object.keys(estructuras).forEach(key => {
@@ -108,7 +114,7 @@ function agregarNotificacion(tipo, modulo, mensaje, extra = {}) {
     notificaciones.push({
         id: generarID(),
         fecha: new Date().toISOString(),
-        tipo,
+        tipo, // info, warning, error
         modulo,
         mensaje,
         revisada: false,
@@ -159,9 +165,108 @@ function logout() {
 function protegerModulo() {
     const usuario = localStorage.getItem("loggedUser");
     if (!usuario) {
-        location.href = "index.html";
+        location.replace("index.html");
         return;
     }
+}
+
+/* ============================
+   FUNCIONES BASE PARA NUEVOS MÓDULOS
+============================ */
+
+/* ---- CAJA / TESORERÍA ---- */
+function getCaja() { return getData("caja"); }
+function addCaja(mov) {
+    const caja = getCaja();
+    caja.push(mov);
+    setData("caja", caja);
+    registrarAuditoria("Alta", "Caja", "Nuevo movimiento", mov);
+}
+function updateCaja(id, data) {
+    const caja = getCaja().map(m => m.id === id ? { ...m, ...data } : m);
+    setData("caja", caja);
+    registrarAuditoria("Modificación", "Caja", "Movimiento actualizado", { id, data });
+}
+function deleteCaja(id) {
+    const caja = getCaja().filter(m => m.id !== id);
+    setData("caja", caja);
+    registrarAuditoria("Baja", "Caja", "Movimiento eliminado", { id });
+}
+
+/* ---- AGENDA ---- */
+function getAgenda() { return getData("agenda"); }
+function addAgenda(ev) {
+    const agenda = getAgenda();
+    agenda.push(ev);
+    setData("agenda", agenda);
+    registrarAuditoria("Alta", "Agenda", "Nuevo evento", ev);
+}
+function updateAgenda(id, data) {
+    const agenda = getAgenda().map(e => e.id === id ? { ...e, ...data } : e);
+    setData("agenda", agenda);
+    registrarAuditoria("Modificación", "Agenda", "Evento actualizado", { id, data });
+}
+function deleteAgenda(id) {
+    const agenda = getAgenda().filter(e => e.id !== id);
+    setData("agenda", agenda);
+    registrarAuditoria("Baja", "Agenda", "Evento eliminado", { id });
+}
+
+/* ---- LOGÍSTICA ---- */
+function getLogistica() { return getData("logistica"); }
+function addLogistica(env) {
+    const log = getLogistica();
+    log.push(env);
+    setData("logistica", log);
+    registrarAuditoria("Alta", "Logística", "Nueva entrega", env);
+}
+function updateLogistica(id, data) {
+    const log = getLogistica().map(e => e.id === id ? { ...e, ...data } : e);
+    setData("logistica", log);
+    registrarAuditoria("Modificación", "Logística", "Entrega actualizada", { id, data });
+}
+function deleteLogistica(id) {
+    const log = getLogistica().filter(e => e.id !== id);
+    setData("logistica", log);
+    registrarAuditoria("Baja", "Logística", "Entrega eliminada", { id });
+}
+
+/* ---- PRODUCCIÓN ---- */
+function getProduccion() { return getData("produccion"); }
+function addProduccion(op) {
+    const prod = getProduccion();
+    prod.push(op);
+    setData("produccion", prod);
+    registrarAuditoria("Alta", "Producción", "Nueva orden", op);
+}
+function updateProduccion(id, data) {
+    const prod = getProduccion().map(o => o.id === id ? { ...o, ...data } : o);
+    setData("produccion", prod);
+    registrarAuditoria("Modificación", "Producción", "Orden actualizada", { id, data });
+}
+function deleteProduccion(id) {
+    const prod = getProduccion().filter(o => o.id !== id);
+    setData("produccion", prod);
+    registrarAuditoria("Baja", "Producción", "Orden eliminada", { id });
+}
+
+/* ---- IMPUESTOS ---- */
+function getImpuestos() { return getData("impuestos"); }
+function addImpuesto(reg) {
+    const imp = getImpuestos();
+    imp.push(reg);
+    setData("impuestos", imp);
+    registrarAuditoria("Alta", "Impuestos", "Nuevo registro", reg);
+}
+function updateImpuesto(id, data) {
+    const imp = getImpuestos().map(r => r.id === id ? { ...r, ...data } : r);
+    setData("impuestos", imp);
+    registrarAuditoria("Modificación", "Impuestos", "Registro actualizado", { id, data });
+}
+function deleteImpuesto(id) {
+    const imp = getImpuestos().filter(r => r.id !== id);
+    setData("impuestos", imp);
+    registrarAuditoria("Baja", "Impuestos", "Registro eliminado", { id });
 }
 
 /* ============================
@@ -171,28 +276,10 @@ function protegerModulo() {
 function inicializarSistema() {
     initStorage();
 
-    // Ejemplo de datos mínimos para pruebas
+    // Datos demo mínimos
     if (getData("usuarios").length === 0) {
         setData("usuarios", [
             { id: generarID(), usuario: "admin", clave: "1234", rol: "admin" }
-        ]);
-    }
-
-    if (getData("productos").length === 0) {
-        setData("productos", [
-            { id: generarID(), nombre: "Producto demo", stock: 10, precio: 1000 }
-        ]);
-    }
-
-    if (getData("clientes").length === 0) {
-        setData("clientes", [
-            { id: generarID(), nombre: "Cliente demo", telefono: "123456" }
-        ]);
-    }
-
-    if (getData("proveedores").length === 0) {
-        setData("proveedores", [
-            { id: generarID(), nombre: "Proveedor demo", telefono: "987654" }
         ]);
     }
 
