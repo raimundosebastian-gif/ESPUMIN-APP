@@ -277,11 +277,12 @@ function inicializarSistema() {
     initStorage();
 
     // Datos demo mínimos
-    if (getData("usuarios").length === 0) {
-        setData("usuarios", [
-            { id: generarID(), usuario: "admin", clave: "1234", rol: "admin" }
-        ]);
-    }
+   if (getData("usuarios").length === 0) {
+    setData("usuarios", [
+        { id: generarID(), usuario: "admin", clave: "1234", rol: "admin" }
+    ]);
+}
+
 
     registrarAuditoria("Sistema", "Core", "Inicialización del sistema");
 }
