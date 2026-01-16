@@ -1,102 +1,33 @@
-<nav class="menu">
-    <ul>
-        <li><a href="dashboard.html">Dashboard</a></li>
+<div class="menu">
+    <div class="menu-logo">
+        <span>ESPUMIN ERP</span>
+    </div>
 
-        <li class="submenu">
-            <span>Maestros</span>
-            <ul>
-                <li><a href="clientes.html">Clientes</a></li>
-                <li><a href="proveedores.html">Proveedores</a></li>
-                <li><a href="productos.html">Productos</a></li>
-                <li><a href="precios.html">Precios</a></li>
-                <li><a href="usuarios.html">Usuarios</a></li>
-            </ul>
-        </li>
+    <div class="menu-user">
+        Usuario: <span id="usuarioActual"></span>
+        <button onclick="logout()" class="btn-logout">Salir</button>
+    </div>
 
-        <li class="submenu">
-            <span>Operaciones</span>
-            <ul>
-                <li><a href="ventas.html">Ventas</a></li>
-                <li><a href="compras.html">Compras</a></li>
-                <li><a href="inventario.html">Inventario</a></li>
-            </ul>
-        </li>
-
-        <li class="submenu">
-            <span>Gestión</span>
-            <ul>
-                <li><a href="caja.html">Caja / Tesorería</a></li>
-                <li><a href="cuentas-clientes.html">Cuentas Clientes</a></li>
-                <li><a href="cuentas-proveedores.html">Cuentas Proveedores</a></li>
-                <li><a href="agenda.html">Agenda</a></li>
-                <li><a href="logistica.html">Logística</a></li>
-                <li><a href="produccion.html">Producción</a></li>
-                <li><a href="impuestos.html">Impuestos</a></li>
-            </ul>
-        </li>
-
-        <li class="submenu">
-            <span>Sistema</span>
-            <ul>
-                <li><a href="notificaciones.html">Notificaciones</a></li>
-                <li><a href="auditoria.html">Auditoría</a></li>
-                <li><a href="backups.html">Backups</a></li>
-                <li><a href="configuracion.html">Configuración</a></li>
-            </ul>
-        </li>
-
-        <li><a href="#" id="logoutBtn">Salir</a></li>
-    </ul>
-</nav>
-
-<script>
-    // Cerrar sesión
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-        logout();
-        location.href = "index.html";
-    });
-</script>
-
-<style>
-    .menu {
-        background: #222;
-        color: white;
-        padding: 10px;
-        font-family: Arial, sans-serif;
-    }
-
-    .menu ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: flex;
-        gap: 20px;
-        align-items: center;
-    }
-
-    .menu a {
-        color: white;
-        text-decoration: none;
-    }
-
-    .submenu ul {
-        display: none;
-        position: absolute;
-        background: #333;
-        padding: 10px;
-        border-radius: 4px;
-        margin-top: 5px;
-    }
-
-    .submenu:hover ul {
-        display: block;
-    }
-
-    .submenu ul li {
-        margin: 5px 0;
-    }
-
-    .submenu span {
-        cursor: pointer;
-    }
-</style>
+    <nav class="menu-links">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="productos.html">Productos</a>
+        <a href="precios.html">Precios</a>
+        <a href="clientes.html">Clientes</a>
+        <a href="proveedores.html">Proveedores</a>
+        <a href="inventario.html">Inventario</a>
+        <a href="ventas.html">Ventas</a>
+        <a href="compras.html">Compras</a>
+        <a href="logistica.html">Logística</a>
+        <a href="agenda.html">Agenda</a>
+        <a href="caja.html">Caja</a>
+        <a href="cuentas-clientes.html">Ctas. Clientes</a>
+        <a href="cuentas-proveedores.html">Ctas. Proveedores</a>
+        <a href="impuestos.html">Impuestos</a>
+        <a href="reportes.html">Reportes</a>
+        <a href="backups.html">Backups</a>
+        <a href="configuracion.html">Configuración</a>
+        <a href="usuarios.html">Usuarios</a>
+        <a href="notificaciones.html">Notificaciones</a>
+        <a href="auditoria.html">Auditoría</a>
+    </nav>
+</div>
