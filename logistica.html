@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logística / Entregas</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="js/core.js"></script>
+</head>
+
+<body onload="protegerModulo(); cargarLogistica();">
+
+    <!-- ENCABEZADO -->
+    <header class="header">
+        <h1>Logística / Entregas</h1>
+        <button class="btn-primary" onclick="abrirModal()">Nueva entrega</button>
+    </header>
+
+    <!-- FILTROS -->
+    <section class="filtros">
+        <select id="filtroEstado">
+            <option value="">Todos</option>
+            <option value="pendiente">Pendiente</option>
+            <option value="en_camino">En camino</option>
+            <option value="entregado">Entregado</option>
+        </select>
+        <button class="btn-secondary" onclick="cargarLogistica()">Filtrar</button>
+    </section>
+
+    <!-- TABLA -->
+    <section class="tabla-contenedor">
+        <table>
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Cliente</th>
+                    <th>Dirección</th>
+                    <th>Estado</th>
+                    <th>Repartidor</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="tablaLogistica"></tbody>
+        </table>
+    </section>
+
+    <!-- MODAL -->
+    <div id="modalLogistica" class="modal">
+        <div class="modal-contenido">
+            <h2 id="modalTitulo">Nueva entrega</h2>
+
+            <input type="hidden" id="envId">
+
+            <label>Fecha</label>
+            <input type="date" id="envFecha">
+
+            <label>Cliente</label>
+            <input type="text" id="envCliente">
+
+            <label>Dirección</label>
+            <input type="text" id="envDireccion">
+
+            <label>Estado</label>
+            <select id="envEstado">
+                <option value="pendiente">Pendiente</option>
+                <option value="en_camino">En camino</option>
+                <option value="entregado">Entregado</option>
+            </select>
+
+            <label>Repartidor</label>
+            <input type="text" id="envRepartidor">
+
+            <label>Notas</label>
+            <textarea id="envNotas"></textarea>
+
+            <div class="modal-botones">
+                <button class="btn-primary" onclick="guardarEntrega()">Guardar</button>
+                <button class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ============================
+           CARGA DE TABLA
+        ============================ */
+        function cargarLogistica() {
+            const estadoFiltro = document.getElementById("filtroEstado").value;
+
+            let entregas = getLogistica();
+
+            if (estadoFiltro) {
+                entregas = entregas.filter(e => e.estado === estadoFiltro);
+            }
+
+            const tbody = document.getElementById("tablaLogistica");
+            tbody.innerHTML = "";
+
+            entregas.forEach(e => {
+                const tr = document.createElement("tr");
+
+                tr.innerHTML = `
+                    <td>${formatDate(e.fecha)}</td>
+                    <td>${e.cliente}</td>
+                    <td>${e.direccion}</td>
+                    <td>${formatearEstado(e.estado)}</td>
+                    <td>${e.repartidor || "-"}</td>
+                    <td>
+                        <button class="btn-small" onclick="editarEntrega(${e.id})">✏️</button>
+                        <button class="btn-small btn-danger" onclick="eliminarEntrega(${e.id})">🗑️</button>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        function formatearEstado(estado) {
+            switch (estado) {
+                case "pendiente": return "Pendiente";
+                case "en_camino": return "En camino";
+                case "entregado": return "Entregado";
+                default: return estado;
+            }
+        }
+
+        /* ============================
+           MODAL
+        ============================ */
+        function abrirModal() {
+            document.getElementById("modalLogistica").style.display = "flex";
+            document.getElementById("modalTitulo").innerText = "Nueva entrega";
+
+            document.getElementById("envId").value = "";
+            document.getElementById("envFecha").value = new Date().toISOString().split("T")[0];
+            document.getElementById("envCliente").value = "";
+            document.getElementById("envDireccion").value = "";
+            document.getElementById("envEstado").value = "pendiente";
+            document.getElementById("envRepartidor").value = "";
+            document.getElementById("envNotas").value = "";
+        }
+
+        function cerrarModal() {
+            document.getElementById("modalLogistica").style.display = "none";
+        }
+
+        /* ============================
+           CRUD
+        ============================ */
+        function guardarEntrega() {
+            const id = document.getElementById("envId").value;
+            const fecha = document.getElementById("envFecha").value;
+            const cliente = document.getElementById("envCliente").value;
+            const direccion = document.getElementById("envDireccion").value;
+            const estado = document.getElementById("envEstado").value;
+            const repartidor = document.getElementById("envRepartidor").value;
+            const notas = document.getElementById("envNotas").value;
+
+            if (!validarCampos([fecha, cliente, direccion, estado])) {
+                alert("Los campos obligatorios deben estar completos.");
+                return;
+            }
+
+            const entrega = {
+                id: id || generarID(),
+                fecha,
+                cliente,
+                direccion,
+                estado,
+                repartidor,
+                notas
+            };
+
+            if (id) {
+                updateLogistica(parseInt(id), entrega);
+            } else {
+                addLogistica(entrega);
+            }
+
+            cerrarModal();
+            cargarLogistica();
+        }
+
+        function editarEntrega(id) {
+            const e = getLogistica().find(x => x.id === id);
+
+            abrirModal();
+            document.getElementById("modalTitulo").innerText = "Editar entrega";
+
+            document.getElementById("envId").value = e.id;
+            document.getElementById("envFecha").value = e.fecha;
+            document.getElementById("envCliente").value = e.cliente;
+            document.getElementById("envDireccion").value = e.direccion;
+            document.getElementById("envEstado").value = e.estado;
+            document.getElementById("envRepartidor").value = e.repartidor;
+            document.getElementById("envNotas").value = e.notas;
+        }
+
+        function eliminarEntrega(id) {
+            if (confirm("¿Eliminar esta entrega?")) {
+                deleteLogistica(id);
+                cargarLogistica();
+            }
+        }
+    </script>
+
+</body>
+</html>
