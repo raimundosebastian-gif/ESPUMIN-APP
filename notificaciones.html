@@ -3,103 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESPUMIN APP - Notificaciones</title>
+    <title>ESPUMIN - Notificaciones</title>
     <link rel="stylesheet" href="style.css">
 </head>
+<body>
 
-<body onload="inicializarNotificaciones()">
+    <!-- Menú -->
+    <div id="menu-container"></div>
 
-    <!-- ============================
-         BANNER SUPERIOR
-    ============================= -->
-    <header class="banner">
-        <h1>Notificaciones y Alertas</h1>
-        <a href="menu.html" class="btn-volver">Volver al Menú</a>
-    </header>
+    <main class="modulo-container">
+        <h1>Notificaciones</h1>
 
-    <!-- ============================
-         USUARIO LOGUEADO
-    ============================= -->
-    <section class="usuario-info">
-        <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
-        <button onclick="cerrarSesion()" class="btn-sesion">Cerrar sesión</button>
-    </section>
+        <!-- Formulario -->
+        <section class="form-section">
+            <input type="hidden" id="id">
 
-    <!-- ============================
-         CONTENEDOR PRINCIPAL
-    ============================= -->
-    <section class="contenedor">
+            <label>Título</label>
+            <input type="text" id="titulo" placeholder="Ej: Stock bajo, vencimiento, aviso interno">
 
-        <h2>Alertas activas</h2>
+            <label>Mensaje</label>
+            <input type="text" id="mensaje" placeholder="Ej: Revisar inventario de espuma 20kg">
 
-        <!-- Filtros -->
-        <div class="filtros">
-            <label>Tipo:</label>
-            <select id="filtro-tipo" onchange="filtrarNotificaciones()">
-                <option value="">Todos</option>
-                <option value="Stock">Stock</option>
-                <option value="Cliente">Cliente</option>
-                <option value="Proveedor">Proveedor</option>
-                <option value="Backup">Backup</option>
-                <option value="Sueldos">Sueldos</option>
-                <option value="IVA">IVA</option>
-                <option value="Configuración">Configuración</option>
+            <label>Prioridad</label>
+            <select id="prioridad">
+                <option value="Baja">Baja</option>
+                <option value="Media">Media</option>
+                <option value="Alta">Alta</option>
             </select>
 
-            <label>Módulo:</label>
-            <select id="filtro-modulo" onchange="filtrarNotificaciones()">
-                <option value="">Todos</option>
-                <option value="Productos">Productos</option>
-                <option value="Clientes">Clientes</option>
-                <option value="Proveedores">Proveedores</option>
-                <option value="Compras">Compras</option>
-                <option value="Ventas">Ventas</option>
-                <option value="Backups">Backups</option>
-                <option value="Sueldos">Sueldos</option>
-                <option value="IVA">IVA</option>
-            </select>
-        </div>
+            <button id="guardarBtn">Guardar</button>
+            <button id="cancelarBtn" class="btn-secundario">Cancelar</button>
+        </section>
 
         <!-- Tabla -->
-        <div id="lista-notificaciones" style="margin-top:20px;"></div>
+        <section class="tabla-section">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Mensaje</th>
+                        <th>Prioridad</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaNotificaciones"></tbody>
+            </table>
+        </section>
+    </main>
 
-    </section>
-
-    <!-- ============================
-         MODAL DETALLE ALERTA
-    ============================= -->
-    <div id="modal-detalle-alerta" class="modal">
-        <div class="modal-contenido">
-            <h3>Detalle de la alerta</h3>
-
-            <div id="detalle-alerta"></div>
-
-            <div class="modal-botones">
-                <button class="btn-secundario" onclick="marcarAlertaRevisada()">Marcar como revisada</button>
-                <button class="btn-eliminar" onclick="cerrarModalDetalleAlerta()">Cerrar</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
-
+    <script src="js/core.js"></script>
     <script>
-        function inicializarNotificaciones() {
-            const usuario = localStorage.getItem("loggedUser");
-            if (!usuario) {
-                location.href = "index.html";
+        protegerModulo();
+
+        // Cargar menú
+        fetch("menu.html")
+            .then(r => r.text())
+            .then(html => document.getElementById("menu-container").innerHTML = html);
+
+        // Renderizar tabla
+        function cargarTabla() {
+            const notificaciones = getData("notificaciones");
+            const tbody = document.getElementById("tablaNotificaciones");
+            tbody.innerHTML = "";
+
+            notificaciones.forEach(n => {
+                const tr = document.createElement("tr");
+
+                tr.innerHTML = `
+                    <td>${n.titulo}</td>
+                    <td>${n.mensaje}</td>
+                    <td>${n.prioridad}</td>
+                    <td>${formatDate(n.fecha)}</td>
+                    <td>
+                        <button onclick="editar('${n.id}')">Editar</button>
+                        <button onclick="eliminar('${n.id}')" class="btn-eliminar">Eliminar</button>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Guardar notificación
+        document.getElementById("guardarBtn").addEventListener("click", () => {
+            const id = document.getElementById("id").value;
+            const titulo = document.getElementById("titulo").value.trim();
+            const mensaje = document.getElementById("mensaje").value.trim();
+            const prioridad = document.getElementById("prioridad").value;
+
+            if (!titulo || !mensaje) {
+                alert("Complete todos los campos");
                 return;
             }
 
-            document.getElementById("usuario-log").textContent = usuario;
-            cargarNotificaciones();
+            let notificaciones = getData("notificaciones");
+
+            if (id) {
+                // Editar
+                const n = notificaciones.find(x => x.id === id);
+                n.titulo = titulo;
+                n.mensaje = mensaje;
+                n.prioridad = prioridad;
+
+                registrarAuditoria("Notificaciones", "Edición", `Editó notificación: ${titulo}`);
+            } else {
+                // Nuevo
+                notificaciones.push({
+                    id: generarID(),
+                    titulo,
+                    mensaje,
+                    prioridad,
+                    fecha: new Date().toISOString()
+                });
+
+                registrarAuditoria("Notificaciones", "Alta", `Nueva notificación: ${titulo}`);
+            }
+
+            setData("notificaciones", notificaciones);
+            limpiarFormulario();
+            cargarTabla();
+        });
+
+        // Editar
+        function editar(id) {
+            const n = getData("notificaciones").find(x => x.id === id);
+            document.getElementById("id").value = n.id;
+            document.getElementById("titulo").value = n.titulo;
+            document.getElementById("mensaje").value = n.mensaje;
+            document.getElementById("prioridad").value = n.prioridad;
         }
 
-        function cerrarSesion() {
-            localStorage.removeItem("loggedUser");
-            localStorage.removeItem("userRole");
-            location.href = "index.html";
+        // Eliminar
+        function eliminar(id) {
+            if (!confirm("¿Eliminar notificación?")) return;
+
+            let notificaciones = getData("notificaciones");
+            const n = notificaciones.find(x => x.id === id);
+
+            notificaciones = notificaciones.filter(x => x.id !== id);
+            setData("notificaciones", notificaciones);
+
+            registrarAuditoria("Notificaciones", "Baja", `Eliminó notificación: ${n.titulo}`);
+
+            cargarTabla();
         }
+
+        // Cancelar
+        document.getElementById("cancelarBtn").addEventListener("click", limpiarFormulario);
+
+        function limpiarFormulario() {
+            document.getElementById("id").value = "";
+            document.getElementById("titulo").value = "";
+            document.getElementById("mensaje").value = "";
+        }
+
+        // Inicializar
+        cargarTabla();
     </script>
 
 </body>
