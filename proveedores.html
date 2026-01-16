@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESPUMIN APP - Proveedores</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body onload="inicializarProveedores()">
+
+    <!-- ============================
+         BANNER SUPERIOR
+    ============================= -->
+    <header class="banner">
+        <h1>Gestión de Proveedores</h1>
+        <a href="menu.html" class="btn-volver">Volver al Menú</a>
+    </header>
+
+    <!-- ============================
+         USUARIO LOGUEADO
+    ============================= -->
+    <section class="usuario-info">
+        <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
+        <button onclick="cerrarSesion()" class="btn-sesion">Cerrar sesión</button>
+    </section>
+
+    <!-- ============================
+         CONTENEDOR PRINCIPAL
+    ============================= -->
+    <section class="contenedor">
+
+        <h2>Proveedores registrados</h2>
+
+        <!-- Buscador -->
+        <input type="text" id="buscar-proveedor" placeholder="Buscar proveedor..." oninput="filtrarProveedores()">
+
+        <!-- Botón crear -->
+        <button class="btn-primario" onclick="abrirModalNuevoProveedor()">+ Crear proveedor</button>
+
+        <!-- Tabla -->
+        <div id="lista-proveedores" style="margin-top:20px;"></div>
+
+    </section>
+
+    <!-- ============================
+         MODAL NUEVO PROVEEDOR
+    ============================= -->
+    <div id="modal-nuevo-proveedor" class="modal">
+        <div class="modal-contenido">
+            <h3>Nuevo proveedor</h3>
+
+            <label>Nombre:</label>
+            <input type="text" id="nuevo-nombre">
+
+            <label>Teléfono:</label>
+            <input type="text" id="nuevo-telefono">
+
+            <label>Dirección:</label>
+            <input type="text" id="nuevo-direccion">
+
+            <label>Email:</label>
+            <input type="email" id="nuevo-email">
+
+            <label>Productos que provee:</label>
+            <textarea id="nuevo-productos"></textarea>
+
+            <label>Notas (opcional):</label>
+            <textarea id="nuevo-notas"></textarea>
+
+            <div class="modal-botones">
+                <button class="btn-secundario" onclick="guardarNuevoProveedor()">Guardar</button>
+                <button class="btn-eliminar" onclick="cerrarModalNuevoProveedor()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================
+         MODAL EDITAR PROVEEDOR
+    ============================= -->
+    <div id="modal-editar-proveedor" class="modal">
+        <div class="modal-contenido">
+            <h3>Editar proveedor</h3>
+
+            <input type="hidden" id="edit-id">
+
+            <label>Nombre:</label>
+            <input type="text" id="edit-nombre">
+
+            <label>Teléfono:</label>
+            <input type="text" id="edit-telefono">
+
+            <label>Dirección:</label>
+            <input type="text" id="edit-direccion">
+
+            <label>Email:</label>
+            <input type="email" id="edit-email">
+
+            <label>Productos que provee:</label>
+            <textarea id="edit-productos"></textarea>
+
+            <label>Notas:</label>
+            <textarea id="edit-notas"></textarea>
+
+            <div class="modal-botones">
+                <button class="btn-secundario" onclick="guardarEdicionProveedor()">Guardar cambios</button>
+                <button class="btn-eliminar" onclick="cerrarModalEditarProveedor()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================
+         MODAL HISTORIAL DE COMPRAS
+    ============================= -->
+    <div id="modal-historial-proveedor" class="modal">
+        <div class="modal-contenido">
+            <h3>Historial de compras</h3>
+
+            <div id="tabla-historial-proveedor"></div>
+
+            <div class="modal-botones">
+                <button class="btn-eliminar" onclick="cerrarModalHistorialProveedor()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+
+    <script>
+        function inicializarProveedores() {
+            const usuario = localStorage.getItem("loggedUser");
+            if (!usuario) {
+                location.href = "index.html";
+                return;
+            }
+
+            document.getElementById("usuario-log").textContent = usuario;
+            cargarProveedores();
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem("loggedUser");
+            localStorage.removeItem("userRole");
+            location.href = "index.html";
+        }
+    </script>
+
+</body>
+</html>
