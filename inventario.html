@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESPUMIN APP - Inventario</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body onload="inicializarInventario()">
+
+    <!-- ============================
+         BANNER SUPERIOR
+    ============================= -->
+    <header class="banner">
+        <h1>Inventario y Movimientos de Stock</h1>
+        <a href="menu.html" class="btn-volver">Volver al Menú</a>
+    </header>
+
+    <!-- ============================
+         USUARIO LOGUEADO
+    ============================= -->
+    <section class="usuario-info">
+        <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
+        <button onclick="cerrarSesion()" class="btn-sesion">Cerrar sesión</button>
+    </section>
+
+    <!-- ============================
+         CONTENEDOR PRINCIPAL
+    ============================= -->
+    <section class="contenedor">
+
+        <h2>Movimientos de stock</h2>
+
+        <!-- Botón crear -->
+        <button class="btn-primario" onclick="abrirModalNuevoMovimiento()">+ Registrar movimiento</button>
+
+        <!-- Tabla -->
+        <div id="lista-movimientos" style="margin-top:20px;"></div>
+
+    </section>
+
+    <!-- ============================
+         MODAL NUEVO MOVIMIENTO
+    ============================= -->
+    <div id="modal-nuevo-movimiento" class="modal">
+        <div class="modal-contenido">
+            <h3>Nuevo movimiento de stock</h3>
+
+            <label>Producto:</label>
+            <select id="mov-producto"></select>
+
+            <label>Tipo de movimiento:</label>
+            <select id="mov-tipo">
+                <option value="Entrada">Entrada</option>
+                <option value="Salida">Salida</option>
+                <option value="Ajuste">Ajuste</option>
+            </select>
+
+            <label>Cantidad:</label>
+            <input type="number" id="mov-cantidad" min="1">
+
+            <label>Motivo:</label>
+            <textarea id="mov-motivo"></textarea>
+
+            <div class="modal-botones">
+                <button class="btn-secundario" onclick="guardarNuevoMovimiento()">Guardar</button>
+                <button class="btn-eliminar" onclick="cerrarModalNuevoMovimiento()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================
+         MODAL DETALLE MOVIMIENTO
+    ============================= -->
+    <div id="modal-detalle-mov" class="modal">
+        <div class="modal-contenido">
+            <h3>Detalle del movimiento</h3>
+
+            <div id="detalle-movimiento"></div>
+
+            <div class="modal-botones">
+                <button class="btn-eliminar" onclick="cerrarModalDetalleMovimiento()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+
+    <script>
+        function inicializarInventario() {
+            const usuario = localStorage.getItem("loggedUser");
+            if (!usuario) {
+                location.href = "index.html";
+                return;
+            }
+
+            document.getElementById("usuario-log").textContent = usuario;
+
+            cargarMovimientos();
+            cargarProductosEnSelectInventario();
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem("loggedUser");
+            localStorage.removeItem("userRole");
+            location.href = "index.html";
+        }
+    </script>
+
+</body>
+</html>
