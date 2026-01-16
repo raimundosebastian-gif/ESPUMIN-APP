@@ -3,97 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Caja / Tesorería</title>
+    <title>ESPUMIN - Caja / Tesorería</title>
     <link rel="stylesheet" href="style.css">
-    <script src="js/core.js"></script>
 </head>
+<body>
 
-<body onload="protegerModulo(); cargarCaja();">
+    <!-- Menú -->
+    <div id="menu-container"></div>
 
-    <!-- ENCABEZADO -->
-    <header class="header">
+    <main class="modulo-container">
         <h1>Caja / Tesorería</h1>
-        <button class="btn-primary" onclick="abrirModal()">Nuevo movimiento</button>
-    </header>
 
-    <!-- FILTROS -->
-    <section class="filtros">
-        <input type="date" id="filtroFecha">
-        <select id="filtroTipo">
-            <option value="">Todos</option>
-            <option value="ingreso">Ingreso</option>
-            <option value="egreso">Egreso</option>
-        </select>
-        <button class="btn-secondary" onclick="cargarCaja()">Filtrar</button>
-    </section>
+        <!-- Formulario -->
+        <section class="form-section">
+            <input type="hidden" id="id">
 
-    <!-- TABLA -->
-    <section class="tabla-contenedor">
-        <table>
-            <thead>
-                <tr>
-                    <th>Fecha</th>
-                    <th>Tipo</th>
-                    <th>Monto</th>
-                    <th>Cuenta</th>
-                    <th>Descripción</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody id="tablaCaja"></tbody>
-        </table>
-    </section>
-
-    <!-- MODAL -->
-    <div id="modalCaja" class="modal">
-        <div class="modal-contenido">
-            <h2 id="modalTitulo">Nuevo movimiento</h2>
-
-            <input type="hidden" id="movId">
-
-            <label>Fecha</label>
-            <input type="date" id="movFecha">
-
-            <label>Tipo</label>
-            <select id="movTipo">
-                <option value="ingreso">Ingreso</option>
-                <option value="egreso">Egreso</option>
+            <label>Tipo de movimiento</label>
+            <select id="tipo">
+                <option value="Ingreso">Ingreso</option>
+                <option value="Egreso">Egreso</option>
             </select>
 
-            <label>Monto</label>
-            <input type="number" id="movMonto" min="0" step="0.01">
+            <label>Monto ($)</label>
+            <input type="number" id="monto" placeholder="Ej: 5000">
 
-            <label>Cuenta</label>
-            <input type="text" id="movCuenta" placeholder="Caja principal, Banco, etc.">
+            <label>Detalle</label>
+            <input type="text" id="detalle" placeholder="Ej: Pago cliente, compra insumos">
 
-            <label>Descripción</label>
-            <textarea id="movDescripcion"></textarea>
+            <button id="guardarBtn">Registrar</button>
+            <button id="cancelarBtn" class="btn-secundario">Cancelar</button>
+        </section>
 
-            <div class="modal-botones">
-                <button class="btn-primary" onclick="guardarMovimiento()">Guardar</button>
-                <button class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
-            </div>
-        </div>
-    </div>
+        <!-- Saldo -->
+        <section class="saldo-section">
+            <h2>Saldo actual: $ <span id="saldoActual">0</span></h2>
+        </section>
 
+        <!-- Tabla -->
+        <section class="tabla-section">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Tipo</th>
+                        <th>Monto</th>
+                        <th>Detalle</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaCaja"></tbody>
+            </table>
+        </section>
+    </main>
+
+    <script src="js/core.js"></script>
     <script>
-        /* ============================
-           CARGA DE TABLA
-        ============================ */
-        function cargarCaja() {
-            const fechaFiltro = document.getElementById("filtroFecha").value;
-            const tipoFiltro = document.getElementById("filtroTipo").value;
+        protegerModulo();
 
-            let movimientos = getCaja();
+        // Cargar menú
+        fetch("menu.html")
+            .then(r => r.text())
+            .then(html => document.getElementById("menu-container").innerHTML = html);
 
-            if (fechaFiltro) {
-                movimientos = movimientos.filter(m => m.fecha.startsWith(fechaFiltro));
-            }
+        // Calcular saldo
+        function calcularSaldo() {
+            const movimientos = getData("caja");
+            let saldo = 0;
 
-            if (tipoFiltro) {
-                movimientos = movimientos.filter(m => m.tipo === tipoFiltro);
-            }
+            movimientos.forEach(m => {
+                if (m.tipo === "Ingreso") saldo += m.monto;
+                else saldo -= m.monto;
+            });
 
+            document.getElementById("saldoActual").textContent = saldo;
+        }
+
+        // Renderizar tabla
+        function cargarTabla() {
+            const movimientos = getData("caja");
             const tbody = document.getElementById("tablaCaja");
             tbody.innerHTML = "";
 
@@ -102,86 +89,74 @@
 
                 tr.innerHTML = `
                     <td>${formatDate(m.fecha)}</td>
-                    <td>${m.tipo.toUpperCase()}</td>
-                    <td>${formatCurrency(m.monto)}</td>
-                    <td>${m.cuenta}</td>
-                    <td>${m.descripcion}</td>
+                    <td>${m.tipo}</td>
+                    <td>$ ${m.monto}</td>
+                    <td>${m.detalle}</td>
                     <td>
-                        <button class="btn-small" onclick="editarMovimiento(${m.id})">✏️</button>
-                        <button class="btn-small btn-danger" onclick="eliminarMovimiento(${m.id})">🗑️</button>
+                        <button onclick="eliminar('${m.id}')" class="btn-eliminar">Eliminar</button>
                     </td>
                 `;
 
                 tbody.appendChild(tr);
             });
+
+            calcularSaldo();
         }
 
-        /* ============================
-           MODAL
-        ============================ */
-        function abrirModal() {
-            document.getElementById("modalCaja").style.display = "flex";
-            document.getElementById("modalTitulo").innerText = "Nuevo movimiento";
-            document.getElementById("movId").value = "";
-            document.getElementById("movFecha").value = new Date().toISOString().split("T")[0];
-            document.getElementById("movTipo").value = "ingreso";
-            document.getElementById("movMonto").value = "";
-            document.getElementById("movCuenta").value = "";
-            document.getElementById("movDescripcion").value = "";
-        }
+        // Guardar movimiento
+        document.getElementById("guardarBtn").addEventListener("click", () => {
+            const tipo = document.getElementById("tipo").value;
+            const monto = Number(document.getElementById("monto").value);
+            const detalle = document.getElementById("detalle").value.trim();
 
-        function cerrarModal() {
-            document.getElementById("modalCaja").style.display = "none";
-        }
-
-        /* ============================
-           CRUD
-        ============================ */
-        function guardarMovimiento() {
-            const id = document.getElementById("movId").value;
-            const fecha = document.getElementById("movFecha").value;
-            const tipo = document.getElementById("movTipo").value;
-            const monto = parseFloat(document.getElementById("movMonto").value);
-            const cuenta = document.getElementById("movCuenta").value;
-            const descripcion = document.getElementById("movDescripcion").value;
-
-            if (!validarCampos([fecha, tipo, monto, cuenta])) {
-                alert("Todos los campos obligatorios deben estar completos.");
+            if (!monto || monto <= 0) {
+                alert("Ingrese un monto válido");
                 return;
             }
 
-            const mov = { id: id || generarID(), fecha, tipo, monto, cuenta, descripcion };
+            let movimientos = getData("caja");
 
-            if (id) {
-                updateCaja(parseInt(id), mov);
-            } else {
-                addCaja(mov);
-            }
+            movimientos.push({
+                id: generarID(),
+                fecha: new Date().toISOString(),
+                tipo,
+                monto,
+                detalle
+            });
 
-            cerrarModal();
-            cargarCaja();
+            setData("caja", movimientos);
+
+            registrarAuditoria("Caja", "Alta", `${tipo} - $${monto} (${detalle})`);
+
+            limpiarFormulario();
+            cargarTabla();
+        });
+
+        // Eliminar movimiento
+        function eliminar(id) {
+            if (!confirm("¿Eliminar movimiento?")) return;
+
+            let movimientos = getData("caja");
+            const mov = movimientos.find(m => m.id === id);
+
+            movimientos = movimientos.filter(m => m.id !== id);
+            setData("caja", movimientos);
+
+            registrarAuditoria("Caja", "Baja", `Eliminó movimiento: ${mov.tipo} - $${mov.monto}`);
+
+            cargarTabla();
         }
 
-        function editarMovimiento(id) {
-            const mov = getCaja().find(m => m.id === id);
+        // Cancelar
+        document.getElementById("cancelarBtn").addEventListener("click", limpiarFormulario);
 
-            abrirModal();
-            document.getElementById("modalTitulo").innerText = "Editar movimiento";
-
-            document.getElementById("movId").value = mov.id;
-            document.getElementById("movFecha").value = mov.fecha;
-            document.getElementById("movTipo").value = mov.tipo;
-            document.getElementById("movMonto").value = mov.monto;
-            document.getElementById("movCuenta").value = mov.cuenta;
-            document.getElementById("movDescripcion").value = mov.descripcion;
+        function limpiarFormulario() {
+            document.getElementById("monto").value = "";
+            document.getElementById("detalle").value = "";
         }
 
-        function eliminarMovimiento(id) {
-            if (confirm("¿Eliminar este movimiento?")) {
-                deleteCaja(id);
-                cargarCaja();
-            }
-        }
+        // Inicializar
+        cargarTabla();
     </script>
 
 </body>
