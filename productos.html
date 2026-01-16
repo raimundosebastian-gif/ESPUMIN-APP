@@ -3,133 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESPUMIN APP - Productos</title>
+    <title>ESPUMIN - Productos</title>
     <link rel="stylesheet" href="style.css">
 </head>
+<body>
 
-<body onload="inicializarProductos()">
+    <!-- Menú -->
+    <div id="menu-container"></div>
 
-    <!-- ============================
-         BANNER SUPERIOR
-    ============================= -->
-    <header class="banner">
-        <h1>Gestión de Productos</h1>
-        <a href="menu.html" class="btn-volver">Volver al Menú</a>
-    </header>
+    <main class="modulo-container">
+        <h1>Productos</h1>
 
-    <!-- ============================
-         USUARIO LOGUEADO
-    ============================= -->
-    <section class="usuario-info">
-        <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
-        <button onclick="cerrarSesion()" class="btn-sesion">Cerrar sesión</button>
-    </section>
+        <!-- Formulario -->
+        <section class="form-section">
+            <input type="hidden" id="id">
 
-    <!-- ============================
-         CONTENEDOR PRINCIPAL
-    ============================= -->
-    <section class="contenedor">
+            <label>Nombre del producto</label>
+            <input type="text" id="nombre" placeholder="Ej: Espuma Premium">
 
-        <h2>Productos registrados</h2>
+            <label>Categoría</label>
+            <input type="text" id="categoria" placeholder="Ej: Limpieza">
 
-        <!-- Buscador -->
-        <input type="text" id="buscar-producto" placeholder="Buscar producto..." oninput="filtrarProductos()">
-
-        <!-- Botón crear -->
-        <button class="btn-primario" onclick="abrirModalNuevoProducto()">+ Crear producto</button>
+            <button id="guardarBtn">Guardar</button>
+            <button id="cancelarBtn" class="btn-secundario">Cancelar</button>
+        </section>
 
         <!-- Tabla -->
-        <div id="lista-productos" style="margin-top:20px;"></div>
+        <section class="tabla-section">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Categoría</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaProductos"></tbody>
+            </table>
+        </section>
+    </main>
 
-    </section>
-
-    <!-- ============================
-         MODAL NUEVO PRODUCTO
-    ============================= -->
-    <div id="modal-nuevo-producto" class="modal">
-        <div class="modal-contenido">
-            <h3>Nuevo producto</h3>
-
-            <label>Nombre:</label>
-            <input type="text" id="nuevo-nombre">
-
-            <label>Categoría:</label>
-            <input type="text" id="nuevo-categoria">
-
-            <label>Precio:</label>
-            <input type="number" id="nuevo-precio" min="0">
-
-            <label>Stock:</label>
-            <input type="number" id="nuevo-stock" min="0">
-
-            <label>Código (opcional):</label>
-            <input type="text" id="nuevo-codigo">
-
-            <label>Imagen:</label>
-            <input type="file" id="nuevo-imagen" accept="image/*" onchange="previewNuevaImagen()">
-            <img id="preview-nueva" style="width:100px; margin-top:10px; display:none;">
-
-            <div class="modal-botones">
-                <button class="btn-secundario" onclick="guardarNuevoProducto()">Guardar</button>
-                <button class="btn-eliminar" onclick="cerrarModalNuevoProducto()">Cancelar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ============================
-         MODAL EDITAR PRODUCTO
-    ============================= -->
-    <div id="modal-editar-producto" class="modal">
-        <div class="modal-contenido">
-            <h3>Editar producto</h3>
-
-            <input type="hidden" id="edit-id">
-
-            <label>Nombre:</label>
-            <input type="text" id="edit-nombre">
-
-            <label>Categoría:</label>
-            <input type="text" id="edit-categoria">
-
-            <label>Precio:</label>
-            <input type="number" id="edit-precio" min="0">
-
-            <label>Stock:</label>
-            <input type="number" id="edit-stock" min="0">
-
-            <label>Código:</label>
-            <input type="text" id="edit-codigo">
-
-            <label>Imagen:</label>
-            <input type="file" id="edit-imagen" accept="image/*" onchange="previewEditarImagen()">
-            <img id="preview-editar" style="width:100px; margin-top:10px; display:none;">
-
-            <div class="modal-botones">
-                <button class="btn-secundario" onclick="guardarEdicionProducto()">Guardar cambios</button>
-                <button class="btn-eliminar" onclick="cerrarModalEditarProducto()">Cancelar</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
-
+    <script src="js/core.js"></script>
     <script>
-        function inicializarProductos() {
-            const usuario = localStorage.getItem("loggedUser");
-            if (!usuario) {
-                location.href = "index.html";
+        // Seguridad
+        protegerModulo();
+
+        // Cargar menú
+        fetch("menu.html")
+            .then(r => r.text())
+            .then(html => document.getElementById("menu-container").innerHTML = html);
+
+        // Renderizar tabla
+        function cargarTabla() {
+            const productos = getData("productos");
+            const tbody = document.getElementById("tablaProductos");
+            tbody.innerHTML = "";
+
+            productos.forEach(prod => {
+                const tr = document.createElement("tr");
+
+                tr.innerHTML = `
+                    <td>${prod.nombre}</td>
+                    <td>${prod.categoria}</td>
+                    <td>
+                        <button onclick="editar('${prod.id}')">Editar</button>
+                        <button onclick="eliminar('${prod.id}')" class="btn-eliminar">Eliminar</button>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Guardar producto
+        document.getElementById("guardarBtn").addEventListener("click", () => {
+            const id = document.getElementById("id").value;
+            const nombre = document.getElementById("nombre").value.trim();
+            const categoria = document.getElementById("categoria").value.trim();
+
+            if (!nombre) {
+                alert("El nombre es obligatorio");
                 return;
             }
 
-            document.getElementById("usuario-log").textContent = usuario;
-            cargarProductos();
+            let productos = getData("productos");
+
+            if (id) {
+                // Editar
+                const prod = productos.find(p => p.id === id);
+                prod.nombre = nombre;
+                prod.categoria = categoria;
+
+                registrarAuditoria("Productos", "Edición", `Editó ${nombre}`);
+            } else {
+                // Nuevo
+                productos.push({
+                    id: generarID(),
+                    nombre,
+                    categoria
+                });
+
+                registrarAuditoria("Productos", "Alta", `Creó ${nombre}`);
+            }
+
+            setData("productos", productos);
+            limpiarFormulario();
+            cargarTabla();
+        });
+
+        // Editar
+        function editar(id) {
+            const prod = getData("productos").find(p => p.id === id);
+            document.getElementById("id").value = prod.id;
+            document.getElementById("nombre").value = prod.nombre;
+            document.getElementById("categoria").value = prod.categoria;
         }
 
-        function cerrarSesion() {
-            localStorage.removeItem("loggedUser");
-            localStorage.removeItem("userRole");
-            location.href = "index.html";
+        // Eliminar
+        function eliminar(id) {
+            if (!confirm("¿Eliminar producto?")) return;
+
+            let productos = getData("productos");
+            const prod = productos.find(p => p.id === id);
+
+            productos = productos.filter(p => p.id !== id);
+            setData("productos", productos);
+
+            registrarAuditoria("Productos", "Baja", `Eliminó ${prod.nombre}`);
+
+            cargarTabla();
         }
+
+        // Cancelar
+        document.getElementById("cancelarBtn").addEventListener("click", limpiarFormulario);
+
+        function limpiarFormulario() {
+            document.getElementById("id").value = "";
+            document.getElementById("nombre").value = "";
+            document.getElementById("categoria").value = "";
+        }
+
+        // Inicializar
+        cargarTabla();
     </script>
 
 </body>
