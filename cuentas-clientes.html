@@ -3,123 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESPUMIN APP - Cuentas Corrientes Clientes</title>
+    <title>ESPUMIN - Cuentas Clientes</title>
     <link rel="stylesheet" href="style.css">
 </head>
+<body>
 
-<body onload="inicializarCuentasClientes()">
+    <!-- Menú -->
+    <div id="menu-container"></div>
 
-    <!-- ============================
-         BANNER SUPERIOR
-    ============================= -->
-    <header class="banner">
-        <h1>Cuentas Corrientes de Clientes</h1>
-        <a href="menu.html" class="btn-volver">Volver al Menú</a>
-    </header>
+    <main class="modulo-container">
+        <h1>Cuentas Clientes</h1>
 
-    <!-- ============================
-         USUARIO LOGUEADO
-    ============================= -->
-    <section class="usuario-info">
-        <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
-        <button onclick="cerrarSesion()" class="btn-sesion">Cerrar sesión</button>
-    </section>
+        <!-- Formulario -->
+        <section class="form-section">
+            <input type="hidden" id="id">
 
-    <!-- ============================
-         CONTENEDOR PRINCIPAL
-    ============================= -->
-    <section class="contenedor">
+            <label>Cliente</label>
+            <select id="cliente"></select>
 
-        <h2>Clientes con cuenta corriente</h2>
+            <label>Monto ($)</label>
+            <input type="number" id="monto" placeholder="Ej: 3500">
 
-        <!-- Buscador -->
-        <input type="text" id="buscar-cc" placeholder="Buscar cliente..." oninput="filtrarCuentasClientes()">
+            <label>Detalle</label>
+            <input type="text" id="detalle" placeholder="Ej: Pago parcial, factura 88">
+
+            <button id="guardarBtn">Registrar Movimiento</button>
+            <button id="cancelarBtn" class="btn-secundario">Cancelar</button>
+        </section>
 
         <!-- Tabla -->
-        <div id="lista-cc" style="margin-top:20px;"></div>
+        <section class="tabla-section">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Cliente</th>
+                        <th>Monto</th>
+                        <th>Detalle</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaCuentas"></tbody>
+            </table>
+        </section>
+    </main>
 
-    </section>
-
-    <!-- ============================
-         MODAL DETALLE CUENTA
-    ============================= -->
-    <div id="modal-detalle-cc" class="modal">
-        <div class="modal-contenido">
-            <h3>Cuenta corriente de <span id="cc-nombre"></span></h3>
-
-            <div id="tabla-detalle-cc"></div>
-
-            <div class="modal-botones">
-                <button class="btn-secundario" onclick="abrirModalPago()">Registrar pago</button>
-                <button class="btn-secundario" onclick="abrirModalAjuste()">Ajuste manual</button>
-                <button class="btn-eliminar" onclick="cerrarModalDetalleCC()">Cerrar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ============================
-         MODAL REGISTRAR PAGO
-    ============================= -->
-    <div id="modal-pago" class="modal">
-        <div class="modal-contenido">
-            <h3>Registrar pago</h3>
-
-            <input type="hidden" id="pago-id">
-
-            <label>Monto:</label>
-            <input type="number" id="pago-monto" min="1">
-
-            <label>Notas (opcional):</label>
-            <textarea id="pago-notas"></textarea>
-
-            <div class="modal-botones">
-                <button class="btn-secundario" onclick="guardarPago()">Guardar</button>
-                <button class="btn-eliminar" onclick="cerrarModalPago()">Cancelar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ============================
-         MODAL AJUSTE MANUAL
-    ============================= -->
-    <div id="modal-ajuste" class="modal">
-        <div class="modal-contenido">
-            <h3>Ajuste manual</h3>
-
-            <input type="hidden" id="ajuste-id">
-
-            <label>Monto (positivo o negativo):</label>
-            <input type="number" id="ajuste-monto">
-
-            <label>Motivo:</label>
-            <textarea id="ajuste-motivo"></textarea>
-
-            <div class="modal-botones">
-                <button class="btn-secundario" onclick="guardarAjuste()">Guardar</button>
-                <button class="btn-eliminar" onclick="cerrarModalAjuste()">Cancelar</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
-
+    <script src="js/core.js"></script>
     <script>
-        function inicializarCuentasClientes() {
-            const usuario = localStorage.getItem("loggedUser");
-            if (!usuario) {
-                location.href = "index.html";
+        protegerModulo();
+
+        // Cargar menú
+        fetch("menu.html")
+            .then(r => r.text())
+            .then(html => document.getElementById("menu-container").innerHTML = html);
+
+        // Cargar clientes
+        function cargarClientes() {
+            const clientes = getData("clientes");
+            const sel = document.getElementById("cliente");
+            sel.innerHTML = "";
+
+            clientes.forEach(c => {
+                const opt = document.createElement("option");
+                opt.value = c.nombre;
+                opt.textContent = c.nombre;
+                sel.appendChild(opt);
+            });
+        }
+
+        // Renderizar tabla
+        function cargarTabla() {
+            const cuentas = getData("cuentasClientes");
+            const tbody = document.getElementById("tablaCuentas");
+            tbody.innerHTML = "";
+
+            cuentas.forEach(c => {
+                const tr = document.createElement("tr");
+
+                tr.innerHTML = `
+                    <td>${formatDate(c.fecha)}</td>
+                    <td>${c.cliente}</td>
+                    <td>$ ${c.monto}</td>
+                    <td>${c.detalle}</td>
+                    <td>
+                        <button onclick="eliminar('${c.id}')" class="btn-eliminar">Eliminar</button>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Guardar movimiento
+        document.getElementById("guardarBtn").addEventListener("click", () => {
+            const cliente = document.getElementById("cliente").value;
+            const monto = Number(document.getElementById("monto").value);
+            const detalle = document.getElementById("detalle").value.trim();
+
+            if (!cliente || monto === 0) {
+                alert("Complete cliente y monto");
                 return;
             }
 
-            document.getElementById("usuario-log").textContent = usuario;
-            cargarCuentasClientes();
+            let cuentas = getData("cuentasClientes");
+
+            cuentas.push({
+                id: generarID(),
+                fecha: new Date().toISOString(),
+                cliente,
+                monto,
+                detalle
+            });
+
+            setData("cuentasClientes", cuentas);
+
+            registrarAuditoria("Cuentas Clientes", "Alta", `Movimiento: ${cliente} - $${monto}`);
+
+            limpiarFormulario();
+            cargarTabla();
+        });
+
+        // Eliminar movimiento
+        function eliminar(id) {
+            if (!confirm("¿Eliminar movimiento?")) return;
+
+            let cuentas = getData("cuentasClientes");
+            const mov = cuentas.find(c => c.id === id);
+
+            cuentas = cuentas.filter(c => c.id !== id);
+            setData("cuentasClientes", cuentas);
+
+            registrarAuditoria("Cuentas Clientes", "Baja", `Eliminó movimiento de ${mov.cliente}`);
+
+            cargarTabla();
         }
 
-        function cerrarSesion() {
-            localStorage.removeItem("loggedUser");
-            localStorage.removeItem("userRole");
-            location.href = "index.html";
+        // Cancelar
+        document.getElementById("cancelarBtn").addEventListener("click", limpiarFormulario);
+
+        function limpiarFormulario() {
+            document.getElementById("monto").value = "";
+            document.getElementById("detalle").value = "";
         }
+
+        // Inicializar
+        cargarClientes();
+        cargarTabla();
     </script>
 
 </body>
