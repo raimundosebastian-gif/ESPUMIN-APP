@@ -3,111 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logística / Entregas</title>
+    <title>ESPUMIN - Logística</title>
     <link rel="stylesheet" href="style.css">
-    <script src="js/core.js"></script>
 </head>
+<body>
 
-<body onload="protegerModulo(); cargarLogistica();">
+    <!-- Menú -->
+    <div id="menu-container"></div>
 
-    <!-- ENCABEZADO -->
-    <header class="header">
-        <h1>Logística / Entregas</h1>
-        <button class="btn-primary" onclick="abrirModal()">Nueva entrega</button>
-    </header>
+    <main class="modulo-container">
+        <h1>Logística</h1>
 
-    <!-- FILTROS -->
-    <section class="filtros">
-        <select id="filtroEstado">
-            <option value="">Todos</option>
-            <option value="pendiente">Pendiente</option>
-            <option value="en_camino">En camino</option>
-            <option value="entregado">Entregado</option>
-        </select>
-        <button class="btn-secondary" onclick="cargarLogistica()">Filtrar</button>
-    </section>
-
-    <!-- TABLA -->
-    <section class="tabla-contenedor">
-        <table>
-            <thead>
-                <tr>
-                    <th>Fecha</th>
-                    <th>Cliente</th>
-                    <th>Dirección</th>
-                    <th>Estado</th>
-                    <th>Repartidor</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody id="tablaLogistica"></tbody>
-        </table>
-    </section>
-
-    <!-- MODAL -->
-    <div id="modalLogistica" class="modal">
-        <div class="modal-contenido">
-            <h2 id="modalTitulo">Nueva entrega</h2>
-
-            <input type="hidden" id="envId">
-
-            <label>Fecha</label>
-            <input type="date" id="envFecha">
+        <!-- Formulario -->
+        <section class="form-section">
+            <input type="hidden" id="id">
 
             <label>Cliente</label>
-            <input type="text" id="envCliente">
+            <select id="cliente"></select>
 
-            <label>Dirección</label>
-            <input type="text" id="envDireccion">
+            <label>Producto</label>
+            <select id="producto"></select>
+
+            <label>Cantidad</label>
+            <input type="number" id="cantidad" min="1" placeholder="Ej: 5">
 
             <label>Estado</label>
-            <select id="envEstado">
-                <option value="pendiente">Pendiente</option>
-                <option value="en_camino">En camino</option>
-                <option value="entregado">Entregado</option>
+            <select id="estado">
+                <option value="Pendiente">Pendiente</option>
+                <option value="En camino">En camino</option>
+                <option value="Entregado">Entregado</option>
             </select>
 
-            <label>Repartidor</label>
-            <input type="text" id="envRepartidor">
+            <label>Fecha programada</label>
+            <input type="date" id="fecha">
 
-            <label>Notas</label>
-            <textarea id="envNotas"></textarea>
+            <button id="guardarBtn">Guardar</button>
+            <button id="cancelarBtn" class="btn-secundario">Cancelar</button>
+        </section>
 
-            <div class="modal-botones">
-                <button class="btn-primary" onclick="guardarEntrega()">Guardar</button>
-                <button class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
-            </div>
-        </div>
-    </div>
+        <!-- Tabla -->
+        <section class="tabla-section">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Producto</th>
+                        <th>Cant.</th>
+                        <th>Estado</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaLogistica"></tbody>
+            </table>
+        </section>
+    </main>
 
+    <script src="js/core.js"></script>
     <script>
-        /* ============================
-           CARGA DE TABLA
-        ============================ */
-        function cargarLogistica() {
-            const estadoFiltro = document.getElementById("filtroEstado").value;
+        protegerModulo();
 
-            let entregas = getLogistica();
+        // Cargar menú
+        fetch("menu.html")
+            .then(r => r.text())
+            .then(html => document.getElementById("menu-container").innerHTML = html);
 
-            if (estadoFiltro) {
-                entregas = entregas.filter(e => e.estado === estadoFiltro);
-            }
+        // Cargar clientes
+        function cargarClientes() {
+            const clientes = getData("clientes");
+            const sel = document.getElementById("cliente");
+            sel.innerHTML = "";
 
+            clientes.forEach(c => {
+                const opt = document.createElement("option");
+                opt.value = c.nombre;
+                opt.textContent = c.nombre;
+                sel.appendChild(opt);
+            });
+        }
+
+        // Cargar productos
+        function cargarProductos() {
+            const productos = getData("productos");
+            const sel = document.getElementById("producto");
+            sel.innerHTML = "";
+
+            productos.forEach(p => {
+                const opt = document.createElement("option");
+                opt.value = p.nombre;
+                opt.textContent = p.nombre;
+                sel.appendChild(opt);
+            });
+        }
+
+        // Renderizar tabla
+        function cargarTabla() {
+            const logistica = getData("logistica");
             const tbody = document.getElementById("tablaLogistica");
             tbody.innerHTML = "";
 
-            entregas.forEach(e => {
+            logistica.forEach(l => {
                 const tr = document.createElement("tr");
 
                 tr.innerHTML = `
-                    <td>${formatDate(e.fecha)}</td>
-                    <td>${e.cliente}</td>
-                    <td>${e.direccion}</td>
-                    <td>${formatearEstado(e.estado)}</td>
-                    <td>${e.repartidor || "-"}</td>
+                    <td>${l.cliente}</td>
+                    <td>${l.producto}</td>
+                    <td>${l.cantidad}</td>
+                    <td>${l.estado}</td>
+                    <td>${formatDate(l.fecha)}</td>
                     <td>
-                        <button class="btn-small" onclick="editarEntrega(${e.id})">✏️</button>
-                        <button class="btn-small btn-danger" onclick="eliminarEntrega(${e.id})">🗑️</button>
+                        <button onclick="editar('${l.id}')">Editar</button>
+                        <button onclick="eliminar('${l.id}')" class="btn-eliminar">Eliminar</button>
                     </td>
                 `;
 
@@ -115,93 +121,90 @@
             });
         }
 
-        function formatearEstado(estado) {
-            switch (estado) {
-                case "pendiente": return "Pendiente";
-                case "en_camino": return "En camino";
-                case "entregado": return "Entregado";
-                default: return estado;
-            }
-        }
+        // Guardar movimiento logístico
+        document.getElementById("guardarBtn").addEventListener("click", () => {
+            const id = document.getElementById("id").value;
+            const cliente = document.getElementById("cliente").value;
+            const producto = document.getElementById("producto").value;
+            const cantidad = Number(document.getElementById("cantidad").value);
+            const estado = document.getElementById("estado").value;
+            const fecha = document.getElementById("fecha").value;
 
-        /* ============================
-           MODAL
-        ============================ */
-        function abrirModal() {
-            document.getElementById("modalLogistica").style.display = "flex";
-            document.getElementById("modalTitulo").innerText = "Nueva entrega";
-
-            document.getElementById("envId").value = "";
-            document.getElementById("envFecha").value = new Date().toISOString().split("T")[0];
-            document.getElementById("envCliente").value = "";
-            document.getElementById("envDireccion").value = "";
-            document.getElementById("envEstado").value = "pendiente";
-            document.getElementById("envRepartidor").value = "";
-            document.getElementById("envNotas").value = "";
-        }
-
-        function cerrarModal() {
-            document.getElementById("modalLogistica").style.display = "none";
-        }
-
-        /* ============================
-           CRUD
-        ============================ */
-        function guardarEntrega() {
-            const id = document.getElementById("envId").value;
-            const fecha = document.getElementById("envFecha").value;
-            const cliente = document.getElementById("envCliente").value;
-            const direccion = document.getElementById("envDireccion").value;
-            const estado = document.getElementById("envEstado").value;
-            const repartidor = document.getElementById("envRepartidor").value;
-            const notas = document.getElementById("envNotas").value;
-
-            if (!validarCampos([fecha, cliente, direccion, estado])) {
-                alert("Los campos obligatorios deben estar completos.");
+            if (!cliente || !producto || cantidad <= 0 || !fecha) {
+                alert("Complete todos los campos");
                 return;
             }
 
-            const entrega = {
-                id: id || generarID(),
-                fecha,
-                cliente,
-                direccion,
-                estado,
-                repartidor,
-                notas
-            };
+            let logistica = getData("logistica");
 
             if (id) {
-                updateLogistica(parseInt(id), entrega);
+                // Editar
+                const mov = logistica.find(l => l.id === id);
+                mov.cliente = cliente;
+                mov.producto = producto;
+                mov.cantidad = cantidad;
+                mov.estado = estado;
+                mov.fecha = fecha;
+
+                registrarAuditoria("Logística", "Edición", `Editó entrega de ${producto} a ${cliente}`);
             } else {
-                addLogistica(entrega);
+                // Nuevo
+                logistica.push({
+                    id: generarID(),
+                    cliente,
+                    producto,
+                    cantidad,
+                    estado,
+                    fecha
+                });
+
+                registrarAuditoria("Logística", "Alta", `Programó entrega de ${producto} a ${cliente}`);
             }
 
-            cerrarModal();
-            cargarLogistica();
+            setData("logistica", logistica);
+            limpiarFormulario();
+            cargarTabla();
+        });
+
+        // Editar
+        function editar(id) {
+            const mov = getData("logistica").find(l => l.id === id);
+            document.getElementById("id").value = mov.id;
+            document.getElementById("cliente").value = mov.cliente;
+            document.getElementById("producto").value = mov.producto;
+            document.getElementById("cantidad").value = mov.cantidad;
+            document.getElementById("estado").value = mov.estado;
+            document.getElementById("fecha").value = mov.fecha;
         }
 
-        function editarEntrega(id) {
-            const e = getLogistica().find(x => x.id === id);
+        // Eliminar
+        function eliminar(id) {
+            if (!confirm("¿Eliminar movimiento logístico?")) return;
 
-            abrirModal();
-            document.getElementById("modalTitulo").innerText = "Editar entrega";
+            let logistica = getData("logistica");
+            const mov = logistica.find(l => l.id === id);
 
-            document.getElementById("envId").value = e.id;
-            document.getElementById("envFecha").value = e.fecha;
-            document.getElementById("envCliente").value = e.cliente;
-            document.getElementById("envDireccion").value = e.direccion;
-            document.getElementById("envEstado").value = e.estado;
-            document.getElementById("envRepartidor").value = e.repartidor;
-            document.getElementById("envNotas").value = e.notas;
+            logistica = logistica.filter(l => l.id !== id);
+            setData("logistica", logistica);
+
+            registrarAuditoria("Logística", "Baja", `Eliminó entrega de ${mov.producto}`);
+
+            cargarTabla();
         }
 
-        function eliminarEntrega(id) {
-            if (confirm("¿Eliminar esta entrega?")) {
-                deleteLogistica(id);
-                cargarLogistica();
-            }
+        // Cancelar
+        document.getElementById("cancelarBtn").addEventListener("click", limpiarFormulario);
+
+        function limpiarFormulario() {
+            document.getElementById("id").value = "";
+            document.getElementById("cantidad").value = "";
+            document.getElementById("fecha").value = "";
         }
+
+        // Inicializar
+        cargarClientes();
+        cargarProductos();
+        cargarTabla();
     </script>
 
 </body>
