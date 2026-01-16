@@ -18,23 +18,23 @@
         <section class="form-section">
             <input type="hidden" id="id">
 
-            <label>Nombre de la empresa</label>
+            <label for="empresa">Nombre de la empresa</label>
             <input type="text" id="empresa" placeholder="Ej: ESPUMIN">
 
-            <label>Dirección</label>
+            <label for="direccion">Dirección</label>
             <input type="text" id="direccion" placeholder="Ej: Calle 123">
 
-            <label>Teléfono</label>
+            <label for="telefono">Teléfono</label>
             <input type="text" id="telefono" placeholder="Ej: 2477-555555">
 
-            <label>Correo</label>
+            <label for="correo">Correo</label>
             <input type="email" id="correo" placeholder="Ej: empresa@mail.com">
 
             <button id="guardarBtn">Guardar</button>
         </section>
     </main>
 
-    <script src="js/core.js"></script>
+    <script src="core.js"></script>
     <script>
         protegerModulo();
 
@@ -43,7 +43,7 @@
             .then(r => r.text())
             .then(html => document.getElementById("menu-container").innerHTML = html);
 
-        // Cargar datos
+        // Cargar datos existentes
         function cargarDatos() {
             const cfg = getData("configuracion")[0];
 
@@ -56,7 +56,7 @@
             }
         }
 
-        // Guardar
+        // Guardar configuración
         document.getElementById("guardarBtn").addEventListener("click", () => {
             const id = document.getElementById("id").value;
             const empresa = document.getElementById("empresa").value.trim();
@@ -81,7 +81,7 @@
 
                 registrarAuditoria("Configuración", "Edición", "Actualizó datos de la empresa");
             } else {
-                // Nuevo
+                // Nuevo registro único
                 cfg = [{
                     id: generarID(),
                     empresa,
