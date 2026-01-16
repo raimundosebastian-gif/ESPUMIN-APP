@@ -3,125 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESPUMIN APP - Clientes</title>
+    <title>ESPUMIN - Clientes</title>
     <link rel="stylesheet" href="style.css">
 </head>
+<body>
 
-<body onload="inicializarClientes()">
+    <!-- Menú -->
+    <div id="menu-container"></div>
 
-    <!-- ============================
-         BANNER SUPERIOR
-    ============================= -->
-    <header class="banner">
-        <h1>Gestión de Clientes</h1>
-        <a href="menu.html" class="btn-volver">Volver al Menú</a>
-    </header>
+    <main class="modulo-container">
+        <h1>Clientes</h1>
 
-    <!-- ============================
-         USUARIO LOGUEADO
-    ============================= -->
-    <section class="usuario-info">
-        <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
-        <button onclick="cerrarSesion()" class="btn-sesion">Cerrar sesión</button>
-    </section>
+        <!-- Formulario -->
+        <section class="form-section">
+            <input type="hidden" id="id">
 
-    <!-- ============================
-         CONTENEDOR PRINCIPAL
-    ============================= -->
-    <section class="contenedor">
+            <label>Nombre del cliente</label>
+            <input type="text" id="nombre" placeholder="Ej: Juan Pérez">
 
-        <h2>Clientes registrados</h2>
+            <label>Teléfono</label>
+            <input type="text" id="telefono" placeholder="Ej: 2477-123456">
 
-        <!-- Buscador -->
-        <input type="text" id="buscar-cliente" placeholder="Buscar cliente..." oninput="filtrarClientes()">
+            <label>Dirección</label>
+            <input type="text" id="direccion" placeholder="Ej: Calle 123">
 
-        <!-- Botón crear -->
-        <button class="btn-primario" onclick="abrirModalNuevoCliente()">+ Crear cliente</button>
+            <button id="guardarBtn">Guardar</button>
+            <button id="cancelarBtn" class="btn-secundario">Cancelar</button>
+        </section>
 
         <!-- Tabla -->
-        <div id="lista-clientes" style="margin-top:20px;"></div>
+        <section class="tabla-section">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Teléfono</th>
+                        <th>Dirección</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaClientes"></tbody>
+            </table>
+        </section>
+    </main>
 
-    </section>
-
-    <!-- ============================
-         MODAL NUEVO CLIENTE
-    ============================= -->
-    <div id="modal-nuevo-cliente" class="modal">
-        <div class="modal-contenido">
-            <h3>Nuevo cliente</h3>
-
-            <label>Nombre:</label>
-            <input type="text" id="nuevo-nombre">
-
-            <label>Teléfono:</label>
-            <input type="text" id="nuevo-telefono">
-
-            <label>Dirección:</label>
-            <input type="text" id="nuevo-direccion">
-
-            <label>Correo electrónico (opcional):</label>
-            <input type="email" id="nuevo-email">
-
-            <label>Notas (opcional):</label>
-            <textarea id="nuevo-notas"></textarea>
-
-            <div class="modal-botones">
-                <button class="btn-secundario" onclick="guardarNuevoCliente()">Guardar</button>
-                <button class="btn-eliminar" onclick="cerrarModalNuevoCliente()">Cancelar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ============================
-         MODAL EDITAR CLIENTE
-    ============================= -->
-    <div id="modal-editar-cliente" class="modal">
-        <div class="modal-contenido">
-            <h3>Editar cliente</h3>
-
-            <input type="hidden" id="edit-id">
-
-            <label>Nombre:</label>
-            <input type="text" id="edit-nombre">
-
-            <label>Teléfono:</label>
-            <input type="text" id="edit-telefono">
-
-            <label>Dirección:</label>
-            <input type="text" id="edit-direccion">
-
-            <label>Correo electrónico:</label>
-            <input type="email" id="edit-email">
-
-            <label>Notas:</label>
-            <textarea id="edit-notas"></textarea>
-
-            <div class="modal-botones">
-                <button class="btn-secundario" onclick="guardarEdicionCliente()">Guardar cambios</button>
-                <button class="btn-eliminar" onclick="cerrarModalEditarCliente()">Cancelar</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
-
+    <script src="js/core.js"></script>
     <script>
-        function inicializarClientes() {
-            const usuario = localStorage.getItem("loggedUser");
-            if (!usuario) {
-                location.href = "index.html";
+        // Seguridad
+        protegerModulo();
+
+        // Cargar menú
+        fetch("menu.html")
+            .then(r => r.text())
+            .then(html => document.getElementById("menu-container").innerHTML = html);
+
+        // Renderizar tabla
+        function cargarTabla() {
+            const clientes = getData("clientes");
+            const tbody = document.getElementById("tablaClientes");
+            tbody.innerHTML = "";
+
+            clientes.forEach(cli => {
+                const tr = document.createElement("tr");
+
+                tr.innerHTML = `
+                    <td>${cli.nombre}</td>
+                    <td>${cli.telefono}</td>
+                    <td>${cli.direccion}</td>
+                    <td>
+                        <button onclick="editar('${cli.id}')">Editar</button>
+                        <button onclick="eliminar('${cli.id}')" class="btn-eliminar">Eliminar</button>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Guardar cliente
+        document.getElementById("guardarBtn").addEventListener("click", () => {
+            const id = document.getElementById("id").value;
+            const nombre = document.getElementById("nombre").value.trim();
+            const telefono = document.getElementById("telefono").value.trim();
+            const direccion = document.getElementById("direccion").value.trim();
+
+            if (!nombre) {
+                alert("El nombre es obligatorio");
                 return;
             }
 
-            document.getElementById("usuario-log").textContent = usuario;
-            cargarClientes();
+            let clientes = getData("clientes");
+
+            if (id) {
+                // Editar
+                const cli = clientes.find(c => c.id === id);
+                cli.nombre = nombre;
+                cli.telefono = telefono;
+                cli.direccion = direccion;
+
+                registrarAuditoria("Clientes", "Edición", `Editó ${nombre}`);
+            } else {
+                // Nuevo
+                clientes.push({
+                    id: generarID(),
+                    nombre,
+                    telefono,
+                    direccion
+                });
+
+                registrarAuditoria("Clientes", "Alta", `Creó ${nombre}`);
+            }
+
+            setData("clientes", clientes);
+            limpiarFormulario();
+            cargarTabla();
+        });
+
+        // Editar
+        function editar(id) {
+            const cli = getData("clientes").find(c => c.id === id);
+            document.getElementById("id").value = cli.id;
+            document.getElementById("nombre").value = cli.nombre;
+            document.getElementById("telefono").value = cli.telefono;
+            document.getElementById("direccion").value = cli.direccion;
         }
 
-        function cerrarSesion() {
-            localStorage.removeItem("loggedUser");
-            localStorage.removeItem("userRole");
-            location.href = "index.html";
+        // Eliminar
+        function eliminar(id) {
+            if (!confirm("¿Eliminar cliente?")) return;
+
+            let clientes = getData("clientes");
+            const cli = clientes.find(c => c.id === id);
+
+            clientes = clientes.filter(c => c.id !== id);
+            setData("clientes", clientes);
+
+            registrarAuditoria("Clientes", "Baja", `Eliminó ${cli.nombre}`);
+
+            cargarTabla();
         }
+
+        // Cancelar
+        document.getElementById("cancelarBtn").addEventListener("click", limpiarFormulario);
+
+        function limpiarFormulario() {
+            document.getElementById("id").value = "";
+            document.getElementById("nombre").value = "";
+            document.getElementById("telefono").value = "";
+            document.getElementById("direccion").value = "";
+        }
+
+        // Inicializar
+        cargarTabla();
     </script>
 
 </body>
