@@ -18,16 +18,16 @@
         <section class="form-section">
             <input type="hidden" id="id">
 
-            <label>Tipo de movimiento</label>
+            <label for="tipo">Tipo de movimiento</label>
             <select id="tipo">
                 <option value="Ingreso">Ingreso</option>
                 <option value="Egreso">Egreso</option>
             </select>
 
-            <label>Monto ($)</label>
+            <label for="monto">Monto ($)</label>
             <input type="number" id="monto" placeholder="Ej: 5000">
 
-            <label>Detalle</label>
+            <label for="detalle">Detalle</label>
             <input type="text" id="detalle" placeholder="Ej: Pago cliente, compra insumos">
 
             <button id="guardarBtn">Registrar</button>
@@ -56,7 +56,7 @@
         </section>
     </main>
 
-    <script src="js/core.js"></script>
+    <script src="core.js"></script>
     <script>
         protegerModulo();
 
