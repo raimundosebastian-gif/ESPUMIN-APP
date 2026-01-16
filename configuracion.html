@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESPUMIN APP - Configuración</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body onload="inicializarConfiguracion()">
+
+    <!-- ============================
+         BANNER SUPERIOR
+    ============================= -->
+    <header class="banner">
+        <h1>Configuración del Sistema</h1>
+        <a href="menu.html" class="btn-volver">Volver al Menú</a>
+    </header>
+
+    <!-- ============================
+         USUARIO LOGUEADO
+    ============================= -->
+    <section class="usuario-info">
+        <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
+        <button onclick="cerrarSesion()" class="btn-sesion">Cerrar sesión</button>
+    </section>
+
+    <!-- ============================
+         CONTENEDOR PRINCIPAL
+    ============================= -->
+    <section class="contenedor">
+
+        <h2>Datos de la empresa</h2>
+
+        <label>Nombre:</label>
+        <input type="text" id="conf-nombre">
+
+        <label>CUIT:</label>
+        <input type="text" id="conf-cuit">
+
+        <label>Condición frente al IVA:</label>
+        <select id="conf-iva">
+            <option value="Responsable Inscripto">Responsable Inscripto</option>
+            <option value="Monotributo">Monotributo</option>
+            <option value="Exento">Exento</option>
+        </select>
+
+        <label>Dirección:</label>
+        <input type="text" id="conf-direccion">
+
+        <label>Teléfono:</label>
+        <input type="text" id="conf-telefono">
+
+        <label>Email:</label>
+        <input type="email" id="conf-email">
+
+        <label>Logo:</label>
+        <input type="file" id="conf-logo" accept="image/*" onchange="previewLogo()">
+        <img id="preview-logo" style="width:120px; margin-top:10px; display:none;">
+
+        <hr>
+
+        <h2>Parámetros contables</h2>
+
+        <label>Inicio de ejercicio:</label>
+        <input type="date" id="conf-ejercicio">
+
+        <label>Mes fiscal:</label>
+        <select id="conf-mes-fiscal">
+            <option value="1">Enero</option>
+            <option value="2">Febrero</option>
+            <option value="3">Marzo</option>
+            <option value="4">Abril</option>
+            <option value="5">Mayo</option>
+            <option value="6">Junio</option>
+            <option value="7">Julio</option>
+            <option value="8">Agosto</option>
+            <option value="9">Septiembre</option>
+            <option value="10">Octubre</option>
+            <option value="11">Noviembre</option>
+            <option value="12">Diciembre</option>
+        </select>
+
+        <label>Alícuota IVA general:</label>
+        <input type="number" id="conf-iva-general" min="0" step="0.01">
+
+        <label>Alícuota IVA reducida:</label>
+        <input type="number" id="conf-iva-reducida" min="0" step="0.01">
+
+        <hr>
+
+        <h2>Parámetros de sueldos</h2>
+
+        <label>Fecha de pago:</label>
+        <input type="date" id="conf-sueldos-fecha">
+
+        <label>Aportes (%):</label>
+        <input type="number" id="conf-aportes" min="0" step="0.01">
+
+        <label>Contribuciones (%):</label>
+        <input type="number" id="conf-contribuciones" min="0" step="0.01">
+
+        <hr>
+
+        <h2>Preferencias del sistema</h2>
+
+        <label>Tema:</label>
+        <select id="conf-tema">
+            <option value="claro">Claro</option>
+            <option value="oscuro">Oscuro</option>
+        </select>
+
+        <label>Formato de fecha:</label>
+        <select id="conf-fecha">
+            <option value="dd/mm/yyyy">dd/mm/yyyy</option>
+            <option value="mm/dd/yyyy">mm/dd/yyyy</option>
+        </select>
+
+        <label>Formato de moneda:</label>
+        <select id="conf-moneda">
+            <option value="ARS">$ Pesos</option>
+            <option value="USD">USD</option>
+        </select>
+
+        <hr>
+
+        <button class="btn-primario" onclick="guardarConfiguracion()">Guardar configuración</button>
+
+    </section>
+
+    <script src="script.js"></script>
+
+    <script>
+        function inicializarConfiguracion() {
+            const usuario = localStorage.getItem("loggedUser");
+            if (!usuario) {
+                location.href = "index.html";
+                return;
+            }
+
+            document.getElementById("usuario-log").textContent = usuario;
+            cargarConfiguracion();
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem("loggedUser");
+            localStorage.removeItem("userRole");
+            location.href = "index.html";
+        }
+    </script>
+
+</body>
+</html>
