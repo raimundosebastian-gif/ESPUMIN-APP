@@ -8,89 +8,97 @@
 </head>
 <body>
 
-    <!-- Menú principal -->
+    <!-- Menú -->
     <div id="menu-container"></div>
 
-    <!-- Contenido principal del dashboard -->
-    <main class="dashboard-container">
-        <h1>Dashboard ESPUMIN</h1>
+    <main class="modulo-container">
+        <h1>Dashboard General</h1>
 
-        <section class="dashboard-grid">
+        <!-- Tarjetas -->
+        <section class="dashboard-cards">
+
             <div class="card">
-                <h2>Clientes</h2>
-                <p id="dash-clientes">-</p>
+                <h2>Ventas Totales</h2>
+                <p id="ventasTotales">$ 0</p>
             </div>
 
             <div class="card">
-                <h2>Productos</h2>
-                <p id="dash-productos">-</p>
+                <h2>Compras Totales</h2>
+                <p id="comprasTotales">$ 0</p>
             </div>
 
             <div class="card">
-                <h2>Ventas</h2>
-                <p id="dash-ventas">-</p>
+                <h2>Saldo en Caja</h2>
+                <p id="saldoCaja">$ 0</p>
             </div>
 
             <div class="card">
-                <h2>Stock total</h2>
-                <p id="dash-stock">-</p>
+                <h2>Stock Total</h2>
+                <p id="stockTotal">0 unidades</p>
+            </div>
+
+            <div class="card">
+                <h2>Órdenes de Producción</h2>
+                <p id="ordenesProduccion">0</p>
             </div>
 
             <div class="card">
                 <h2>Notificaciones</h2>
-                <p id="dash-notificaciones">-</p>
+                <p id="notificacionesPendientes">0</p>
             </div>
 
-            <div class="card">
-                <h2>Última auditoría</h2>
-                <p id="dash-auditoria">-</p>
-            </div>
         </section>
+
     </main>
 
-    <!-- Core del sistema + seguridad + menú + indicadores -->
     <script src="js/core.js"></script>
     <script>
-        // Proteger acceso
         protegerModulo();
 
         // Cargar menú
         fetch("menu.html")
             .then(r => r.text())
-            .then(html => {
-                const cont = document.getElementById("menu-container");
-                if (cont) cont.innerHTML = html;
-            });
+            .then(html => document.getElementById("menu-container").innerHTML = html);
 
-        // Cargar indicadores básicos
-        document.addEventListener("DOMContentLoaded", () => {
-            const clientes = getData("clientes");
-            const productos = getData("productos");
+        // Cargar métricas
+        function cargarDashboard() {
+
+            // Ventas
             const ventas = getData("ventas");
+            const totalVentas = ventas.reduce((acc, v) => acc + Number(v.total), 0);
+            document.getElementById("ventasTotales").textContent = "$ " + totalVentas;
+
+            // Compras
+            const compras = getData("compras");
+            const totalCompras = compras.reduce((acc, c) => acc + Number(c.total), 0);
+            document.getElementById("comprasTotales").textContent = "$ " + totalCompras;
+
+            // Caja
+            const caja = getData("caja");
+            let saldo = 0;
+            caja.forEach(m => {
+                if (m.tipo === "Ingreso") saldo += Number(m.monto);
+                else saldo -= Number(m.monto);
+            });
+            document.getElementById("saldoCaja").textContent = "$ " + saldo;
+
+            // Stock total
             const inventario = getData("inventario");
+            const stockTotal = inventario.reduce((acc, i) => acc + Number(i.stock), 0);
+            document.getElementById("stockTotal").textContent = stockTotal + " unidades";
+
+            // Producción
+            const produccion = getData("produccion");
+            document.getElementById("ordenesProduccion").textContent = produccion.length;
+
+            // Notificaciones
             const notificaciones = getData("notificaciones");
-            const auditoria = getData("auditoria");
+            document.getElementById("notificacionesPendientes").textContent = notificaciones.length;
 
-            const totalStock = inventario.reduce((acc, item) => acc + (Number(item.stock) || 0), 0);
-            const ultimaAud = auditoria.length > 0 ? auditoria[auditoria.length - 1] : null;
+            registrarAuditoria("Dashboard", "Consulta", "Visualizó métricas generales");
+        }
 
-            const setText = (id, value) => {
-                const el = document.getElementById(id);
-                if (el) el.textContent = value;
-            };
-
-            setText("dash-clientes", clientes.length);
-            setText("dash-productos", productos.length);
-            setText("dash-ventas", ventas.length);
-            setText("dash-stock", totalStock);
-            setText("dash-notificaciones", notificaciones.filter(n => !n.revisada).length);
-            setText(
-                "dash-auditoria",
-                ultimaAud
-                    ? `${formatDate(ultimaAud.fecha)} - ${ultimaAud.modulo} - ${ultimaAud.tipo}`
-                    : "Sin registros"
-            );
-        });
+        cargarDashboard();
     </script>
 
 </body>
