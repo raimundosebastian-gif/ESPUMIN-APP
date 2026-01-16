@@ -1,202 +1,132 @@
-/* ============================================================
-   USUARIOS — MÓDULO PROFESIONAL Y UNIFICADO
-============================================================ */
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESPUMIN APP - Usuarios</title>
+    <link rel="stylesheet" href="style.css">
+</head>
 
-/* Usuario raíz protegido */
-const USUARIO_RAIZ = {
-    usuario: "EU",
-    password: "Villatia1974",
-    rol: "Admin",
-    estado: "Activo"
-};
+<body onload="inicializarUsuarios()">
 
-/* Obtener usuarios */
-function obtenerUsuarios() {
-    let lista = JSON.parse(localStorage.getItem("usuarios")) || [];
+    <!-- ============================
+         BANNER SUPERIOR
+    ============================= -->
+    <header class="banner">
+        <h1>Gestión de Usuarios</h1>
+        <a href="menu.html" class="btn-volver">Volver al Menú</a>
+    </header>
 
-    // Si el usuario raíz no existe, lo creamos
-    const existeRaiz = lista.some(u => u.usuario === USUARIO_RAIZ.usuario);
+    <!-- ============================
+         USUARIO LOGUEADO
+    ============================= -->
+    <section class="usuario-info">
+        <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
+        <button onclick="cerrarSesion()" class="btn-sesion">Cerrar sesión</button>
+    </section>
 
-    if (!existeRaiz) {
-        lista.push(USUARIO_RAIZ);
-        localStorage.setItem("usuarios", JSON.stringify(lista));
-    }
+    <!-- ============================
+         CONTENEDOR PRINCIPAL
+    ============================= -->
+    <section class="contenedor">
 
-    return lista;
-}
+        <h2>Usuarios registrados</h2>
 
-/* Guardar usuarios */
-function guardarUsuarios(lista) {
-    localStorage.setItem("usuarios", JSON.stringify(lista));
-}
+        <button class="btn-primario" onclick="abrirModalNuevoUsuario()">+ Crear usuario</button>
 
-/* ============================================================
-   LISTAR USUARIOS
-============================================================ */
+        <div id="lista-usuarios" style="margin-top:20px;"></div>
 
-function cargarUsuarios() {
-    const cont = document.getElementById("lista-usuarios");
-    if (!cont) return;
+    </section>
 
-    const usuarios = obtenerUsuarios();
+    <!-- ============================
+         MODAL NUEVO USUARIO
+    ============================= -->
+    <div id="modal-nuevo" class="modal">
+        <div class="modal-contenido">
+            <h3>Nuevo usuario</h3>
 
-    if (usuarios.length === 0) {
-        cont.innerHTML = "<p>No hay usuarios registrados.</p>";
-        return;
-    }
+            <label>Usuario:</label>
+            <input type="text" id="nuevo-usuario">
 
-    let html = `
-        <table>
-            <tr>
-                <th>Usuario</th>
-                <th>Rol</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-            </tr>
-    `;
+            <label>Contraseña:</label>
+            <input type="password" id="nuevo-password">
 
-    usuarios.forEach(u => {
-        const esRaiz = u.usuario === USUARIO_RAIZ.usuario;
+            <label>Rol:</label>
+            <select id="nuevo-rol">
+                <option value="Admin">Admin</option>
+                <option value="Empleado">Empleado</option>
+            </select>
 
-        html += `
-            <tr>
-                <td>${u.usuario}</td>
-                <td>${u.rol}</td>
-                <td>${u.estado}</td>
-                <td>
-                    <button class="btn-editar" onclick="abrirModalEditarUsuario('${u.usuario}')">Editar</button>
-                    ${esRaiz ? "" : `<button class="btn-eliminar" onclick="eliminarUsuario('${u.usuario}')">Eliminar</button>`}
-                </td>
-            </tr>
-        `;
-    });
+            <div class="modal-botones">
+                <button class="btn-secundario" onclick="guardarNuevoUsuario()">Guardar</button>
+                <button class="btn-eliminar" onclick="cerrarModalNuevoUsuario()">Cancelar</button>
+            </div>
+        </div>
+    </div>
 
-    html += "</table>";
-    cont.innerHTML = html;
-}
+    <!-- ============================
+         MODAL EDITAR USUARIO
+    ============================= -->
+    <div id="modal-editar" class="modal">
+        <div class="modal-contenido">
+            <h3>Editar usuario</h3>
 
-/* ============================================================
-   NUEVO USUARIO
-============================================================ */
+            <input type="hidden" id="edit-id">
 
-function abrirModalNuevoUsuario() {
-    document.getElementById("modal-nuevo").style.display = "flex";
-}
+            <label>Usuario:</label>
+            <input type="text" id="edit-usuario">
 
-function cerrarModalNuevoUsuario() {
-    document.getElementById("modal-nuevo").style.display = "none";
-}
+            <label>Nueva contraseña (opcional):</label>
+            <input type="password" id="edit-password">
 
-function guardarNuevoUsuario() {
-    const usuario = document.getElementById("nuevo-usuario").value.trim();
-    const password = document.getElementById("nuevo-password").value.trim();
-    const rol = document.getElementById("nuevo-rol").value;
+            <label>Rol:</label>
+            <select id="edit-rol">
+                <option value="Admin">Admin</option>
+                <option value="Empleado">Empleado</option>
+            </select>
 
-    if (!usuario || !password) {
-        alert("Complete todos los campos.");
-        return;
-    }
+            <label>Estado:</label>
+            <select id="edit-estado">
+                <option value="Activo">Activo</option>
+                <option value="Inactivo">Inactivo</option>
+            </select>
 
-    let usuarios = obtenerUsuarios();
+            <div class="modal-botones">
+                <button class="btn-secundario" onclick="guardarEdicionUsuario()">Guardar cambios</button>
+                <button class="btn-eliminar" onclick="cerrarModalEditarUsuario()">Cancelar</button>
+            </div>
+        </div>
+    </div>
 
-    if (usuarios.some(u => u.usuario.toLowerCase() === usuario.toLowerCase())) {
-        alert("Ese usuario ya existe.");
-        return;
-    }
+    <script src="script.js"></script>
 
-    usuarios.push({
-        usuario,
-        password,
-        rol,
-        estado: "Activo"
-    });
+    <script>
+        function inicializarUsuarios() {
+            const usuario = localStorage.getItem("loggedUser");
+            const rol = localStorage.getItem("userRole");
 
-    guardarUsuarios(usuarios);
-    cerrarModalNuevoUsuario();
-    cargarUsuarios();
-    alert("Usuario creado correctamente.");
-}
+            if (!usuario) {
+                location.href = "index.html";
+                return;
+            }
 
-/* ============================================================
-   EDITAR USUARIO
-============================================================ */
+            if (rol !== "Admin") {
+                alert("Acceso denegado. Solo un administrador puede gestionar usuarios.");
+                location.href = "menu.html";
+                return;
+            }
 
-function abrirModalEditarUsuario(usuario) {
-    const usuarios = obtenerUsuarios();
-    const u = usuarios.find(x => x.usuario === usuario);
+            document.getElementById("usuario-log").textContent = usuario;
 
-    if (!u) return;
+            cargarUsuarios();
+        }
 
-    document.getElementById("edit-id").value = u.usuario;
-    document.getElementById("edit-usuario").value = u.usuario;
-    document.getElementById("edit-password").value = "";
-    document.getElementById("edit-rol").value = u.rol;
-    document.getElementById("edit-estado").value = u.estado;
+        function cerrarSesion() {
+            localStorage.removeItem("loggedUser");
+            localStorage.removeItem("userRole");
+            location.href = "index.html";
+        }
+    </script>
 
-    // Proteger usuario raíz
-    if (u.usuario === USUARIO_RAIZ.usuario) {
-        document.getElementById("edit-rol").disabled = true;
-        document.getElementById("edit-estado").disabled = true;
-    } else {
-        document.getElementById("edit-rol").disabled = false;
-        document.getElementById("edit-estado").disabled = false;
-    }
-
-    document.getElementById("modal-editar").style.display = "flex";
-}
-
-function cerrarModalEditarUsuario() {
-    document.getElementById("modal-editar").style.display = "none";
-}
-
-function guardarEdicionUsuario() {
-    const id = document.getElementById("edit-id").value;
-    const usuarioNuevo = document.getElementById("edit-usuario").value.trim();
-    const passwordNuevo = document.getElementById("edit-password").value.trim();
-    const rolNuevo = document.getElementById("edit-rol").value;
-    const estadoNuevo = document.getElementById("edit-estado").value;
-
-    let usuarios = obtenerUsuarios();
-    let u = usuarios.find(x => x.usuario === id);
-
-    if (!u) return;
-
-    // Proteger usuario raíz
-    if (u.usuario === USUARIO_RAIZ.usuario) {
-        u.usuario = USUARIO_RAIZ.usuario; // No permitir cambiar nombre
-        u.rol = "Admin";
-        u.estado = "Activo";
-    } else {
-        u.usuario = usuarioNuevo;
-        u.rol = rolNuevo;
-        u.estado = estadoNuevo;
-    }
-
-    if (passwordNuevo) {
-        u.password = passwordNuevo;
-    }
-
-    guardarUsuarios(usuarios);
-    cerrarModalEditarUsuario();
-    cargarUsuarios();
-    alert("Usuario actualizado correctamente.");
-}
-
-/* ============================================================
-   ELIMINAR USUARIO
-============================================================ */
-
-function eliminarUsuario(usuario) {
-    if (usuario === USUARIO_RAIZ.usuario) {
-        alert("El usuario raíz no puede ser eliminado.");
-        return;
-    }
-
-    if (!confirm("¿Eliminar este usuario?")) return;
-
-    let usuarios = obtenerUsuarios();
-    usuarios = usuarios.filter(u => u.usuario !== usuario);
-
-    guardarUsuarios(usuarios);
-    cargarUsuarios();
-}
+</body>
+</html>
