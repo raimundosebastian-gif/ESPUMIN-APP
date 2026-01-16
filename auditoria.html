@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESPUMIN APP - Auditoría</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body onload="inicializarAuditoria()">
+
+    <!-- ============================
+         BANNER SUPERIOR
+    ============================= -->
+    <header class="banner">
+        <h1>Auditoría del Sistema</h1>
+        <a href="menu.html" class="btn-volver">Volver al Menú</a>
+    </header>
+
+    <!-- ============================
+         USUARIO LOGUEADO
+    ============================= -->
+    <section class="usuario-info">
+        <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
+        <button onclick="cerrarSesion()" class="btn-sesion">Cerrar sesión</button>
+    </section>
+
+    <!-- ============================
+         CONTENEDOR PRINCIPAL
+    ============================= -->
+    <section class="contenedor">
+
+        <h2>Eventos registrados</h2>
+
+        <!-- Filtros -->
+        <div class="filtros">
+            <label>Tipo:</label>
+            <select id="filtro-tipo" onchange="filtrarAuditoria()">
+                <option value="">Todos</option>
+                <option value="Producto">Producto</option>
+                <option value="Precio">Precio</option>
+                <option value="Cliente">Cliente</option>
+                <option value="Usuario">Usuario</option>
+                <option value="Compra">Compra</option>
+                <option value="Venta">Venta</option>
+                <option value="Stock">Stock</option>
+                <option value="Backup">Backup</option>
+                <option value="Configuración">Configuración</option>
+                <option value="Cuenta Cliente">Cuenta Cliente</option>
+                <option value="Cuenta Proveedor">Cuenta Proveedor</option>
+            </select>
+
+            <label>Usuario:</label>
+            <input type="text" id="filtro-usuario" oninput="filtrarAuditoria()">
+
+            <label>Fecha:</label>
+            <input type="date" id="filtro-fecha" onchange="filtrarAuditoria()">
+        </div>
+
+        <!-- Tabla -->
+        <div id="lista-auditoria" style="margin-top:20px;"></div>
+
+    </section>
+
+    <!-- ============================
+         MODAL DETALLE EVENTO
+    ============================= -->
+    <div id="modal-detalle-evento" class="modal">
+        <div class="modal-contenido">
+            <h3>Detalle del evento</h3>
+
+            <div id="detalle-evento"></div>
+
+            <div class="modal-botones">
+                <button class="btn-eliminar" onclick="cerrarModalDetalleEvento()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+
+    <script>
+        function inicializarAuditoria() {
+            const usuario = localStorage.getItem("loggedUser");
+            if (!usuario) {
+                location.href = "index.html";
+                return;
+            }
+
+            document.getElementById("usuario-log").textContent = usuario;
+            cargarAuditoria();
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem("loggedUser");
+            localStorage.removeItem("userRole");
+            location.href = "index.html";
+        }
+    </script>
+
+</body>
+</html>
