@@ -2,167 +2,127 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ESPUMIN APP - Clientes</title>
-
-    <style>
-        .contenedor {
-            background: white;
-            color: #333;
-            padding: 20px;
-            border-radius: 10px;
-            max-width: 900px;
-            margin: auto;
-            box-shadow: 0 0 12px rgba(0,0,0,0.2);
-        }
-
-        .input-box {
-            padding: 10px;
-            width: 220px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            margin: 5px;
-        }
-
-        .btn {
-            padding: 10px 18px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin: 5px;
-        }
-
-        .btn-guardar { background: #00c851; color: white; }
-        .btn-volver { background: #007bff; color: white; }
-        .btn-sesion { background: white; color: #007bff; }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-
-        th {
-            background: #007bff;
-            color: white;
-            padding: 10px;
-            text-align: left;
-        }
-
-        td {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        tr:nth-child(even) {
-            background: #f2f2f2;
-        }
-
-        .btn-accion {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            margin-right: 5px;
-        }
-
-        .btn-editar { background: #00c851; color: white; }
-        .btn-eliminar { background: #ff4444; color: white; }
-
-        #buscar-cliente {
-            padding: 10px;
-            width: 260px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 
-<body style="
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
-    background: linear-gradient(135deg, #007bff, #00c851);
-    color: white;
-">
+<body onload="inicializarClientes()">
 
-<script>
-    const usuario = localStorage.getItem("loggedUser");
-    const rol = localStorage.getItem("userRole");
+    <!-- ============================
+         BANNER SUPERIOR
+    ============================= -->
+    <header class="banner">
+        <h1>Gestión de Clientes</h1>
+        <a href="menu.html" class="btn-volver">Volver al Menú</a>
+    </header>
 
-    if (!usuario) {
-        location.href = "index.html";
-    }
+    <!-- ============================
+         USUARIO LOGUEADO
+    ============================= -->
+    <section class="usuario-info">
+        <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
+        <button onclick="cerrarSesion()" class="btn-sesion">Cerrar sesión</button>
+    </section>
 
-    function cerrarSesion() {
-        localStorage.removeItem("loggedUser");
-        localStorage.removeItem("userRole");
-        location.href = "index.html";
-    }
+    <!-- ============================
+         CONTENEDOR PRINCIPAL
+    ============================= -->
+    <section class="contenedor">
 
-    /* Capitalizar cada palabra */
-    function capitalizar(texto) {
-        if (!texto) return "";
-        return texto
-            .trim()
-            .split(/\s+/)
-            .map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase())
-            .join(" ");
-    }
-</script>
+        <h2>Clientes registrados</h2>
 
-<h2 style="text-align:center;">CLIENTES</h2>
+        <!-- Buscador -->
+        <input type="text" id="buscar-cliente" placeholder="Buscar cliente..." oninput="filtrarClientes()">
 
-<div style="text-align:center; margin-bottom:20px;">
-    <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
+        <!-- Botón crear -->
+        <button class="btn-primario" onclick="abrirModalNuevoCliente()">+ Crear cliente</button>
 
-    <button onclick="cerrarSesion()" class="btn btn-sesion">
-        Cerrar sesión
-    </button>
-</div>
+        <!-- Tabla -->
+        <div id="lista-clientes" style="margin-top:20px;"></div>
 
-<div class="contenedor">
+    </section>
 
-    <h3>Nuevo Cliente</h3>
+    <!-- ============================
+         MODAL NUEVO CLIENTE
+    ============================= -->
+    <div id="modal-nuevo-cliente" class="modal">
+        <div class="modal-contenido">
+            <h3>Nuevo cliente</h3>
 
-    <input id="cliente-nombre" type="text" placeholder="Nombre"
-        onblur="this.value = capitalizar(this.value)" class="input-box">
+            <label>Nombre:</label>
+            <input type="text" id="nuevo-nombre">
 
-    <input id="cliente-apellido" type="text" placeholder="Apellido"
-        onblur="this.value = capitalizar(this.value)" class="input-box">
+            <label>Teléfono:</label>
+            <input type="text" id="nuevo-telefono">
 
-    <input id="cliente-telefono" type="text" placeholder="Teléfono (10 dígitos)"
-        class="input-box">
+            <label>Dirección:</label>
+            <input type="text" id="nuevo-direccion">
 
-    <button onclick="guardarCliente()" class="btn btn-guardar">Guardar</button>
+            <label>Correo electrónico (opcional):</label>
+            <input type="email" id="nuevo-email">
 
-    <hr style="margin:20px 0;">
+            <label>Notas (opcional):</label>
+            <textarea id="nuevo-notas"></textarea>
 
-    <h3>Listado de Clientes</h3>
+            <div class="modal-botones">
+                <button class="btn-secundario" onclick="guardarNuevoCliente()">Guardar</button>
+                <button class="btn-eliminar" onclick="cerrarModalNuevoCliente()">Cancelar</button>
+            </div>
+        </div>
+    </div>
 
-    <input id="buscar-cliente" type="text" placeholder="Buscar..." onkeyup="buscarClientes()">
+    <!-- ============================
+         MODAL EDITAR CLIENTE
+    ============================= -->
+    <div id="modal-editar-cliente" class="modal">
+        <div class="modal-contenido">
+            <h3>Editar cliente</h3>
 
-    <div id="lista-clientes"></div>
+            <input type="hidden" id="edit-id">
 
-</div>
+            <label>Nombre:</label>
+            <input type="text" id="edit-nombre">
 
-<div style="text-align:center;">
-    <button onclick="irAMenu()" class="btn btn-volver">
-        Volver al Menú
-    </button>
-</div>
+            <label>Teléfono:</label>
+            <input type="text" id="edit-telefono">
 
-<!-- Script general -->
-<script src="script.js"></script>
+            <label>Dirección:</label>
+            <input type="text" id="edit-direccion">
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("usuario-log").textContent = usuario;
-    mostrarClientes();
-});
-</script>
+            <label>Correo electrónico:</label>
+            <input type="email" id="edit-email">
+
+            <label>Notas:</label>
+            <textarea id="edit-notas"></textarea>
+
+            <div class="modal-botones">
+                <button class="btn-secundario" onclick="guardarEdicionCliente()">Guardar cambios</button>
+                <button class="btn-eliminar" onclick="cerrarModalEditarCliente()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+
+    <script>
+        function inicializarClientes() {
+            const usuario = localStorage.getItem("loggedUser");
+            if (!usuario) {
+                location.href = "index.html";
+                return;
+            }
+
+            document.getElementById("usuario-log").textContent = usuario;
+            cargarClientes();
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem("loggedUser");
+            localStorage.removeItem("userRole");
+            location.href = "index.html";
+        }
+    </script>
 
 </body>
 </html>
