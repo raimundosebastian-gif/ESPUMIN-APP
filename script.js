@@ -322,103 +322,55 @@ function irAMenu() {
 }
 
 /* ============================================================
-   USUARIOS — MÓDULO COMPLETO Y PROFESIONAL
+   USUARIOS — MÓDULO PROFESIONAL Y UNIFICADO
 ============================================================ */
 
-/* Crear admin por defecto */
-(function crearAdminPorDefecto() {
-    const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
-    const existe = usuarios.some(u => u.usuario === "EU");
+/* Usuario raíz protegido */
+const USUARIO_RAIZ = {
+    usuario: "EU",
+    password: "Villatia1974",
+    rol: "Admin",
+    estado: "Activo"
+};
 
-    if (!existe) {
-        usuarios.push({
-            id: Date.now(),
-            nombre: "Administrador Principal",
-            usuario: "EU",
-            password: "villatita",
-            rol: "admin",
-            estado: "Activo"
-        });
-        localStorage.setItem("usuarios", JSON.stringify(usuarios));
-    }
-})();
-
-/* Capitalizar cada palabra */
-function capitalizar(texto) {
-    if (!texto) return "";
-    return texto
-        .trim()
-        .split(/\s+/)
-        .map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase())
-        .join(" ");
-}
-
-/* Obtener lista */
+/* Obtener usuarios */
 function obtenerUsuarios() {
-    return JSON.parse(localStorage.getItem("usuarios")) || [];
+    let lista = JSON.parse(localStorage.getItem("usuarios")) || [];
+
+    // Si el usuario raíz no existe, lo creamos
+    const existeRaiz = lista.some(u => u.usuario === USUARIO_RAIZ.usuario);
+
+    if (!existeRaiz) {
+        lista.push(USUARIO_RAIZ);
+        localStorage.setItem("usuarios", JSON.stringify(lista));
+    }
+
+    return lista;
 }
 
-/* Guardar lista */
-function guardarListaUsuarios(lista) {
+/* Guardar usuarios */
+function guardarUsuarios(lista) {
     localStorage.setItem("usuarios", JSON.stringify(lista));
 }
 
-/* Guardar usuario nuevo */
-function guardarUsuario() {
-    const nombre = capitalizar(document.getElementById("user-nombre").value);
-    const usuario = document.getElementById("user-usuario").value.trim();
-    const pass = document.getElementById("user-pass").value.trim();
-    const rol = document.getElementById("user-rol").value;
-    const estado = document.getElementById("user-estado").value;
+/* ============================================================
+   LISTAR USUARIOS
+============================================================ */
 
-    if (!nombre || !usuario || !pass) {
-        alert("Completa todos los campos obligatorios.");
-        return;
-    }
-
-    const usuarios = obtenerUsuarios();
-
-    if (usuarios.some(u => u.usuario.toLowerCase() === usuario.toLowerCase())) {
-        alert("Ese nombre de usuario ya existe.");
-        return;
-    }
-
-    usuarios.push({
-        id: Date.now(),
-        nombre,
-        usuario,
-        password: pass,
-        rol,
-        estado
-    });
-
-    guardarListaUsuarios(usuarios);
-
-    document.getElementById("user-nombre").value = "";
-    document.getElementById("user-usuario").value = "";
-    document.getElementById("user-pass").value = "";
-    document.getElementById("user-rol").value = "operador";
-    document.getElementById("user-estado").value = "Activo";
-
-    mostrarUsuarios();
-}
-
-/* Mostrar usuarios */
-function mostrarUsuarios() {
-    const usuarios = obtenerUsuarios();
+function cargarUsuarios() {
     const cont = document.getElementById("lista-usuarios");
-
     if (!cont) return;
 
+    const usuarios = obtenerUsuarios();
+
     if (usuarios.length === 0) {
-        cont.innerHTML = "<p>No hay usuarios cargados.</p>";
+        cont.innerHTML = "<p>No hay usuarios registrados.</p>";
         return;
     }
 
     let html = `
         <table>
             <tr>
-                <th>Nombre</th>
                 <th>Usuario</th>
                 <th>Rol</th>
                 <th>Estado</th>
@@ -427,115 +379,149 @@ function mostrarUsuarios() {
     `;
 
     usuarios.forEach(u => {
+        const esRaiz = u.usuario === USUARIO_RAIZ.usuario;
+
         html += `
             <tr>
-                <td>${u.nombre}</td>
                 <td>${u.usuario}</td>
                 <td>${u.rol}</td>
                 <td>${u.estado}</td>
                 <td>
-                    <button class="btn-accion btn-editar" onclick="editarUsuario(${u.id})">Editar</button>
-                    <button class="btn-accion btn-eliminar" onclick="eliminarUsuario(${u.id})">Eliminar</button>
+                    <button class="btn-editar" onclick="abrirModalEditarUsuario('${u.usuario}')">Editar</button>
+                    ${esRaiz ? "" : `<button class="btn-eliminar" onclick="eliminarUsuario('${u.usuario}')">Eliminar</button>`}
                 </td>
             </tr>
         `;
     });
 
     html += "</table>";
-
     cont.innerHTML = html;
 }
 
-/* Buscar usuarios */
-function buscarUsuarios() {
-    const texto = document.getElementById("buscar-usuario").value.toLowerCase();
-    const usuarios = obtenerUsuarios();
-    const cont = document.getElementById("lista-usuarios");
+/* ============================================================
+   NUEVO USUARIO
+============================================================ */
 
-    const filtrados = usuarios.filter(u =>
-        u.nombre.toLowerCase().includes(texto) ||
-        u.usuario.toLowerCase().includes(texto) ||
-        u.rol.toLowerCase().includes(texto) ||
-        u.estado.toLowerCase().includes(texto)
-    );
+function abrirModalNuevoUsuario() {
+    document.getElementById("modal-nuevo").style.display = "flex";
+}
 
-    if (filtrados.length === 0) {
-        cont.innerHTML = "<p>No se encontraron coincidencias.</p>";
+function cerrarModalNuevoUsuario() {
+    document.getElementById("modal-nuevo").style.display = "none";
+}
+
+function guardarNuevoUsuario() {
+    const usuario = document.getElementById("nuevo-usuario").value.trim();
+    const password = document.getElementById("nuevo-password").value.trim();
+    const rol = document.getElementById("nuevo-rol").value;
+
+    if (!usuario || !password) {
+        alert("Complete todos los campos.");
         return;
     }
 
-    let html = `
-        <table>
-            <tr>
-                <th>Nombre</th>
-                <th>Usuario</th>
-                <th>Rol</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-            </tr>
-    `;
+    let usuarios = obtenerUsuarios();
 
-    filtrados.forEach(u => {
-        html += `
-            <tr>
-                <td>${u.nombre}</td>
-                <td>${u.usuario}</td>
-                <td>${u.rol}</td>
-                <td>${u.estado}</td>
-                <td>
-                    <button class="btn-accion btn-editar" onclick="editarUsuario(${u.id})">Editar</button>
-                    <button class="btn-accion btn-eliminar" onclick="eliminarUsuario(${u.id})">Eliminar</button>
-                </td>
-            </tr>
-        `;
+    if (usuarios.some(u => u.usuario.toLowerCase() === usuario.toLowerCase())) {
+        alert("Ese usuario ya existe.");
+        return;
+    }
+
+    usuarios.push({
+        usuario,
+        password,
+        rol,
+        estado: "Activo"
     });
 
-    html += "</table>";
-
-    cont.innerHTML = html;
+    guardarUsuarios(usuarios);
+    cerrarModalNuevoUsuario();
+    cargarUsuarios();
+    alert("Usuario creado correctamente.");
 }
 
-/* Editar usuario */
-function editarUsuario(id) {
+/* ============================================================
+   EDITAR USUARIO
+============================================================ */
+
+function abrirModalEditarUsuario(usuario) {
     const usuarios = obtenerUsuarios();
-    const u = usuarios.find(x => x.id === id);
+    const u = usuarios.find(x => x.usuario === usuario);
+
     if (!u) return;
 
-    const nuevoNombre = prompt("Nuevo nombre:", u.nombre);
-    const nuevoUsuario = prompt("Nuevo usuario:", u.usuario);
-    const nuevoPass = prompt("Nueva contraseña:", u.password);
-    const nuevoRol = prompt("Nuevo rol (admin/operador/cajero/supervisor):", u.rol);
-    const nuevoEstado = prompt("Nuevo estado (Activo/Inactivo):", u.estado);
+    document.getElementById("edit-id").value = u.usuario;
+    document.getElementById("edit-usuario").value = u.usuario;
+    document.getElementById("edit-password").value = "";
+    document.getElementById("edit-rol").value = u.rol;
+    document.getElementById("edit-estado").value = u.estado;
 
-    if (!nuevoNombre || !nuevoUsuario || !nuevoPass || !nuevoRol || !nuevoEstado) {
-        alert("Todos los campos son obligatorios.");
+    // Proteger usuario raíz
+    if (u.usuario === USUARIO_RAIZ.usuario) {
+        document.getElementById("edit-rol").disabled = true;
+        document.getElementById("edit-estado").disabled = true;
+    } else {
+        document.getElementById("edit-rol").disabled = false;
+        document.getElementById("edit-estado").disabled = false;
+    }
+
+    document.getElementById("modal-editar").style.display = "flex";
+}
+
+function cerrarModalEditarUsuario() {
+    document.getElementById("modal-editar").style.display = "none";
+}
+
+function guardarEdicionUsuario() {
+    const id = document.getElementById("edit-id").value;
+    const usuarioNuevo = document.getElementById("edit-usuario").value.trim();
+    const passwordNuevo = document.getElementById("edit-password").value.trim();
+    const rolNuevo = document.getElementById("edit-rol").value;
+    const estadoNuevo = document.getElementById("edit-estado").value;
+
+    let usuarios = obtenerUsuarios();
+    let u = usuarios.find(x => x.usuario === id);
+
+    if (!u) return;
+
+    // Proteger usuario raíz
+    if (u.usuario === USUARIO_RAIZ.usuario) {
+        u.usuario = USUARIO_RAIZ.usuario; // No permitir cambiar nombre
+        u.rol = "Admin";
+        u.estado = "Activo";
+    } else {
+        u.usuario = usuarioNuevo;
+        u.rol = rolNuevo;
+        u.estado = estadoNuevo;
+    }
+
+    if (passwordNuevo) {
+        u.password = passwordNuevo;
+    }
+
+    guardarUsuarios(usuarios);
+    cerrarModalEditarUsuario();
+    cargarUsuarios();
+    alert("Usuario actualizado correctamente.");
+}
+
+/* ============================================================
+   ELIMINAR USUARIO
+============================================================ */
+
+function eliminarUsuario(usuario) {
+    if (usuario === USUARIO_RAIZ.usuario) {
+        alert("El usuario raíz no puede ser eliminado.");
         return;
     }
 
-    u.nombre = capitalizar(nuevoNombre);
-    u.usuario = nuevoUsuario.trim();
-    u.password = nuevoPass.trim();
-    u.rol = nuevoRol.trim();
-    u.estado = capitalizar(nuevoEstado.trim());
-
-    guardarListaUsuarios(usuarios);
-    mostrarUsuarios();
-}
-
-/* Eliminar usuario */
-function eliminarUsuario(id) {
     if (!confirm("¿Eliminar este usuario?")) return;
 
     let usuarios = obtenerUsuarios();
-    usuarios = usuarios.filter(u => u.id !== id);
+    usuarios = usuarios.filter(u => u.usuario !== usuario);
 
-    guardarListaUsuarios(usuarios);
-    mostrarUsuarios();
-}
-
-/* Volver al menú */
-function irAMenu() {
-    window.location.href = "menu.html";
+    guardarUsuarios(usuarios);
+    cargarUsuarios();
 }
 
 /* ============================================================
@@ -1343,6 +1329,7 @@ function eliminarBackup(id) {
 function irAMenu() {
     window.location.href = "menu.html";
 }
+
 
 
 
