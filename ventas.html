@@ -2,150 +2,219 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>ESPUMIN APP - Ventas</title>
-
-    <style>
-        .contenedor {
-            background: white;
-            color: #333;
-            padding: 20px;
-            border-radius: 10px;
-            max-width: 900px;
-            margin: auto;
-            box-shadow: 0 0 12px rgba(0,0,0,0.2);
-        }
-
-        .input-box {
-            padding: 10px;
-            width: 260px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            margin: 5px;
-        }
-
-        .btn {
-            padding: 10px 18px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin: 5px;
-        }
-
-        .btn-guardar { background: #00c851; color: white; }
-        .btn-volver { background: #007bff; color: white; }
-        .btn-sesion { background: white; color: #007bff; }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-
-        th {
-            background: #007bff;
-            color: white;
-            padding: 10px;
-            text-align: left;
-        }
-
-        td {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        tr:nth-child(even) {
-            background: #f2f2f2;
-        }
-
-        #total-venta {
-            font-size: 20px;
-            font-weight: bold;
-            color: #007bff;
-            margin-top: 15px;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESPUMIN - Ventas</title>
+    <link rel="stylesheet" href="style.css">
 </head>
+<body>
 
-<body style="
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
-    background: linear-gradient(135deg, #007bff, #00c851);
-    color: white;
-">
+    <!-- Menú -->
+    <div id="menu-container"></div>
 
-<!-- 🔐 Protección de acceso -->
-<script>
-    const usuario = localStorage.getItem("loggedUser");
-    const rol = localStorage.getItem("userRole");
+    <main class="modulo-container">
+        <h1>Ventas</h1>
 
-    if (!usuario) {
-        location.href = "index.html";
-    }
+        <!-- Formulario -->
+        <section class="form-section">
+            <input type="hidden" id="id">
 
-    function cerrarSesion() {
-        localStorage.removeItem("loggedUser");
-        localStorage.removeItem("userRole");
-        location.href = "index.html";
-    }
-</script>
+            <label>Cliente</label>
+            <select id="cliente"></select>
 
-<h2 style="text-align:center;">VENTAS</h2>
+            <label>Producto</label>
+            <select id="producto"></select>
 
-<div style="text-align:center; margin-bottom:20px;">
-    <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
+            <label>Cantidad</label>
+            <input type="number" id="cantidad" min="1" placeholder="Ej: 3">
 
-    <button onclick="cerrarSesion()" class="btn btn-sesion">
-        Cerrar sesión
-    </button>
-</div>
+            <label>Precio unitario ($)</label>
+            <input type="number" id="precio" readonly>
 
-<div class="contenedor">
+            <label>Total ($)</label>
+            <input type="number" id="total" readonly>
 
-    <h3>Nueva Venta</h3>
+            <button id="guardarBtn">Registrar Venta</button>
+            <button id="cancelarBtn" class="btn-secundario">Cancelar</button>
+        </section>
 
-    <select id="venta-cliente" class="input-box">
-        <option value="">Seleccione un cliente</option>
-    </select>
+        <!-- Tabla -->
+        <section class="tabla-section">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Cliente</th>
+                        <th>Producto</th>
+                        <th>Cant.</th>
+                        <th>Total</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaVentas"></tbody>
+            </table>
+        </section>
+    </main>
 
-    <select id="venta-producto" class="input-box" onchange="actualizarPrecioVenta()">
-        <option value="">Seleccione un producto</option>
-    </select>
+    <script src="js/core.js"></script>
+    <script>
+        protegerModulo();
 
-    <input id="venta-cantidad" type="number" placeholder="Cantidad" class="input-box">
+        // Cargar menú
+        fetch("menu.html")
+            .then(r => r.text())
+            .then(html => document.getElementById("menu-container").innerHTML = html);
 
-    <div id="precio-unitario" style="margin:10px 0; font-weight:bold;"></div>
+        // Cargar selects
+        function cargarClientes() {
+            const clientes = getData("clientes");
+            const sel = document.getElementById("cliente");
+            sel.innerHTML = "";
 
-    <button onclick="guardarVenta()" class="btn btn-guardar">Registrar Venta</button>
+            clientes.forEach(c => {
+                const opt = document.createElement("option");
+                opt.value = c.nombre;
+                opt.textContent = c.nombre;
+                sel.appendChild(opt);
+            });
+        }
 
-    <hr style="margin:20px 0;">
+        function cargarProductos() {
+            const productos = getData("productos");
+            const sel = document.getElementById("producto");
+            sel.innerHTML = "";
 
-    <h3>Historial de Ventas</h3>
+            productos.forEach(p => {
+                const opt = document.createElement("option");
+                opt.value = p.nombre;
+                opt.textContent = p.nombre;
+                sel.appendChild(opt);
+            });
 
-    <div id="lista-ventas"></div>
+            actualizarPrecio();
+        }
 
-</div>
+        // Actualizar precio según producto
+        function actualizarPrecio() {
+            const producto = document.getElementById("producto").value;
+            const precios = getData("precios");
+            const precio = precios.find(p => p.producto === producto);
 
-<div style="text-align:center; margin-top:20px;">
-    <button onclick="irAMenu()" class="btn btn-volver">
-        Volver al Menú
-    </button>
-</div>
+            document.getElementById("precio").value = precio ? precio.precio : 0;
+            actualizarTotal();
+        }
 
-<script src="script.js"></script>
+        // Total
+        function actualizarTotal() {
+            const cant = Number(document.getElementById("cantidad").value);
+            const precio = Number(document.getElementById("precio").value);
+            document.getElementById("total").value = cant * precio;
+        }
 
-<script>
-    document.getElementById("usuario-log").textContent = usuario;
+        document.getElementById("producto").addEventListener("change", actualizarPrecio);
+        document.getElementById("cantidad").addEventListener("input", actualizarTotal);
 
-    // Cargar clientes y productos
-    cargarClientesEnVentas();
-    cargarProductosEnVentas();
+        // Renderizar tabla
+        function cargarTabla() {
+            const ventas = getData("ventas");
+            const tbody = document.getElementById("tablaVentas");
+            tbody.innerHTML = "";
 
-    // Mostrar historial
-    mostrarVentas();
-</script>
+            ventas.forEach(v => {
+                const tr = document.createElement("tr");
+
+                tr.innerHTML = `
+                    <td>${formatDate(v.fecha)}</td>
+                    <td>${v.cliente}</td>
+                    <td>${v.producto}</td>
+                    <td>${v.cantidad}</td>
+                    <td>$ ${v.total}</td>
+                    <td>
+                        <button onclick="eliminar('${v.id}')" class="btn-eliminar">Eliminar</button>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Guardar venta
+        document.getElementById("guardarBtn").addEventListener("click", () => {
+            const cliente = document.getElementById("cliente").value;
+            const producto = document.getElementById("producto").value;
+            const cantidad = Number(document.getElementById("cantidad").value);
+            const precio = Number(document.getElementById("precio").value);
+            const total = Number(document.getElementById("total").value);
+
+            if (!cliente || !producto || cantidad <= 0) {
+                alert("Complete todos los campos");
+                return;
+            }
+
+            // Stock
+            let inventario = getData("inventario");
+            const item = inventario.find(i => i.producto === producto);
+
+            if (!item || item.stock < cantidad) {
+                alert("Stock insuficiente");
+                return;
+            }
+
+            item.stock -= cantidad;
+            setData("inventario", inventario);
+
+            // Registrar venta
+            let ventas = getData("ventas");
+            ventas.push({
+                id: generarID(),
+                fecha: new Date().toISOString(),
+                cliente,
+                producto,
+                cantidad,
+                precio,
+                total
+            });
+            setData("ventas", ventas);
+
+            registrarAuditoria("Ventas", "Alta", `Vendió ${cantidad} x ${producto} a ${cliente}`);
+
+            limpiarFormulario();
+            cargarTabla();
+        });
+
+        // Eliminar venta
+        function eliminar(id) {
+            if (!confirm("¿Eliminar venta?")) return;
+
+            let ventas = getData("ventas");
+            const venta = ventas.find(v => v.id === id);
+
+            // Devolver stock
+            let inventario = getData("inventario");
+            const item = inventario.find(i => i.producto === venta.producto);
+            if (item) item.stock += venta.cantidad;
+            setData("inventario", inventario);
+
+            ventas = ventas.filter(v => v.id !== id);
+            setData("ventas", ventas);
+
+            registrarAuditoria("Ventas", "Baja", `Eliminó venta de ${venta.producto}`);
+
+            cargarTabla();
+        }
+
+        // Cancelar
+        document.getElementById("cancelarBtn").addEventListener("click", limpiarFormulario);
+
+        function limpiarFormulario() {
+            document.getElementById("cantidad").value = "";
+            document.getElementById("total").value = "";
+        }
+
+        // Inicializar
+        cargarClientes();
+        cargarProductos();
+        cargarTabla();
+    </script>
 
 </body>
 </html>
