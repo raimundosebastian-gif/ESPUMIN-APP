@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESPUMIN APP - Compras</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body onload="inicializarCompras()">
+
+    <!-- ============================
+         BANNER SUPERIOR
+    ============================= -->
+    <header class="banner">
+        <h1>Gestión de Compras</h1>
+        <a href="menu.html" class="btn-volver">Volver al Menú</a>
+    </header>
+
+    <!-- ============================
+         USUARIO LOGUEADO
+    ============================= -->
+    <section class="usuario-info">
+        <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
+        <button onclick="cerrarSesion()" class="btn-sesion">Cerrar sesión</button>
+    </section>
+
+    <!-- ============================
+         CONTENEDOR PRINCIPAL
+    ============================= -->
+    <section class="contenedor">
+
+        <h2>Compras registradas</h2>
+
+        <!-- Botón crear -->
+        <button class="btn-primario" onclick="abrirModalNuevaCompra()">+ Registrar compra</button>
+
+        <!-- Tabla -->
+        <div id="lista-compras" style="margin-top:20px;"></div>
+
+    </section>
+
+    <!-- ============================
+         MODAL NUEVA COMPRA
+    ============================= -->
+    <div id="modal-nueva-compra" class="modal">
+        <div class="modal-contenido">
+            <h3>Nueva compra</h3>
+
+            <label>Proveedor:</label>
+            <select id="compra-proveedor"></select>
+
+            <label>Producto:</label>
+            <select id="compra-producto"></select>
+
+            <label>Cantidad:</label>
+            <input type="number" id="compra-cantidad" min="1">
+
+            <label>Precio unitario:</label>
+            <input type="number" id="compra-precio" min="0">
+
+            <label>Notas (opcional):</label>
+            <textarea id="compra-notas"></textarea>
+
+            <div class="modal-botones">
+                <button class="btn-secundario" onclick="guardarNuevaCompra()">Guardar</button>
+                <button class="btn-eliminar" onclick="cerrarModalNuevaCompra()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================
+         MODAL DETALLE DE COMPRA
+    ============================= -->
+    <div id="modal-detalle-compra" class="modal">
+        <div class="modal-contenido">
+            <h3>Detalle de compra</h3>
+
+            <div id="detalle-compra"></div>
+
+            <div class="modal-botones">
+                <button class="btn-eliminar" onclick="cerrarModalDetalleCompra()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+
+    <script>
+        function inicializarCompras() {
+            const usuario = localStorage.getItem("loggedUser");
+            if (!usuario) {
+                location.href = "index.html";
+                return;
+            }
+
+            document.getElementById("usuario-log").textContent = usuario;
+
+            cargarCompras();
+            cargarProveedoresEnSelect();
+            cargarProductosEnSelect();
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem("loggedUser");
+            localStorage.removeItem("userRole");
+            location.href = "index.html";
+        }
+    </script>
+
+</body>
+</html>
