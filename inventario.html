@@ -18,10 +18,10 @@
         <section class="form-section">
             <input type="hidden" id="id">
 
-            <label>Producto</label>
+            <label for="producto">Producto</label>
             <select id="producto"></select>
 
-            <label>Stock</label>
+            <label for="stock">Stock</label>
             <input type="number" id="stock" min="0" placeholder="Ej: 50">
 
             <button id="guardarBtn">Guardar</button>
@@ -43,8 +43,9 @@
         </section>
     </main>
 
-    <script src="js/core.js"></script>
+    <script src="core.js"></script>
     <script>
+        // Seguridad
         protegerModulo();
 
         // Cargar menú
@@ -52,7 +53,7 @@
             .then(r => r.text())
             .then(html => document.getElementById("menu-container").innerHTML = html);
 
-        // Cargar productos
+        // Cargar productos en el select
         function cargarProductos() {
             const productos = getData("productos");
             const sel = document.getElementById("producto");
