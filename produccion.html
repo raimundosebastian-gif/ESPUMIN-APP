@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Producción / Ensamblado</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="js/core.js"></script>
+</head>
+
+<body onload="protegerModulo(); cargarProduccion();">
+
+    <!-- ENCABEZADO -->
+    <header class="header">
+        <h1>Producción / Ensamblado</h1>
+        <button class="btn-primary" onclick="abrirModal()">Nueva orden</button>
+    </header>
+
+    <!-- FILTROS -->
+    <section class="filtros">
+        <select id="filtroEstado">
+            <option value="">Todos</option>
+            <option value="pendiente">Pendiente</option>
+            <option value="proceso">En proceso</option>
+            <option value="finalizado">Finalizado</option>
+        </select>
+        <button class="btn-secondary" onclick="cargarProduccion()">Filtrar</button>
+    </section>
+
+    <!-- TABLA -->
+    <section class="tabla-contenedor">
+        <table>
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Producto final</th>
+                    <th>Cantidad</th>
+                    <th>Estado</th>
+                    <th>Insumos</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="tablaProduccion"></tbody>
+        </table>
+    </section>
+
+    <!-- MODAL -->
+    <div id="modalProduccion" class="modal">
+        <div class="modal-contenido">
+            <h2 id="modalTitulo">Nueva orden de producción</h2>
+
+            <input type="hidden" id="opId">
+
+            <label>Fecha</label>
+            <input type="date" id="opFecha">
+
+            <label>Producto final</label>
+            <input type="text" id="opProducto">
+
+            <label>Cantidad a producir</label>
+            <input type="number" id="opCantidad" min="1">
+
+            <label>Estado</label>
+            <select id="opEstado">
+                <option value="pendiente">Pendiente</option>
+                <option value="proceso">En proceso</option>
+                <option value="finalizado">Finalizado</option>
+            </select>
+
+            <label>Insumos utilizados (uno por línea)</label>
+            <textarea id="opInsumos" placeholder="Ejemplo: Harina x 2kg&#10;Azúcar x 1kg"></textarea>
+
+            <label>Notas</label>
+            <textarea id="opNotas"></textarea>
+
+            <div class="modal-botones">
+                <button class="btn-primary" onclick="guardarOP()">Guardar</button>
+                <button class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ============================
+           CARGA DE TABLA
+        ============================ */
+        function cargarProduccion() {
+            const estadoFiltro = document.getElementById("filtroEstado").value;
+
+            let ordenes = getProduccion();
+
+            if (estadoFiltro) {
+                ordenes = ordenes.filter(o => o.estado === estadoFiltro);
+            }
+
+            const tbody = document.getElementById("tablaProduccion");
+            tbody.innerHTML = "";
+
+            ordenes.forEach(o => {
+                const tr = document.createElement("tr");
+
+                tr.innerHTML = `
+                    <td>${formatDate(o.fecha)}</td>
+                    <td>${o.producto}</td>
+                    <td>${o.cantidad}</td>
+                    <td>${formatearEstado(o.estado)}</td>
+                    <td>${o.insumos.replace(/\n/g, "<br>")}</td>
+                    <td>
+                        <button class="btn-small" onclick="editarOP(${o.id})">✏️</button>
+                        <button class="btn-small btn-danger" onclick="eliminarOP(${o.id})">🗑️</button>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        function formatearEstado(estado) {
+            switch (estado) {
+                case "pendiente": return "Pendiente";
+                case "proceso": return "En proceso";
+                case "finalizado": return "Finalizado";
+                default: return estado;
+            }
+        }
+
+        /* ============================
+           MODAL
+        ============================ */
+        function abrirModal() {
+            document.getElementById("modalProduccion").style.display = "flex";
+            document.getElementById("modalTitulo").innerText = "Nueva orden de producción";
+
+            document.getElementById("opId").value = "";
+            document.getElementById("opFecha").value = new Date().toISOString().split("T")[0];
+            document.getElementById("opProducto").value = "";
+            document.getElementById("opCantidad").value = "";
+            document.getElementById("opEstado").value = "pendiente";
+            document.getElementById("opInsumos").value = "";
+            document.getElementById("opNotas").value = "";
+        }
+
+        function cerrarModal() {
+            document.getElementById("modalProduccion").style.display = "none";
+        }
+
+        /* ============================
+           CRUD
+        ============================ */
+        function guardarOP() {
+            const id = document.getElementById("opId").value;
+            const fecha = document.getElementById("opFecha").value;
+            const producto = document.getElementById("opProducto").value;
+            const cantidad = parseInt(document.getElementById("opCantidad").value);
+            const estado = document.getElementById("opEstado").value;
+            const insumos = document.getElementById("opInsumos").value;
+            const notas = document.getElementById("opNotas").value;
+
+            if (!validarCampos([fecha, producto, cantidad])) {
+                alert("Los campos obligatorios deben estar completos.");
+                return;
+            }
+
+            const orden = {
+                id: id || generarID(),
+                fecha,
+                producto,
+                cantidad,
+                estado,
+                insumos,
+                notas
+            };
+
+            if (id) {
+                updateProduccion(parseInt(id), orden);
+            } else {
+                addProduccion(orden);
+            }
+
+            cerrarModal();
+            cargarProduccion();
+        }
+
+        function editarOP(id) {
+            const o = getProduccion().find(x => x.id === id);
+
+            abrirModal();
+            document.getElementById("modalTitulo").innerText = "Editar orden";
+
+            document.getElementById("opId").value = o.id;
+            document.getElementById("opFecha").value = o.fecha;
+            document.getElementById("opProducto").value = o.producto;
+            document.getElementById("opCantidad").value = o.cantidad;
+            document.getElementById("opEstado").value = o.estado;
+            document.getElementById("opInsumos").value = o.insumos;
+            document.getElementById("opNotas").value = o.notas;
+        }
+
+        function eliminarOP(id) {
+            if (confirm("¿Eliminar esta orden de producción?")) {
+                deleteProduccion(id);
+                cargarProduccion();
+            }
+        }
+    </script>
+
+</body>
+</html>
