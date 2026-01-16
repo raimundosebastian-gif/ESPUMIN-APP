@@ -1,142 +1,102 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menú Principal</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="js/core.js"></script>
+<nav class="menu">
+    <ul>
+        <li><a href="dashboard.html">Dashboard</a></li>
 
-    <style>
-        .menu-container {
-            max-width: 500px;
-            margin: 40px auto;
-            padding: 20px;
-        }
+        <li class="submenu">
+            <span>Maestros</span>
+            <ul>
+                <li><a href="clientes.html">Clientes</a></li>
+                <li><a href="proveedores.html">Proveedores</a></li>
+                <li><a href="productos.html">Productos</a></li>
+                <li><a href="precios.html">Precios</a></li>
+                <li><a href="usuarios.html">Usuarios</a></li>
+            </ul>
+        </li>
 
-        .menu-section {
-            background: #f5f5f5;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            overflow: hidden;
-        }
+        <li class="submenu">
+            <span>Operaciones</span>
+            <ul>
+                <li><a href="ventas.html">Ventas</a></li>
+                <li><a href="compras.html">Compras</a></li>
+                <li><a href="inventario.html">Inventario</a></li>
+            </ul>
+        </li>
 
-        .menu-header {
-            padding: 12px 16px;
-            background: #ddd;
-            cursor: pointer;
-            font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        <li class="submenu">
+            <span>Gestión</span>
+            <ul>
+                <li><a href="caja.html">Caja / Tesorería</a></li>
+                <li><a href="cuentas-clientes.html">Cuentas Clientes</a></li>
+                <li><a href="cuentas-proveedores.html">Cuentas Proveedores</a></li>
+                <li><a href="agenda.html">Agenda</a></li>
+                <li><a href="logistica.html">Logística</a></li>
+                <li><a href="produccion.html">Producción</a></li>
+                <li><a href="impuestos.html">Impuestos</a></li>
+            </ul>
+        </li>
 
-        .menu-items {
-            display: none;
-            padding: 10px 16px;
-        }
+        <li class="submenu">
+            <span>Sistema</span>
+            <ul>
+                <li><a href="notificaciones.html">Notificaciones</a></li>
+                <li><a href="auditoria.html">Auditoría</a></li>
+                <li><a href="backups.html">Backups</a></li>
+                <li><a href="configuracion.html">Configuración</a></li>
+            </ul>
+        </li>
 
-        .menu-items a {
-            display: block;
-            padding: 6px 0;
-            text-decoration: none;
-            color: #333;
-        }
+        <li><a href="#" id="logoutBtn">Salir</a></li>
+    </ul>
+</nav>
 
-        .menu-items a:hover {
-            text-decoration: underline;
-        }
-    </style>
-</head>
+<script>
+    // Cerrar sesión
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+        logout();
+        location.href = "index.html";
+    });
+</script>
 
-<body onload="protegerModulo();">
+<style>
+    .menu {
+        background: #222;
+        color: white;
+        padding: 10px;
+        font-family: Arial, sans-serif;
+    }
 
-    <div class="menu-container">
-        <h1>Menú Principal</h1>
+    .menu ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        gap: 20px;
+        align-items: center;
+    }
 
-        <!-- VENTAS -->
-        <div class="menu-section">
-            <div class="menu-header" onclick="toggleMenu(this)">
-                Ventas <span>▼</span>
-            </div>
-            <div class="menu-items">
-                <a href="ventas.html">Ventas</a>
-                <a href="clientes.html">Clientes</a>
-                <a href="cuentas-clientes.html">Cuentas Clientes</a>
-                <a href="logistica.html">Logística / Entregas</a>
-            </div>
-        </div>
+    .menu a {
+        color: white;
+        text-decoration: none;
+    }
 
-        <!-- COMPRAS -->
-        <div class="menu-section">
-            <div class="menu-header" onclick="toggleMenu(this)">
-                Compras <span>▼</span>
-            </div>
-            <div class="menu-items">
-                <a href="compras.html">Compras</a>
-                <a href="proveedores.html">Proveedores</a>
-                <a href="cuentas-proveedores.html">Cuentas Proveedores</a>
-            </div>
-        </div>
+    .submenu ul {
+        display: none;
+        position: absolute;
+        background: #333;
+        padding: 10px;
+        border-radius: 4px;
+        margin-top: 5px;
+    }
 
-        <!-- STOCK -->
-        <div class="menu-section">
-            <div class="menu-header" onclick="toggleMenu(this)">
-                Stock <span>▼</span>
-            </div>
-            <div class="menu-items">
-                <a href="productos.html">Productos</a>
-                <a href="precios.html">Precios</a>
-                <a href="inventario.html">Inventario</a>
-                <a href="produccion.html">Producción</a>
-            </div>
-        </div>
+    .submenu:hover ul {
+        display: block;
+    }
 
-        <!-- FINANZAS -->
-        <div class="menu-section">
-            <div class="menu-header" onclick="toggleMenu(this)">
-                Finanzas <span>▼</span>
-            </div>
-            <div class="menu-items">
-                <a href="caja.html">Caja / Tesorería</a>
-                <a href="impuestos.html">Impuestos</a>
-            </div>
-        </div>
+    .submenu ul li {
+        margin: 5px 0;
+    }
 
-        <!-- ADMINISTRACIÓN -->
-        <div class="menu-section">
-            <div class="menu-header" onclick="toggleMenu(this)">
-                Administración <span>▼</span>
-            </div>
-            <div class="menu-items">
-                <a href="agenda.html">Agenda</a>
-                <a href="usuarios.html">Usuarios</a>
-                <a href="configuracion.html">Configuración</a>
-            </div>
-        </div>
-
-        <!-- SISTEMA -->
-        <div class="menu-section">
-            <div class="menu-header" onclick="toggleMenu(this)">
-                Sistema <span>▼</span>
-            </div>
-            <div class="menu-items">
-                <a href="dashboard.html">Dashboard</a>
-                <a href="auditoria.html">Auditoría</a>
-                <a href="backups.html">Backups</a>
-                <a href="index.html" onclick="logout()">Cerrar sesión</a>
-            </div>
-        </div>
-
-    </div>
-
-    <script>
-        function toggleMenu(header) {
-            const items = header.nextElementSibling;
-            const visible = items.style.display === "block";
-            items.style.display = visible ? "none" : "block";
-        }
-    </script>
-
-</body>
-</html>
+    .submenu span {
+        cursor: pointer;
+    }
+</style>
