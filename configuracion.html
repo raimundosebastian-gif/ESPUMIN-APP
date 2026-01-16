@@ -3,150 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESPUMIN APP - Configuración</title>
+    <title>ESPUMIN - Configuración</title>
     <link rel="stylesheet" href="style.css">
 </head>
+<body>
 
-<body onload="inicializarConfiguracion()">
+    <!-- Menú -->
+    <div id="menu-container"></div>
 
-    <!-- ============================
-         BANNER SUPERIOR
-    ============================= -->
-    <header class="banner">
+    <main class="modulo-container">
         <h1>Configuración del Sistema</h1>
-        <a href="menu.html" class="btn-volver">Volver al Menú</a>
-    </header>
 
-    <!-- ============================
-         USUARIO LOGUEADO
-    ============================= -->
-    <section class="usuario-info">
-        <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
-        <button onclick="cerrarSesion()" class="btn-sesion">Cerrar sesión</button>
-    </section>
+        <!-- Formulario -->
+        <section class="form-section">
+            <input type="hidden" id="id">
 
-    <!-- ============================
-         CONTENEDOR PRINCIPAL
-    ============================= -->
-    <section class="contenedor">
+            <label>Nombre de la empresa</label>
+            <input type="text" id="empresa" placeholder="Ej: ESPUMIN">
 
-        <h2>Datos de la empresa</h2>
+            <label>Dirección</label>
+            <input type="text" id="direccion" placeholder="Ej: Calle 123">
 
-        <label>Nombre:</label>
-        <input type="text" id="conf-nombre">
+            <label>Teléfono</label>
+            <input type="text" id="telefono" placeholder="Ej: 2477-555555">
 
-        <label>CUIT:</label>
-        <input type="text" id="conf-cuit">
+            <label>Correo</label>
+            <input type="email" id="correo" placeholder="Ej: empresa@mail.com">
 
-        <label>Condición frente al IVA:</label>
-        <select id="conf-iva">
-            <option value="Responsable Inscripto">Responsable Inscripto</option>
-            <option value="Monotributo">Monotributo</option>
-            <option value="Exento">Exento</option>
-        </select>
+            <button id="guardarBtn">Guardar</button>
+        </section>
+    </main>
 
-        <label>Dirección:</label>
-        <input type="text" id="conf-direccion">
-
-        <label>Teléfono:</label>
-        <input type="text" id="conf-telefono">
-
-        <label>Email:</label>
-        <input type="email" id="conf-email">
-
-        <label>Logo:</label>
-        <input type="file" id="conf-logo" accept="image/*" onchange="previewLogo()">
-        <img id="preview-logo" style="width:120px; margin-top:10px; display:none;">
-
-        <hr>
-
-        <h2>Parámetros contables</h2>
-
-        <label>Inicio de ejercicio:</label>
-        <input type="date" id="conf-ejercicio">
-
-        <label>Mes fiscal:</label>
-        <select id="conf-mes-fiscal">
-            <option value="1">Enero</option>
-            <option value="2">Febrero</option>
-            <option value="3">Marzo</option>
-            <option value="4">Abril</option>
-            <option value="5">Mayo</option>
-            <option value="6">Junio</option>
-            <option value="7">Julio</option>
-            <option value="8">Agosto</option>
-            <option value="9">Septiembre</option>
-            <option value="10">Octubre</option>
-            <option value="11">Noviembre</option>
-            <option value="12">Diciembre</option>
-        </select>
-
-        <label>Alícuota IVA general:</label>
-        <input type="number" id="conf-iva-general" min="0" step="0.01">
-
-        <label>Alícuota IVA reducida:</label>
-        <input type="number" id="conf-iva-reducida" min="0" step="0.01">
-
-        <hr>
-
-        <h2>Parámetros de sueldos</h2>
-
-        <label>Fecha de pago:</label>
-        <input type="date" id="conf-sueldos-fecha">
-
-        <label>Aportes (%):</label>
-        <input type="number" id="conf-aportes" min="0" step="0.01">
-
-        <label>Contribuciones (%):</label>
-        <input type="number" id="conf-contribuciones" min="0" step="0.01">
-
-        <hr>
-
-        <h2>Preferencias del sistema</h2>
-
-        <label>Tema:</label>
-        <select id="conf-tema">
-            <option value="claro">Claro</option>
-            <option value="oscuro">Oscuro</option>
-        </select>
-
-        <label>Formato de fecha:</label>
-        <select id="conf-fecha">
-            <option value="dd/mm/yyyy">dd/mm/yyyy</option>
-            <option value="mm/dd/yyyy">mm/dd/yyyy</option>
-        </select>
-
-        <label>Formato de moneda:</label>
-        <select id="conf-moneda">
-            <option value="ARS">$ Pesos</option>
-            <option value="USD">USD</option>
-        </select>
-
-        <hr>
-
-        <button class="btn-primario" onclick="guardarConfiguracion()">Guardar configuración</button>
-
-    </section>
-
-    <script src="script.js"></script>
-
+    <script src="js/core.js"></script>
     <script>
-        function inicializarConfiguracion() {
-            const usuario = localStorage.getItem("loggedUser");
-            if (!usuario) {
-                location.href = "index.html";
+        protegerModulo();
+
+        // Cargar menú
+        fetch("menu.html")
+            .then(r => r.text())
+            .then(html => document.getElementById("menu-container").innerHTML = html);
+
+        // Cargar datos
+        function cargarDatos() {
+            const cfg = getData("configuracion")[0];
+
+            if (cfg) {
+                document.getElementById("id").value = cfg.id;
+                document.getElementById("empresa").value = cfg.empresa;
+                document.getElementById("direccion").value = cfg.direccion;
+                document.getElementById("telefono").value = cfg.telefono;
+                document.getElementById("correo").value = cfg.correo;
+            }
+        }
+
+        // Guardar
+        document.getElementById("guardarBtn").addEventListener("click", () => {
+            const id = document.getElementById("id").value;
+            const empresa = document.getElementById("empresa").value.trim();
+            const direccion = document.getElementById("direccion").value.trim();
+            const telefono = document.getElementById("telefono").value.trim();
+            const correo = document.getElementById("correo").value.trim();
+
+            if (!empresa) {
+                alert("El nombre de la empresa es obligatorio");
                 return;
             }
 
-            document.getElementById("usuario-log").textContent = usuario;
-            cargarConfiguracion();
-        }
+            let cfg = getData("configuracion");
 
-        function cerrarSesion() {
-            localStorage.removeItem("loggedUser");
-            localStorage.removeItem("userRole");
-            location.href = "index.html";
-        }
+            if (id) {
+                // Editar
+                const item = cfg.find(c => c.id === id);
+                item.empresa = empresa;
+                item.direccion = direccion;
+                item.telefono = telefono;
+                item.correo = correo;
+
+                registrarAuditoria("Configuración", "Edición", "Actualizó datos de la empresa");
+            } else {
+                // Nuevo
+                cfg = [{
+                    id: generarID(),
+                    empresa,
+                    direccion,
+                    telefono,
+                    correo
+                }];
+
+                registrarAuditoria("Configuración", "Alta", "Registró datos de la empresa");
+            }
+
+            setData("configuracion", cfg);
+            alert("Configuración guardada correctamente");
+        });
+
+        // Inicializar
+        cargarDatos();
     </script>
 
 </body>
