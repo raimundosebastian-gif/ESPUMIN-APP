@@ -3,129 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESPUMIN APP - Usuarios</title>
+    <title>ESPUMIN - Usuarios</title>
     <link rel="stylesheet" href="style.css">
 </head>
+<body>
 
-<body onload="inicializarUsuarios()">
+    <!-- Menú -->
+    <div id="menu-container"></div>
 
-    <!-- ============================
-         BANNER SUPERIOR
-    ============================= -->
-    <header class="banner">
+    <main class="modulo-container">
         <h1>Gestión de Usuarios</h1>
-        <a href="menu.html" class="btn-volver">Volver al Menú</a>
-    </header>
 
-    <!-- ============================
-         USUARIO LOGUEADO
-    ============================= -->
-    <section class="usuario-info">
-        <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
-        <button onclick="cerrarSesion()" class="btn-sesion">Cerrar sesión</button>
-    </section>
+        <!-- Formulario -->
+        <section class="form-section">
+            <input type="hidden" id="id">
 
-    <!-- ============================
-         CONTENEDOR PRINCIPAL
-    ============================= -->
-    <section class="contenedor">
+            <label>Usuario</label>
+            <input type="text" id="usuario" placeholder="Ej: admin">
 
-        <h2>Usuarios registrados</h2>
+            <label>Clave</label>
+            <input type="password" id="clave" placeholder="Ej: 1234">
 
-        <button class="btn-primario" onclick="abrirModalNuevoUsuario()">+ Crear usuario</button>
-
-        <div id="lista-usuarios" style="margin-top:20px;"></div>
-
-    </section>
-
-    <!-- ============================
-         MODAL NUEVO USUARIO
-    ============================= -->
-    <div id="modal-nuevo" class="modal">
-        <div class="modal-contenido">
-            <h3>Nuevo usuario</h3>
-
-            <label>Usuario:</label>
-            <input type="text" id="nuevo-usuario">
-
-            <label>Contraseña:</label>
-            <input type="password" id="nuevo-password">
-
-            <label>Rol:</label>
-            <select id="nuevo-rol">
-                <option value="Admin">Admin</option>
-                <option value="Empleado">Empleado</option>
+            <label>Rol</label>
+            <select id="rol">
+                <option value="Administrador">Administrador</option>
+                <option value="Operador">Operador</option>
             </select>
 
-            <div class="modal-botones">
-                <button class="btn-secundario" onclick="guardarNuevoUsuario()">Guardar</button>
-                <button class="btn-eliminar" onclick="cerrarModalNuevoUsuario()">Cancelar</button>
-            </div>
-        </div>
-    </div>
+            <button id="guardarBtn">Guardar</button>
+            <button id="cancelarBtn" class="btn-secundario">Cancelar</button>
+        </section>
 
-    <!-- ============================
-         MODAL EDITAR USUARIO
-    ============================= -->
-    <div id="modal-editar" class="modal">
-        <div class="modal-contenido">
-            <h3>Editar usuario</h3>
+        <!-- Tabla -->
+        <section class="tabla-section">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Rol</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaUsuarios"></tbody>
+            </table>
+        </section>
+    </main>
 
-            <input type="hidden" id="edit-id">
-
-            <label>Usuario:</label>
-            <input type="text" id="edit-usuario">
-
-            <label>Nueva contraseña (opcional):</label>
-            <input type="password" id="edit-password">
-
-            <label>Rol:</label>
-            <select id="edit-rol">
-                <option value="Admin">Admin</option>
-                <option value="Empleado">Empleado</option>
-            </select>
-
-            <label>Estado:</label>
-            <select id="edit-estado">
-                <option value="Activo">Activo</option>
-                <option value="Inactivo">Inactivo</option>
-            </select>
-
-            <div class="modal-botones">
-                <button class="btn-secundario" onclick="guardarEdicionUsuario()">Guardar cambios</button>
-                <button class="btn-eliminar" onclick="cerrarModalEditarUsuario()">Cancelar</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
-
+    <script src="js/core.js"></script>
     <script>
-        function inicializarUsuarios() {
-            const usuario = localStorage.getItem("loggedUser");
-            const rol = localStorage.getItem("userRole");
+        protegerModulo();
 
-            if (!usuario) {
-                location.href = "index.html";
+        // Cargar menú
+        fetch("menu.html")
+            .then(r => r.text())
+            .then(html => document.getElementById("menu-container").innerHTML = html);
+
+        // Renderizar tabla
+        function cargarTabla() {
+            const usuarios = getData("usuarios");
+            const tbody = document.getElementById("tablaUsuarios");
+            tbody.innerHTML = "";
+
+            usuarios.forEach(u => {
+                const tr = document.createElement("tr");
+
+                tr.innerHTML = `
+                    <td>${u.usuario}</td>
+                    <td>${u.rol}</td>
+                    <td>
+                        <button onclick="editar('${u.id}')">Editar</button>
+                        <button onclick="eliminar('${u.id}')" class="btn-eliminar">Eliminar</button>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Guardar usuario
+        document.getElementById("guardarBtn").addEventListener("click", () => {
+            const id = document.getElementById("id").value;
+            const usuario = document.getElementById("usuario").value.trim();
+            const clave = document.getElementById("clave").value.trim();
+            const rol = document.getElementById("rol").value;
+
+            if (!usuario || !clave) {
+                alert("Complete usuario y clave");
                 return;
             }
 
-            if (rol !== "Admin") {
-                alert("Acceso denegado. Solo un administrador puede gestionar usuarios.");
-                location.href = "menu.html";
-                return;
+            let usuarios = getData("usuarios");
+
+            if (id) {
+                // Editar
+                const u = usuarios.find(x => x.id === id);
+                u.usuario = usuario;
+                u.clave = clave;
+                u.rol = rol;
+
+                registrarAuditoria("Usuarios", "Edición", `Editó usuario: ${usuario}`);
+            } else {
+                // Nuevo
+                usuarios.push({
+                    id: generarID(),
+                    usuario,
+                    clave,
+                    rol
+                });
+
+                registrarAuditoria("Usuarios", "Alta", `Creó usuario: ${usuario}`);
             }
 
-            document.getElementById("usuario-log").textContent = usuario;
+            setData("usuarios", usuarios);
+            limpiarFormulario();
+            cargarTabla();
+        });
 
-            cargarUsuarios();
+        // Editar
+        function editar(id) {
+            const u = getData("usuarios").find(x => x.id === id);
+            document.getElementById("id").value = u.id;
+            document.getElementById("usuario").value = u.usuario;
+            document.getElementById("clave").value = u.clave;
+            document.getElementById("rol").value = u.rol;
         }
 
-        function cerrarSesion() {
-            localStorage.removeItem("loggedUser");
-            localStorage.removeItem("userRole");
-            location.href = "index.html";
+        // Eliminar
+        function eliminar(id) {
+            if (!confirm("¿Eliminar usuario?")) return;
+
+            let usuarios = getData("usuarios");
+            const u = usuarios.find(x => x.id === id);
+
+            usuarios = usuarios.filter(x => x.id !== id);
+            setData("usuarios", usuarios);
+
+            registrarAuditoria("Usuarios", "Baja", `Eliminó usuario: ${u.usuario}`);
+
+            cargarTabla();
         }
+
+        // Cancelar
+        document.getElementById("cancelarBtn").addEventListener("click", limpiarFormulario);
+
+        function limpiarFormulario() {
+            document.getElementById("id").value = "";
+            document.getElementById("usuario").value = "";
+            document.getElementById("clave").value = "";
+        }
+
+        // Inicializar
+        cargarTabla();
     </script>
 
 </body>
