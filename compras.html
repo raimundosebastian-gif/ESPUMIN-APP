@@ -3,109 +3,207 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESPUMIN APP - Compras</title>
+    <title>ESPUMIN - Compras</title>
     <link rel="stylesheet" href="style.css">
 </head>
+<body>
 
-<body onload="inicializarCompras()">
+    <!-- Menú -->
+    <div id="menu-container"></div>
 
-    <!-- ============================
-         BANNER SUPERIOR
-    ============================= -->
-    <header class="banner">
-        <h1>Gestión de Compras</h1>
-        <a href="menu.html" class="btn-volver">Volver al Menú</a>
-    </header>
+    <main class="modulo-container">
+        <h1>Compras</h1>
 
-    <!-- ============================
-         USUARIO LOGUEADO
-    ============================= -->
-    <section class="usuario-info">
-        <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
-        <button onclick="cerrarSesion()" class="btn-sesion">Cerrar sesión</button>
-    </section>
+        <!-- Formulario -->
+        <section class="form-section">
+            <input type="hidden" id="id">
 
-    <!-- ============================
-         CONTENEDOR PRINCIPAL
-    ============================= -->
-    <section class="contenedor">
+            <label>Proveedor</label>
+            <select id="proveedor"></select>
 
-        <h2>Compras registradas</h2>
+            <label>Producto</label>
+            <select id="producto"></select>
 
-        <!-- Botón crear -->
-        <button class="btn-primario" onclick="abrirModalNuevaCompra()">+ Registrar compra</button>
+            <label>Cantidad</label>
+            <input type="number" id="cantidad" min="1" placeholder="Ej: 10">
+
+            <label>Precio unitario ($)</label>
+            <input type="number" id="precio" placeholder="Ej: 800">
+
+            <label>Total ($)</label>
+            <input type="number" id="total" readonly>
+
+            <button id="guardarBtn">Registrar Compra</button>
+            <button id="cancelarBtn" class="btn-secundario">Cancelar</button>
+        </section>
 
         <!-- Tabla -->
-        <div id="lista-compras" style="margin-top:20px;"></div>
+        <section class="tabla-section">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Proveedor</th>
+                        <th>Producto</th>
+                        <th>Cant.</th>
+                        <th>Total</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaCompras"></tbody>
+            </table>
+        </section>
+    </main>
 
-    </section>
-
-    <!-- ============================
-         MODAL NUEVA COMPRA
-    ============================= -->
-    <div id="modal-nueva-compra" class="modal">
-        <div class="modal-contenido">
-            <h3>Nueva compra</h3>
-
-            <label>Proveedor:</label>
-            <select id="compra-proveedor"></select>
-
-            <label>Producto:</label>
-            <select id="compra-producto"></select>
-
-            <label>Cantidad:</label>
-            <input type="number" id="compra-cantidad" min="1">
-
-            <label>Precio unitario:</label>
-            <input type="number" id="compra-precio" min="0">
-
-            <label>Notas (opcional):</label>
-            <textarea id="compra-notas"></textarea>
-
-            <div class="modal-botones">
-                <button class="btn-secundario" onclick="guardarNuevaCompra()">Guardar</button>
-                <button class="btn-eliminar" onclick="cerrarModalNuevaCompra()">Cancelar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ============================
-         MODAL DETALLE DE COMPRA
-    ============================= -->
-    <div id="modal-detalle-compra" class="modal">
-        <div class="modal-contenido">
-            <h3>Detalle de compra</h3>
-
-            <div id="detalle-compra"></div>
-
-            <div class="modal-botones">
-                <button class="btn-eliminar" onclick="cerrarModalDetalleCompra()">Cerrar</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
-
+    <script src="js/core.js"></script>
     <script>
-        function inicializarCompras() {
-            const usuario = localStorage.getItem("loggedUser");
-            if (!usuario) {
-                location.href = "index.html";
+        protegerModulo();
+
+        // Cargar menú
+        fetch("menu.html")
+            .then(r => r.text())
+            .then(html => document.getElementById("menu-container").innerHTML = html);
+
+        // Cargar selects
+        function cargarProveedores() {
+            const proveedores = getData("proveedores");
+            const sel = document.getElementById("proveedor");
+            sel.innerHTML = "";
+
+            proveedores.forEach(p => {
+                const opt = document.createElement("option");
+                opt.value = p.nombre;
+                opt.textContent = p.nombre;
+                sel.appendChild(opt);
+            });
+        }
+
+        function cargarProductos() {
+            const productos = getData("productos");
+            const sel = document.getElementById("producto");
+            sel.innerHTML = "";
+
+            productos.forEach(p => {
+                const opt = document.createElement("option");
+                opt.value = p.nombre;
+                opt.textContent = p.nombre;
+                sel.appendChild(opt);
+            });
+        }
+
+        // Total
+        function actualizarTotal() {
+            const cant = Number(document.getElementById("cantidad").value);
+            const precio = Number(document.getElementById("precio").value);
+            document.getElementById("total").value = cant * precio;
+        }
+
+        document.getElementById("cantidad").addEventListener("input", actualizarTotal);
+        document.getElementById("precio").addEventListener("input", actualizarTotal);
+
+        // Renderizar tabla
+        function cargarTabla() {
+            const compras = getData("compras");
+            const tbody = document.getElementById("tablaCompras");
+            tbody.innerHTML = "";
+
+            compras.forEach(c => {
+                const tr = document.createElement("tr");
+
+                tr.innerHTML = `
+                    <td>${formatDate(c.fecha)}</td>
+                    <td>${c.proveedor}</td>
+                    <td>${c.producto}</td>
+                    <td>${c.cantidad}</td>
+                    <td>$ ${c.total}</td>
+                    <td>
+                        <button onclick="eliminar('${c.id}')" class="btn-eliminar">Eliminar</button>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Guardar compra
+        document.getElementById("guardarBtn").addEventListener("click", () => {
+            const proveedor = document.getElementById("proveedor").value;
+            const producto = document.getElementById("producto").value;
+            const cantidad = Number(document.getElementById("cantidad").value);
+            const precio = Number(document.getElementById("precio").value);
+            const total = Number(document.getElementById("total").value);
+
+            if (!proveedor || !producto || cantidad <= 0 || precio <= 0) {
+                alert("Complete todos los campos");
                 return;
             }
 
-            document.getElementById("usuario-log").textContent = usuario;
+            // Actualizar stock
+            let inventario = getData("inventario");
+            let item = inventario.find(i => i.producto === producto);
 
-            cargarCompras();
-            cargarProveedoresEnSelect();
-            cargarProductosEnSelect();
+            if (!item) {
+                // Si no existe en inventario, lo creamos
+                item = { id: generarID(), producto, stock: 0 };
+                inventario.push(item);
+            }
+
+            item.stock += cantidad;
+            setData("inventario", inventario);
+
+            // Registrar compra
+            let compras = getData("compras");
+            compras.push({
+                id: generarID(),
+                fecha: new Date().toISOString(),
+                proveedor,
+                producto,
+                cantidad,
+                precio,
+                total
+            });
+            setData("compras", compras);
+
+            registrarAuditoria("Compras", "Alta", `Compró ${cantidad} x ${producto} a ${proveedor}`);
+
+            limpiarFormulario();
+            cargarTabla();
+        });
+
+        // Eliminar compra
+        function eliminar(id) {
+            if (!confirm("¿Eliminar compra?")) return;
+
+            let compras = getData("compras");
+            const compra = compras.find(c => c.id === id);
+
+            // Restar stock
+            let inventario = getData("inventario");
+            const item = inventario.find(i => i.producto === compra.producto);
+            if (item) item.stock -= compra.cantidad;
+            setData("inventario", inventario);
+
+            compras = compras.filter(c => c.id !== id);
+            setData("compras", compras);
+
+            registrarAuditoria("Compras", "Baja", `Eliminó compra de ${compra.producto}`);
+
+            cargarTabla();
         }
 
-        function cerrarSesion() {
-            localStorage.removeItem("loggedUser");
-            localStorage.removeItem("userRole");
-            location.href = "index.html";
+        // Cancelar
+        document.getElementById("cancelarBtn").addEventListener("click", limpiarFormulario);
+
+        function limpiarFormulario() {
+            document.getElementById("cantidad").value = "";
+            document.getElementById("precio").value = "";
+            document.getElementById("total").value = "";
         }
+
+        // Inicializar
+        cargarProveedores();
+        cargarProductos();
+        cargarTabla();
     </script>
 
 </body>
