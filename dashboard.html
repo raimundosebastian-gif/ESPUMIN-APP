@@ -2,155 +2,91 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ESPUMIN APP - Dashboard</title>
-
-    <style>
-        .card {
-            background: white;
-            color: #333;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.2);
-        }
-        .titulo-seccion {
-            margin-top: 25px;
-            font-size: 22px;
-            font-weight: bold;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 
-<body style="
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
-    background: linear-gradient(135deg, #007bff, #00c851);
-    color: white;
-">
+<body onload="inicializarDashboard()">
 
-<script>
-    /* 🔐 Protección del dashboard */
-    const usuario = localStorage.getItem("loggedUser");
-    const rol = localStorage.getItem("userRole");
+    <!-- ============================
+         BANNER SUPERIOR
+    ============================= -->
+    <header class="banner">
+        <h1>Panel de Control</h1>
+        <a href="menu.html" class="btn-volver">Volver al Menú</a>
+    </header>
 
-    if (!usuario) {
-        window.location.href = "index.html";
-    }
+    <!-- ============================
+         USUARIO LOGUEADO
+    ============================= -->
+    <section class="usuario-info">
+        <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
+        <button onclick="cerrarSesion()" class="btn-sesion">Cerrar sesión</button>
+    </section>
 
-    /* Solo ADMIN puede entrar */
-    if (rol !== "admin") {
-        alert("Acceso restringido. Solo administradores.");
-        window.location.href = "menu.html";
-    }
+    <!-- ============================
+         CONTENEDOR PRINCIPAL
+    ============================= -->
+    <section class="contenedor">
 
-    /* 🚪 Logout */
-    function cerrarSesion() {
-        localStorage.removeItem("loggedUser");
-        localStorage.removeItem("userRole");
-        window.location.href = "index.html";
-    }
-</script>
+        <!-- Indicadores -->
+        <h2>Indicadores del mes</h2>
+        <div id="indicadores" class="grid-indicadores"></div>
 
-<h2 style="text-align:center;">DASHBOARD ADMIN</h2>
+        <hr>
 
-<div style="text-align:center; margin-bottom:20px;">
-    <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
+        <!-- Alertas -->
+        <h2>Alertas</h2>
+        <div id="alertas-dashboard"></div>
 
-    <button onclick="cerrarSesion()" 
-        style="
-            padding:10px 20px;
-            background:white;
-            color:#007bff;
-            border:none;
-            border-radius:5px;
-            cursor:pointer;
-            font-size:16px;
-            font-weight:bold;
-            text-transform:uppercase;
-        ">
-        Cerrar sesión
-    </button>
-</div>
+        <hr>
 
-<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
+        <!-- Gráficos -->
+        <h2>Gráficos</h2>
+        <div class="grid-graficos">
+            <canvas id="grafico-ventas"></canvas>
+            <canvas id="grafico-compras"></canvas>
+            <canvas id="grafico-productos"></canvas>
+        </div>
 
+        <hr>
 
-<!-- MÉTRICAS PRINCIPALES -->
-<h3 class="titulo-seccion">Resumen General</h3>
+        <!-- Accesos rápidos -->
+        <h2>Accesos rápidos</h2>
+        <div class="accesos-rapidos">
+            <button class="btn-primario" onclick="location.href='ventas.html'">+ Nueva venta</button>
+            <button class="btn-primario" onclick="location.href='compras.html'">+ Nueva compra</button>
+            <button class="btn-primario" onclick="location.href='inventario.html'">+ Movimiento de stock</button>
+            <button class="btn-primario" onclick="location.href='cuentas-clientes.html'">+ Registrar pago cliente</button>
+        </div>
 
-<div class="card">
-    <p><strong>Total de Clientes:</strong> <span id="dash-clientes"></span></p>
-    <p><strong>Productos Activos:</strong> <span id="dash-productos"></span></p>
-    <p><strong>Total de Ventas:</strong> <span id="dash-ventas"></span></p>
-    <p><strong>Facturación Total:</strong> $<span id="dash-facturacion"></span></p>
-</div>
+    </section>
 
-<hr style="border:1px solid rgba(255,255,255,0.3); margin:20px 0;">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
 
+    <script>
+        function inicializarDashboard() {
+            const usuario = localStorage.getItem("loggedUser");
+            if (!usuario) {
+                location.href = "index.html";
+                return;
+            }
 
-<!-- ÚLTIMAS VENTAS -->
-<h3 class="titulo-seccion">Últimas Ventas</h3>
+            document.getElementById("usuario-log").textContent = usuario;
 
-<div id="dash-ultimas" class="card"></div>
+            cargarIndicadores();
+            cargarAlertasDashboard();
+            cargarGraficosDashboard();
+        }
 
-
-<!-- BOTÓN VOLVER AL MENÚ -->
-<div style="text-align:center;">
-    <button onclick="location.href='menu.html'"
-        style="
-            margin-top:30px;
-            padding:12px 20px;
-            background:white;
-            color:#007bff;
-            border:none;
-            border-radius:6px;
-            cursor:pointer;
-            font-size:16px;
-            font-weight:bold;
-            text-transform:uppercase;
-        ">
-        Volver al Menú
-    </button>
-</div>
-
-
-<script src="script.js"></script>
-
-<script>
-    /* Mostrar usuario logueado */
-    document.getElementById("usuario-log").textContent = usuario;
-
-    // Cargar datos
-    const clientes = obtenerClientes();
-    const productos = obtenerProductos().filter(p => p.estado === "Activo");
-    const ventas = obtenerVentas();
-
-    // Métricas
-    document.getElementById("dash-clientes").textContent = clientes.length;
-    document.getElementById("dash-productos").textContent = productos.length;
-    document.getElementById("dash-ventas").textContent = ventas.length;
-
-    const totalFacturado = ventas.reduce((t, v) => t + v.total, 0);
-    document.getElementById("dash-facturacion").textContent = totalFacturado.toLocaleString("es-AR");
-
-    // Últimas ventas
-    const ultimas = ventas.slice(-5).reverse();
-    const cont = document.getElementById("dash-ultimas");
-
-    if (ultimas.length === 0) {
-        cont.innerHTML = "<p>No hay ventas registradas.</p>";
-    } else {
-        cont.innerHTML = ultimas.map(v => {
-            const fecha = new Date(v.id).toLocaleDateString();
-            return `
-                <div style='margin-bottom:10px;'>
-                    <strong>${fecha}</strong> — ${v.cliente} — $${v.total.toLocaleString("es-AR")}
-                </div>
-            `;
-        }).join("");
-    }
-</script>
+        function cerrarSesion() {
+            localStorage.removeItem("loggedUser");
+            localStorage.removeItem("userRole");
+            location.href = "index.html";
+        }
+    </script>
 
 </body>
 </html>
