@@ -3,88 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESPUMIN APP - Backups</title>
+    <title>ESPUMIN - Backups</title>
     <link rel="stylesheet" href="style.css">
 </head>
+<body>
 
-<body onload="inicializarBackups()">
+    <!-- Menú -->
+    <div id="menu-container"></div>
 
-    <!-- ============================
-         BANNER SUPERIOR
-    ============================= -->
-    <header class="banner">
-        <h1>Gestión de Backups</h1>
-        <a href="menu.html" class="btn-volver">Volver al Menú</a>
-    </header>
+    <main class="modulo-container">
+        <h1>Backups</h1>
 
-    <!-- ============================
-         USUARIO LOGUEADO
-    ============================= -->
-    <section class="usuario-info">
-        <p>Usuario: <strong><span id="usuario-log"></span></strong></p>
-        <button onclick="cerrarSesion()" class="btn-sesion">Cerrar sesión</button>
-    </section>
+        <!-- Exportar -->
+        <section class="form-section">
+            <h2>Exportar datos</h2>
+            <p>Genera un archivo JSON con toda la información del sistema.</p>
+            <button id="exportarBtn">Exportar Backup</button>
+        </section>
 
-    <!-- ============================
-         CONTENEDOR PRINCIPAL
-    ============================= -->
-    <section class="contenedor">
+        <!-- Importar -->
+        <section class="form-section">
+            <h2>Importar datos</h2>
+            <p>Selecciona un archivo JSON previamente exportado.</p>
+            <input type="file" id="importarArchivo" accept=".json">
+            <button id="importarBtn">Importar Backup</button>
+        </section>
 
-        <h2>Backups del sistema</h2>
+        <!-- Historial -->
+        <section class="tabla-section">
+            <h2>Historial de Backups</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaBackups"></tbody>
+            </table>
+        </section>
+    </main>
 
-        <!-- Botones principales -->
-        <button class="btn-primario" onclick="crearBackup()">+ Crear backup</button>
-
-        <div id="lista-backups" style="margin-top:20px;"></div>
-
-    </section>
-
-    <!-- ============================
-         MODAL CONFIRMAR RESTAURACIÓN
-    ============================= -->
-    <div id="modal-restaurar" class="modal">
-        <div class="modal-contenido">
-            <h3>Restaurar backup</h3>
-
-            <p>¿Estás seguro de que querés restaurar este backup?</p>
-            <p><strong>Se reemplazarán todos los datos actuales del sistema.</strong></p>
-
-            <input type="hidden" id="restore-id">
-
-            <div class="modal-botones">
-                <button class="btn-secundario" onclick="confirmarRestauracion()">Restaurar</button>
-                <button class="btn-eliminar" onclick="cerrarModalRestaurar()">Cancelar</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
-
+    <script src="js/core.js"></script>
     <script>
-        function inicializarBackups() {
-            const usuario = localStorage.getItem("loggedUser");
-            const rol = localStorage.getItem("userRole");
+        protegerModulo();
 
-            if (!usuario) {
-                location.href = "index.html";
+        // Cargar menú
+        fetch("menu.html")
+            .then(r => r.text())
+            .then(html => document.getElementById("menu-container").innerHTML = html);
+
+        // Renderizar historial
+        function cargarTabla() {
+            const backups = getData("backups");
+            const tbody = document.getElementById("tablaBackups");
+            tbody.innerHTML = "";
+
+            backups.forEach(b => {
+                const tr = document.createElement("tr");
+
+                tr.innerHTML = `
+                    <td>${formatDate(b.fecha)}</td>
+                    <td>${b.accion}</td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Exportar backup
+        document.getElementById("exportarBtn").addEventListener("click", () => {
+            const data = localStorage;
+            const json = JSON.stringify(data, null, 2);
+
+            const blob = new Blob([json], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "backup_espumin.json";
+            a.click();
+
+            registrarAuditoria("Backups", "Exportación", "Exportó backup completo");
+
+            let backups = getData("backups");
+            backups.push({
+                id: generarID(),
+                fecha: new Date().toISOString(),
+                accion: "Exportación"
+            });
+            setData("backups", backups);
+
+            cargarTabla();
+        });
+
+        // Importar backup
+        document.getElementById("importarBtn").addEventListener("click", () => {
+            const archivo = document.getElementById("importarArchivo").files[0];
+
+            if (!archivo) {
+                alert("Seleccione un archivo JSON");
                 return;
             }
 
-            if (rol !== "Admin") {
-                alert("Acceso denegado. Solo un administrador puede gestionar backups.");
-                location.href = "menu.html";
-                return;
-            }
+            const lector = new FileReader();
+            lector.onload = function(e) {
+                try {
+                    const datos = JSON.parse(e.target.result);
 
-            document.getElementById("usuario-log").textContent = usuario;
-            cargarBackups();
-        }
+                    for (let key in datos) {
+                        localStorage.setItem(key, datos[key]);
+                    }
 
-        function cerrarSesion() {
-            localStorage.removeItem("loggedUser");
-            localStorage.removeItem("userRole");
-            location.href = "index.html";
-        }
+                    registrarAuditoria("Backups", "Importación", "Importó backup completo");
+
+                    let backups = getData("backups");
+                    backups.push({
+                        id: generarID(),
+                        fecha: new Date().toISOString(),
+                        accion: "Importación"
+                    });
+                    setData("backups", backups);
+
+                    alert("Backup importado correctamente");
+                    cargarTabla();
+                } catch (err) {
+                    alert("Archivo inválido");
+                }
+            };
+
+            lector.readAsText(archivo);
+        });
+
+        // Inicializar
+        cargarTabla();
     </script>
 
 </body>
