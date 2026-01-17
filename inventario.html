@@ -4,15 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ESPUMIN - Inventario</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../style.css">
 </head>
-<body>
+<body class="login-body">
 
-    <!-- Menú -->
+    <!-- Menú superior -->
     <div id="menu-container"></div>
 
     <main class="modulo-container">
         <h1>Inventario</h1>
+
+        <!-- Botón volver -->
+        <button onclick="window.location.href='../dashboard.html'" class="btn-volver">
+            ← Volver al menú
+        </button>
 
         <!-- Formulario -->
         <section class="form-section">
@@ -43,17 +48,24 @@
         </section>
     </main>
 
-    <script src="core.js"></script>
-    <script>
-        // Seguridad
-        protegerModulo();
+    <script src="../core.js"></script>
 
-        // Cargar menú
-        fetch("menu.html")
+    <script>
+        /* ============================
+           SEGURIDAD DEL MÓDULO
+        ============================ */
+        protegerModulo("inventario");
+
+        /* ============================
+           CARGAR MENÚ SUPERIOR
+        ============================ */
+        fetch("../menu.html")
             .then(r => r.text())
             .then(html => document.getElementById("menu-container").innerHTML = html);
 
-        // Cargar productos en el select
+        /* ============================
+           CARGAR PRODUCTOS
+        ============================ */
         function cargarProductos() {
             const productos = getData("productos");
             const sel = document.getElementById("producto");
@@ -67,7 +79,9 @@
             });
         }
 
-        // Renderizar tabla
+        /* ============================
+           TABLA DE INVENTARIO
+        ============================ */
         function cargarTabla() {
             const inventario = getData("inventario");
             const tbody = document.getElementById("tablaInventario");
@@ -89,7 +103,9 @@
             });
         }
 
-        // Guardar
+        /* ============================
+           GUARDAR / EDITAR
+        ============================ */
         document.getElementById("guardarBtn").addEventListener("click", () => {
             const id = document.getElementById("id").value;
             const producto = document.getElementById("producto").value;
@@ -103,14 +119,12 @@
             let inventario = getData("inventario");
 
             if (id) {
-                // Editar
                 const item = inventario.find(i => i.id === id);
                 item.producto = producto;
                 item.stock = stock;
 
                 registrarAuditoria("Inventario", "Edición", `Editó stock de ${producto}`);
             } else {
-                // Nuevo
                 inventario.push({
                     id: generarID(),
                     producto,
@@ -125,7 +139,9 @@
             cargarTabla();
         });
 
-        // Editar
+        /* ============================
+           EDITAR
+        ============================ */
         function editar(id) {
             const item = getData("inventario").find(i => i.id === id);
             document.getElementById("id").value = item.id;
@@ -133,7 +149,9 @@
             document.getElementById("stock").value = item.stock;
         }
 
-        // Eliminar
+        /* ============================
+           ELIMINAR
+        ============================ */
         function eliminar(id) {
             if (!confirm("¿Eliminar ítem de inventario?")) return;
 
@@ -148,7 +166,9 @@
             cargarTabla();
         }
 
-        // Cancelar
+        /* ============================
+           CANCELAR
+        ============================ */
         document.getElementById("cancelarBtn").addEventListener("click", limpiarFormulario);
 
         function limpiarFormulario() {
@@ -156,7 +176,9 @@
             document.getElementById("stock").value = "";
         }
 
-        // Inicializar
+        /* ============================
+           INICIALIZAR
+        ============================ */
         cargarProductos();
         cargarTabla();
     </script>
