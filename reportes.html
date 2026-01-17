@@ -60,6 +60,10 @@
         // Generar reportes
         document.getElementById("generarBtn").addEventListener("click", () => {
             const anio = Number(document.getElementById("anio").value);
+
+            // Auditoría automática
+            registrarAuditoria("Reportes", "Consulta", `Generó reportes del año ${anio}`);
+
             const ventas = getData("ventas");
             const compras = getData("compras");
             const inventario = getData("inventario");
