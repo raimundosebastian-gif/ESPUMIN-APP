@@ -1,3 +1,13 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESPUMIN - Menú</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
 <div class="menu">
     <div class="menu-logo">
         <span>ESPUMIN ERP</span>
@@ -38,3 +48,22 @@
         <a href="auditoria.html">Auditoría</a>
     </nav>
 </div>
+
+<script src="core.js"></script>
+<script>
+    // Mostrar usuario activo
+    const usuario = JSON.parse(localStorage.getItem("usuarioActivo"));
+    if (usuario) {
+        document.getElementById("usuarioActual").textContent = usuario.usuario;
+    } else {
+        window.location.href = "login.html";
+    }
+
+    function logout() {
+        localStorage.removeItem("usuarioActivo");
+        window.location.href = "login.html";
+    }
+</script>
+
+</body>
+</html>
