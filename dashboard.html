@@ -8,98 +8,29 @@
 </head>
 <body>
 
-    <!-- Menú -->
     <div id="menu-container"></div>
 
     <main class="modulo-container">
-        <h1>Dashboard General</h1>
-
-        <!-- Tarjetas -->
-        <section class="dashboard-cards">
-
-            <div class="card">
-                <h2>Ventas Totales</h2>
-                <p id="ventasTotales">$ 0</p>
-            </div>
-
-            <div class="card">
-                <h2>Compras Totales</h2>
-                <p id="comprasTotales">$ 0</p>
-            </div>
-
-            <div class="card">
-                <h2>Saldo en Caja</h2>
-                <p id="saldoCaja">$ 0</p>
-            </div>
-
-            <div class="card">
-                <h2>Stock Total</h2>
-                <p id="stockTotal">0 unidades</p>
-            </div>
-
-            <div class="card">
-                <h2>Órdenes de Producción</h2>
-                <p id="ordenesProduccion">0</p>
-            </div>
-
-            <div class="card">
-                <h2>Notificaciones</h2>
-                <p id="notificacionesPendientes">0</p>
-            </div>
-
-        </section>
-
+        <h1>Dashboard</h1>
+        <p>Acceso correcto. Usuario logueado y sesión válida.</p>
     </main>
 
     <script src="core.js"></script>
     <script>
         protegerModulo();
 
-        // Cargar menú
-        fetch("menu.html")
+        fetch("menu-fragment.html")
             .then(r => r.text())
-            .then(html => document.getElementById("menu-container").innerHTML = html);
+            .then(html => {
+                document.getElementById("menu-container").innerHTML = html;
 
-        // Cargar métricas
-        function cargarDashboard() {
-
-            // Ventas
-            const ventas = getData("ventas");
-            const totalVentas = ventas.reduce((acc, v) => acc + Number(v.total), 0);
-            document.getElementById("ventasTotales").textContent = "$ " + totalVentas;
-
-            // Compras
-            const compras = getData("compras");
-            const totalCompras = compras.reduce((acc, c) => acc + Number(c.total), 0);
-            document.getElementById("comprasTotales").textContent = "$ " + totalCompras;
-
-            // Caja
-            const caja = getData("caja");
-            let saldo = 0;
-            caja.forEach(m => {
-                if (m.tipo === "Ingreso") saldo += Number(m.monto);
-                else saldo -= Number(m.monto);
+                const usuario = JSON.parse(localStorage.getItem("usuarioActual"));
+                if (usuario) {
+                    document.getElementById("usuarioActual").textContent = usuario.usuario;
+                } else {
+                    window.location.href = "login.html";
+                }
             });
-            document.getElementById("saldoCaja").textContent = "$ " + saldo;
-
-            // Stock total
-            const inventario = getData("inventario");
-            const stockTotal = inventario.reduce((acc, i) => acc + Number(i.stock), 0);
-            document.getElementById("stockTotal").textContent = stockTotal + " unidades";
-
-            // Producción
-            const produccion = getData("produccion");
-            document.getElementById("ordenesProduccion").textContent = produccion.length;
-
-            // Notificaciones
-            const notificaciones = getData("notificaciones");
-            document.getElementById("notificacionesPendientes").textContent = notificaciones.length;
-
-            registrarAuditoria("Dashboard", "Consulta", "Visualizó métricas generales");
-        }
-
-        cargarDashboard();
     </script>
-
 </body>
 </html>
