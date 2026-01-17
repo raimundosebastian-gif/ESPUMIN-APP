@@ -168,8 +168,10 @@ tr:hover {
 
 .module-btn {
     width: 100%;
-    background: #ffffff;
-    border: 1px solid #dcdcdc;
+    background: #1e88e5;          /* Azul corporativo */
+    color: white;                 /* Texto blanco */
+    font-weight: bold;            /* Negrita */
+    border: none;                 /* Sin borde gris */
     padding: 14px 16px;
     display: flex;
     align-items: center;
@@ -181,7 +183,13 @@ tr:hover {
 }
 
 .module-btn:hover {
-    background: #f0f0f0;
+    background: #1565c0;          /* Azul más oscuro */
+}
+
+.module-icon,
+.module-title,
+.module-arrow {
+    color: white;                 /* Iconos y flecha blancos */
 }
 
 .module-icon {
@@ -294,3 +302,4 @@ tr:hover {
         width: 100%;
     }
 }
+
