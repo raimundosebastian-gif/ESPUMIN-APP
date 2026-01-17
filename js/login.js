@@ -7,7 +7,7 @@ if (!localStorage.getItem("usuarios")) {
     const usuariosIniciales = [{
         usuario: "SEBA",
         clave: "pich/*-",
-        rol: "Administrador",
+        rol: "admin",        // Normalizado
         activo: true
     }];
     localStorage.setItem("usuarios", JSON.stringify(usuariosIniciales));
@@ -64,6 +64,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         /* Guardar usuario actual */
         localStorage.setItem("usuarioActual", JSON.stringify(u));
+
+        /* Guardar rol para el dashboard */
+        localStorage.setItem("userRole", u.rol);
+
+        /* Guardar nombre para mostrar en menú */
+        localStorage.setItem("userName", u.usuario);
 
         /* Recordar usuario (opcional) */
         if (recordarCheck.checked) {
