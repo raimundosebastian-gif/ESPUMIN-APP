@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESPUMIN - Parámetros del Sistema</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Menú -->
+    <div id="menu-container"></div>
+
+    <main class="modulo-container">
+        <h1>Parámetros del Sistema</h1>
+
+        <!-- Formulario -->
+        <section class="form-section">
+            <input type="hidden" id="id">
+
+            <h2>Generales</h2>
+
+            <label for="iva">IVA (%)</label>
+            <input type="number" id="iva" min="0" step="0.01" placeholder="Ej: 21">
+
+            <label for="decimales">Decimales en importes</label>
+            <input type="number" id="decimales" min="0" max="4" placeholder="Ej: 2">
+
+            <label for="moneda">Símbolo de moneda</label>
+            <input type="text" id="moneda" placeholder="Ej: $">
+
+            <h2>Stock y alertas</h2>
+
+            <label for="stockMinimoGlobal">Stock mínimo global</label>
+            <input type="number" id="stockMinimoGlobal" min="0" placeholder="Ej: 10">
+
+            <label for="usarAlertasStock">Alertas de stock</label>
+            <select id="usarAlertasStock">
+                <option value="Si">Sí</option>
+                <option value="No">No</option>
+            </select>
+
+            <h2>Interfaz y colores</h2>
+
+            <label for="colorPrimario">Color primario (hex)</label>
+            <input type="text" id="colorPrimario" placeholder="Ej: #0055ff">
+
+            <label for="colorSecundario">Color secundario (hex)</label>
+            <input type="text" id="colorSecundario" placeholder="Ej: #00cc88">
+
+            <label for="modoOscuro">Modo oscuro</label>
+            <select id="modoOscuro">
+                <option value="No">No</option>
+                <option value="Si">Sí</option>
+            </select>
+
+            <h2>Reportes y gráficos</h2>
+
+            <label for="usarGraficos">Usar gráficos en reportes</label>
+            <select id="usarGraficos">
+                <option value="Si">Sí</option>
+                <option value="No">No</option>
+            </select>
+
+            <label for="tipoGraficos">Tipo de gráficos</label>
+            <select id="tipoGraficos">
+                <option value="barras">Barras</option>
+                <option value="lineas">Líneas</option>
+                <option value="torta">Torta</option>
+            </select>
+
+            <button id="guardarBtn">Guardar parámetros</button>
+        </section>
+    </main>
+
+    <script src="core.js"></script>
+    <script>
+        protegerModulo();
+
+        // Cargar menú
+        fetch("menu.html")
+            .then(r => r.text())
+            .then(html => document.getElementById("menu-container").innerHTML = html);
+
+        // Cargar parámetros existentes
+        function cargarDatos() {
+            const lista = getData("parametros");
+            const cfg = lista && lista.length ? lista[0] : null;
+
+            if (cfg) {
+                document.getElementById("id").value = cfg.id || "";
+                document.getElementById("iva").value = cfg.iva ?? "";
+                document.getElementById("decimales").value = cfg.decimales ?? "";
+                document.getElementById("moneda").value = cfg.moneda ?? "";
+
+                document.getElementById("stockMinimoGlobal").value = cfg.stockMinimoGlobal ?? "";
+                document.getElementById("usarAlertasStock").value = cfg.usarAlertasStock || "Si";
+
+                document.getElementById("colorPrimario").value = cfg.colorPrimario ?? "";
+                document.getElementById("colorSecundario").value = cfg.colorSecundario ?? "";
+                document.getElementById("modoOscuro").value = cfg.modoOscuro || "No";
+
+                document.getElementById("usarGraficos").value = cfg.usarGraficos || "Si";
+                document.getElementById("tipoGraficos").value = cfg.tipoGraficos || "barras";
+            }
+        }
+
+        // Guardar parámetros
+        document.getElementById("guardarBtn").addEventListener("click", () => {
+            const id = document.getElementById("id").value;
+
+            const iva = Number(document.getElementById("iva").value);
+            const decimales = Number(document.getElementById("decimales").value);
+            const moneda = document.getElementById("moneda").value.trim();
+
+            const stockMinimoGlobal = Number(document.getElementById("stockMinimoGlobal").value);
+            const usarAlertasStock = document.getElementById("usarAlertasStock").value;
+
+            const colorPrimario = document.getElementById("colorPrimario").value.trim();
+            const colorSecundario = document.getElementById("colorSecundario").value.trim();
+            const modoOscuro = document.getElementById("modoOscuro").value;
+
+            const usarGraficos = document.getElementById("usarGraficos").value;
+            const tipoGraficos = document.getElementById("tipoGraficos").value;
+
+            if (isNaN(iva) || iva < 0) {
+                alert("IVA debe ser un número válido mayor o igual a 0");
+                return;
+            }
+
+            if (isNaN(decimales) || decimales < 0 || decimales > 4) {
+                alert("Decimales debe estar entre 0 y 4");
+                return;
+            }
+
+            if (!moneda) {
+                alert("El símbolo de moneda es obligatorio");
+                return;
+            }
+
+            let lista = getData("parametros");
+
+            const nuevoRegistro = {
+                id: id || generarID(),
+                iva,
+                decimales,
+                moneda,
+                stockMinimoGlobal,
+                usarAlertasStock,
+                colorPrimario,
+                colorSecundario,
+                modoOscuro,
+                usarGraficos,
+                tipoGraficos
+            };
+
+            if (id) {
+                // Editar
+                const idx = lista.findIndex(p => p.id === id);
+                if (idx !== -1) {
+                    lista[idx] = nuevoRegistro;
+                } else {
+                    lista = [nuevoRegistro];
+                }
+                registrarAuditoria("Parámetros", "Edición", "Actualizó parámetros del sistema");
+            } else {
+                // Registro único
+                lista = [nuevoRegistro];
+                registrarAuditoria("Parámetros", "Alta", "Registró parámetros del sistema");
+            }
+
+            setData("parametros", lista);
+            alert("Parámetros guardados correctamente");
+        });
+
+        // Inicializar
+        cargarDatos();
+    </script>
+
+</body>
+</html>
