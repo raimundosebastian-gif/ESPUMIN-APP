@@ -39,32 +39,20 @@ function registrarAuditoria(modulo, tipo, detalle) {
 }
 
 // ===============================
-//   ROLES Y PERMISOS
+//   ROLES Y PERMISOS (UNIFICADO)
 // ===============================
 
-// Qué rol puede acceder a qué módulo
+// admin = acceso total
+// operador = acceso operativo
+
 const permisos = {
-    "Dashboard": ["Administrador", "Ventas", "Compras", "Producción", "Logística", "Caja", "Auditoría"],
-    "Productos": ["Administrador", "Compras", "Producción"],
-    "Precios": ["Administrador", "Ventas"],
-    "Clientes": ["Administrador", "Ventas"],
-    "Proveedores": ["Administrador", "Compras"],
-    "Inventario": ["Administrador", "Producción", "Logística"],
-    "Compras": ["Administrador", "Compras"],
-    "Ventas": ["Administrador", "Ventas"],
-    "Logística": ["Administrador", "Logística"],
-    "Caja": ["Administrador", "Caja"],
-    "Cuentas Clientes": ["Administrador", "Ventas", "Caja"],
-    "Cuentas Proveedores": ["Administrador", "Compras", "Caja"],
-    "Impuestos": ["Administrador"],
-    "Agenda": ["Administrador", "Ventas", "Compras", "Producción", "Logística"],
-    "Notificaciones": ["Administrador"],
-    "Auditoría": ["Administrador", "Auditoría"],
-    "Configuración": ["Administrador"],
-    "Parámetros": ["Administrador"],
-    "Usuarios y Roles": ["Administrador"],
-    "Producción": ["Administrador", "Producción"],
-    "Backups": ["Administrador"]
+    "dashboard": ["admin", "operador"],
+    "inventario": ["admin", "operador"],
+    "clientes": ["admin", "operador"],
+    "proveedores": ["admin", "operador"],
+    "ventas": ["admin", "operador"],
+    "configuracion": ["admin"],
+    "auditoria": ["admin"]
 };
 
 // Validar acceso
@@ -73,7 +61,7 @@ function tieneAcceso(modulo, rol) {
 }
 
 // Proteger módulo
-function protegerModulo() {
+function protegerModulo(moduloClave) {
     const usuarioActual = JSON.parse(localStorage.getItem("usuarioActual"));
 
     if (!usuarioActual) {
@@ -88,9 +76,7 @@ function protegerModulo() {
         return;
     }
 
-    const modulo = document.title.replace("ESPUMIN - ", "").trim();
-
-    if (!tieneAcceso(modulo, usuarioActual.rol)) {
+    if (!tieneAcceso(moduloClave, usuarioActual.rol)) {
         alert("No tiene permiso para acceder a este módulo");
         window.location.href = "dashboard.html";
     }
