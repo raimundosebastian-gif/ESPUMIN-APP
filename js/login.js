@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const usuarios = getData("usuarios");
-        const u = usuarios.find(x => x.usuario === usuario && x.password === clave);
+        const u = usuarios.find(x => x.usuario === usuario && x.clave === clave);
 
         if (!u) {
             alert("Usuario o clave incorrectos");
