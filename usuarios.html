@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESPUMIN - Usuarios</title>
+    <title>ESPUMIN - Usuarios y Roles</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,25 +12,36 @@
     <div id="menu-container"></div>
 
     <main class="modulo-container">
-        <h1>Gestión de Usuarios</h1>
+        <h1>Usuarios y Roles</h1>
 
         <!-- Formulario -->
         <section class="form-section">
             <input type="hidden" id="id">
 
-            <label>Usuario</label>
-            <input type="text" id="usuario" placeholder="Ej: admin">
+            <label for="usuario">Usuario</label>
+            <input type="text" id="usuario" placeholder="Ej: juanperez">
 
-            <label>Clave</label>
-            <input type="password" id="clave" placeholder="Ej: 1234">
+            <label for="password">Contraseña</label>
+            <input type="password" id="password" placeholder="Nueva contraseña">
 
-            <label>Rol</label>
+            <label for="rol">Rol</label>
             <select id="rol">
                 <option value="Administrador">Administrador</option>
-                <option value="Operador">Operador</option>
+                <option value="Ventas">Ventas</option>
+                <option value="Compras">Compras</option>
+                <option value="Producción">Producción</option>
+                <option value="Logística">Logística</option>
+                <option value="Caja">Caja</option>
+                <option value="Auditoría">Auditoría</option>
             </select>
 
-            <button id="guardarBtn">Guardar</button>
+            <label for="activo">Estado</label>
+            <select id="activo">
+                <option value="true">Activo</option>
+                <option value="false">Inactivo</option>
+            </select>
+
+            <button id="guardarBtn">Guardar Usuario</button>
             <button id="cancelarBtn" class="btn-secundario">Cancelar</button>
         </section>
 
@@ -41,6 +52,7 @@
                     <tr>
                         <th>Usuario</th>
                         <th>Rol</th>
+                        <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -49,7 +61,7 @@
         </section>
     </main>
 
-    <script src="js/core.js"></script>
+    <script src="core.js"></script>
     <script>
         protegerModulo();
 
@@ -70,6 +82,7 @@
                 tr.innerHTML = `
                     <td>${u.usuario}</td>
                     <td>${u.rol}</td>
+                    <td>${u.activo ? "Activo" : "Inactivo"}</td>
                     <td>
                         <button onclick="editar('${u.id}')">Editar</button>
                         <button onclick="eliminar('${u.id}')" class="btn-eliminar">Eliminar</button>
@@ -84,11 +97,12 @@
         document.getElementById("guardarBtn").addEventListener("click", () => {
             const id = document.getElementById("id").value;
             const usuario = document.getElementById("usuario").value.trim();
-            const clave = document.getElementById("clave").value.trim();
+            const password = document.getElementById("password").value.trim();
             const rol = document.getElementById("rol").value;
+            const activo = document.getElementById("activo").value === "true";
 
-            if (!usuario || !clave) {
-                alert("Complete usuario y clave");
+            if (!usuario) {
+                alert("El usuario es obligatorio");
                 return;
             }
 
@@ -96,22 +110,26 @@
 
             if (id) {
                 // Editar
-                const u = usuarios.find(x => x.id === id);
-                u.usuario = usuario;
-                u.clave = clave;
-                u.rol = rol;
+                const item = usuarios.find(u => u.id === id);
 
-                registrarAuditoria("Usuarios", "Edición", `Editó usuario: ${usuario}`);
+                item.usuario = usuario;
+                item.rol = rol;
+                item.activo = activo;
+
+                if (password) item.password = password;
+
+                registrarAuditoria("Usuarios", "Edición", `Editó usuario ${usuario}`);
             } else {
                 // Nuevo
                 usuarios.push({
                     id: generarID(),
                     usuario,
-                    clave,
-                    rol
+                    password: password || "1234",
+                    rol,
+                    activo
                 });
 
-                registrarAuditoria("Usuarios", "Alta", `Creó usuario: ${usuario}`);
+                registrarAuditoria("Usuarios", "Alta", `Creó usuario ${usuario}`);
             }
 
             setData("usuarios", usuarios);
@@ -122,10 +140,12 @@
         // Editar
         function editar(id) {
             const u = getData("usuarios").find(x => x.id === id);
+
             document.getElementById("id").value = u.id;
             document.getElementById("usuario").value = u.usuario;
-            document.getElementById("clave").value = u.clave;
+            document.getElementById("password").value = "";
             document.getElementById("rol").value = u.rol;
+            document.getElementById("activo").value = u.activo ? "true" : "false";
         }
 
         // Eliminar
@@ -138,7 +158,7 @@
             usuarios = usuarios.filter(x => x.id !== id);
             setData("usuarios", usuarios);
 
-            registrarAuditoria("Usuarios", "Baja", `Eliminó usuario: ${u.usuario}`);
+            registrarAuditoria("Usuarios", "Baja", `Eliminó usuario ${u.usuario}`);
 
             cargarTabla();
         }
@@ -149,7 +169,7 @@
         function limpiarFormulario() {
             document.getElementById("id").value = "";
             document.getElementById("usuario").value = "";
-            document.getElementById("clave").value = "";
+            document.getElementById("password").value = "";
         }
 
         // Inicializar
