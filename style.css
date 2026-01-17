@@ -204,6 +204,9 @@ tr:hover {
 .module-title {
     flex-grow: 1;
     text-align: left;
+    text-transform: uppercase;   /* MAYÚSCULAS */
+    font-size: 20px;             /* Más grande */
+    letter-spacing: 2px;         /* Más separación */
 }
 
 .module-arrow {
@@ -307,6 +310,7 @@ tr:hover {
         width: 100%;
     }
 }
+
 
 
 
