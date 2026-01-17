@@ -12,7 +12,50 @@
     <div id="menu-container"></div>
 
     <main class="modulo-container">
-        <h1>Auditoría del Sistema</h1>
+        <h1>Auditoría</h1>
+
+        <!-- Botón volver -->
+        <button class="btn-volver" onclick="window.location.href='menu.html'">Volver al menú</button>
+
+        <!-- Filtros -->
+        <section class="form-section" style="margin-top:20px;">
+            <h3>Filtros</h3>
+
+            <label>Buscar texto</label>
+            <input type="text" id="filtroTexto" placeholder="Buscar en detalle, módulo o tipo">
+
+            <label>Filtrar por módulo</label>
+            <select id="filtroModulo">
+                <option value="">Todos</option>
+                <option value="Login">Login</option>
+                <option value="Agenda">Agenda</option>
+                <option value="Ventas">Ventas</option>
+                <option value="Compras">Compras</option>
+                <option value="Producción">Producción</option>
+                <option value="Inventario">Inventario</option>
+                <option value="Caja">Caja</option>
+                <option value="Auditoría">Auditoría</option>
+                <option value="Usuarios">Usuarios</option>
+            </select>
+
+            <label>Filtrar por tipo</label>
+            <select id="filtroTipo">
+                <option value="">Todos</option>
+                <option value="Acceso">Acceso</option>
+                <option value="Alta">Alta</option>
+                <option value="Edición">Edición</option>
+                <option value="Baja">Baja</option>
+            </select>
+
+            <label>Desde</label>
+            <input type="date" id="filtroDesde">
+
+            <label>Hasta</label>
+            <input type="date" id="filtroHasta">
+
+            <button id="btnFiltrar">Aplicar filtros</button>
+            <button id="btnLimpiar" class="btn-secundario">Limpiar filtros</button>
+        </section>
 
         <!-- Tabla -->
         <section class="tabla-section">
@@ -30,36 +73,121 @@
         </section>
     </main>
 
-    <script src="core.js"></script>
+    <script src="js/core.js"></script>
     <script>
         protegerModulo();
 
-        // Cargar menú
-        fetch("menu.html")
+        /* ============================================================
+           Cargar menú
+        ============================================================ */
+        fetch("menu-fragment.html")
             .then(r => r.text())
-            .then(html => document.getElementById("menu-container").innerHTML = html);
+            .then(html => {
+                document.getElementById("menu-container").innerHTML = html;
 
-        // Renderizar tabla
+                const usuario = JSON.parse(localStorage.getItem("usuarioActual"));
+                if (usuario) {
+                    document.getElementById("usuarioActual").textContent = usuario.usuario;
+                } else {
+                    window.location.href = "login.html";
+                }
+            });
+
+        /* ============================================================
+           Crear 5 registros de ejemplo si no hay auditoría
+        ============================================================ */
+        function inicializarEjemplos() {
+            let auditoria = getData("auditoria");
+
+            if (auditoria.length === 0) {
+                const ejemplos = [
+                    { modulo: "Login", tipo: "Acceso", detalle: "Usuario SEBA inició sesión" },
+                    { modulo: "Agenda", tipo: "Alta", detalle: "Agregó evento: Reunión con proveedor" },
+                    { modulo: "Ventas", tipo: "Edición", detalle: "Modificó precio de producto" },
+                    { modulo: "Compras", tipo: "Baja", detalle: "Eliminó orden de compra" },
+                    { modulo: "Usuarios", tipo: "Alta", detalle: "Creó usuario nuevo" }
+                ];
+
+                ejemplos.forEach(e => {
+                    auditoria.push({
+                        id: generarID(),
+                        fecha: new Date().toISOString(),
+                        modulo: e.modulo,
+                        tipo: e.tipo,
+                        detalle: e.detalle
+                    });
+                });
+
+                setData("auditoria", auditoria);
+            }
+        }
+
+        inicializarEjemplos();
+
+        /* ============================================================
+           Renderizar tabla con filtros
+        ============================================================ */
         function cargarTabla() {
-            const auditoria = getData("auditoria");
+            let auditoria = getData("auditoria");
+
+            // Ordenar por fecha descendente
+            auditoria.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+            // Aplicar filtros
+            const texto = document.getElementById("filtroTexto").value.toLowerCase();
+            const modulo = document.getElementById("filtroModulo").value;
+            const tipo = document.getElementById("filtroTipo").value;
+            const desde = document.getElementById("filtroDesde").value;
+            const hasta = document.getElementById("filtroHasta").value;
+
+            auditoria = auditoria.filter(reg => {
+                const fecha = new Date(reg.fecha);
+
+                if (texto && !(
+                    reg.detalle.toLowerCase().includes(texto) ||
+                    reg.modulo.toLowerCase().includes(texto) ||
+                    reg.tipo.toLowerCase().includes(texto)
+                )) return false;
+
+                if (modulo && reg.modulo !== modulo) return false;
+                if (tipo && reg.tipo !== tipo) return false;
+
+                if (desde && fecha < new Date(desde)) return false;
+                if (hasta && fecha > new Date(hasta + "T23:59:59")) return false;
+
+                return true;
+            });
+
+            // Renderizar
             const tbody = document.getElementById("tablaAuditoria");
             tbody.innerHTML = "";
 
-            auditoria.forEach(ev => {
+            auditoria.forEach(reg => {
                 const tr = document.createElement("tr");
 
                 tr.innerHTML = `
-                    <td>${formatDate(ev.fecha)}</td>
-                    <td>${ev.modulo}</td>
-                    <td>${ev.tipo}</td>
-                    <td>${ev.detalle}</td>
+                    <td>${formatDate(reg.fecha)} ${new Date(reg.fecha).toLocaleTimeString("es-AR")}</td>
+                    <td>${reg.modulo}</td>
+                    <td>${reg.tipo}</td>
+                    <td>${reg.detalle}</td>
                 `;
 
                 tbody.appendChild(tr);
             });
         }
 
-        // Inicializar
+        // Botones de filtros
+        document.getElementById("btnFiltrar").addEventListener("click", cargarTabla);
+
+        document.getElementById("btnLimpiar").addEventListener("click", () => {
+            document.getElementById("filtroTexto").value = "";
+            document.getElementById("filtroModulo").value = "";
+            document.getElementById("filtroTipo").value = "";
+            document.getElementById("filtroDesde").value = "";
+            document.getElementById("filtroHasta").value = "";
+            cargarTabla();
+        });
+
         cargarTabla();
     </script>
 
