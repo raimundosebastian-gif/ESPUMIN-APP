@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listado de Inventario</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1>Listado de Inventario</h1>
+
+        <table class="tabla-inventario">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Producto</th>
+                    <th>Categoría</th>
+                    <th>Cantidad</th>
+                    <th>Última actualización</th>
+                </tr>
+            </thead>
+            <tbody id="tablaInventario">
+                <!-- Filas generadas dinámicamente -->
+            </tbody>
+        </table>
+
+        <button onclick="window.location.href='../menu.html'" class="btn-volver">Volver al menú</button>
+    </div>
+
+    <script src="listado.js"></script>
+</body>
+</html>
