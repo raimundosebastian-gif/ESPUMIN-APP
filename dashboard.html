@@ -15,14 +15,13 @@
 
 <div class="dashboard-container">
 
-    <!-- INVENTARIO (operador/admin) -->
+    <!-- INVENTARIO -->
     <div class="module" data-role="operador,admin">
         <button class="module-btn">
             <span class="module-icon">📦</span>
             <span class="module-title">Inventario</span>
             <span class="module-arrow">▾</span>
         </button>
-
         <div class="module-content">
             <a href="inventario/listado.html">Listado</a>
             <a href="inventario/ingreso.html">Ingreso</a>
@@ -30,60 +29,157 @@
         </div>
     </div>
 
-    <!-- CLIENTES (operador/admin) -->
+    <!-- CLIENTES -->
     <div class="module" data-role="operador,admin">
         <button class="module-btn">
             <span class="module-icon">👥</span>
             <span class="module-title">Clientes</span>
             <span class="module-arrow">▾</span>
         </button>
-
         <div class="module-content">
             <a href="clientes/listado.html">Listado</a>
             <a href="clientes/nuevo.html">Nuevo Cliente</a>
+            <a href="clientes/cuentas.html">Cuentas Corrientes</a>
         </div>
     </div>
 
-    <!-- PROVEEDORES (operador/admin) -->
+    <!-- PROVEEDORES -->
     <div class="module" data-role="operador,admin">
         <button class="module-btn">
             <span class="module-icon">🏭</span>
             <span class="module-title">Proveedores</span>
             <span class="module-arrow">▾</span>
         </button>
-
         <div class="module-content">
             <a href="proveedores/listado.html">Listado</a>
             <a href="proveedores/nuevo.html">Nuevo Proveedor</a>
+            <a href="proveedores/cuentas.html">Cuentas Corrientes</a>
         </div>
     </div>
 
-    <!-- VENTAS (operador/admin) -->
+    <!-- VENTAS -->
     <div class="module" data-role="operador,admin">
         <button class="module-btn">
             <span class="module-icon">💰</span>
             <span class="module-title">Ventas</span>
             <span class="module-arrow">▾</span>
         </button>
-
         <div class="module-content">
             <a href="ventas/nueva.html">Nueva Venta</a>
             <a href="ventas/historial.html">Historial</a>
+            <a href="caja/index.html">Caja</a>
         </div>
     </div>
 
-    <!-- CONFIGURACIÓN (solo admin) -->
-    <div class="module" data-role="admin">
+    <!-- COMPRAS -->
+    <div class="module" data-role="operador,admin">
         <button class="module-btn">
-            <span class="module-icon">⚙️</span>
-            <span class="module-title">Configuración</span>
+            <span class="module-icon">🛒</span>
+            <span class="module-title">Compras</span>
             <span class="module-arrow">▾</span>
         </button>
+        <div class="module-content">
+            <a href="compras/listado.html">Listado</a>
+            <a href="compras/nueva.html">Nueva Compra</a>
+        </div>
+    </div>
 
+    <!-- PRODUCCIÓN -->
+    <div class="module" data-role="operador,admin">
+        <button class="module-btn">
+            <span class="module-icon">⚙️</span>
+            <span class="module-title">Producción</span>
+            <span class="module-arrow">▾</span>
+        </button>
+        <div class="module-content">
+            <a href="produccion/ordenes.html">Órdenes</a>
+            <a href="produccion/planificacion.html">Planificación</a>
+        </div>
+    </div>
+
+    <!-- LOGÍSTICA -->
+    <div class="module" data-role="operador,admin">
+        <button class="module-btn">
+            <span class="module-icon">🚚</span>
+            <span class="module-title">Logística</span>
+            <span class="module-arrow">▾</span>
+        </button>
+        <div class="module-content">
+            <a href="logistica/despachos.html">Despachos</a>
+            <a href="logistica/rutas.html">Rutas</a>
+        </div>
+    </div>
+
+    <!-- AGENDA -->
+    <div class="module" data-role="operador,admin">
+        <button class="module-btn">
+            <span class="module-icon">📅</span>
+            <span class="module-title">Agenda</span>
+            <span class="module-arrow">▾</span>
+        </button>
+        <div class="module-content">
+            <a href="agenda/general.html">Agenda General</a>
+        </div>
+    </div>
+
+    <!-- NOTIFICACIONES -->
+    <div class="module" data-role="admin">
+        <button class="module-btn">
+            <span class="module-icon">🔔</span>
+            <span class="module-title">Notificaciones</span>
+            <span class="module-arrow">▾</span>
+        </button>
+        <div class="module-content">
+            <a href="notificaciones/index.html">Centro de Alertas</a>
+        </div>
+    </div>
+
+    <!-- AUDITORÍA -->
+    <div class="module" data-role="admin">
+        <button class="module-btn">
+            <span class="module-icon">📝</span>
+            <span class="module-title">Auditoría</span>
+            <span class="module-arrow">▾</span>
+        </button>
+        <div class="module-content">
+            <a href="auditoria/index.html">Registro de Auditoría</a>
+        </div>
+    </div>
+
+    <!-- USUARIOS Y ROLES -->
+    <div class="module" data-role="admin">
+        <button class="module-btn">
+            <span class="module-icon">🔐</span>
+            <span class="module-title">Usuarios y Roles</span>
+            <span class="module-arrow">▾</span>
+        </button>
         <div class="module-content">
             <a href="configuracion/usuarios.html">Usuarios</a>
             <a href="configuracion/roles.html">Roles</a>
-            <a href="configuracion/auditoria.html">Auditoría</a>
+        </div>
+    </div>
+
+    <!-- PARÁMETROS -->
+    <div class="module" data-role="admin">
+        <button class="module-btn">
+            <span class="module-icon">⚙️</span>
+            <span class="module-title">Parámetros</span>
+            <span class="module-arrow">▾</span>
+        </button>
+        <div class="module-content">
+            <a href="parametros/index.html">Configuración General</a>
+        </div>
+    </div>
+
+    <!-- BACKUPS -->
+    <div class="module" data-role="admin">
+        <button class="module-btn">
+            <span class="module-icon">💾</span>
+            <span class="module-title">Backups</span>
+            <span class="module-arrow">▾</span>
+        </button>
+        <div class="module-content">
+            <a href="backups/index.html">Gestión de Backups</a>
         </div>
     </div>
 
