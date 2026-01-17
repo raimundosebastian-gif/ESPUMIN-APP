@@ -18,13 +18,11 @@
             margin-bottom: 25px;
         }
 
-        /* ====== CONTENEDOR ====== */
         .dashboard-container {
             max-width: 600px;
             margin: 0 auto;
         }
 
-        /* ====== MÓDULOS ====== */
         .module {
             width: 100%;
             margin-bottom: 12px;
@@ -65,7 +63,6 @@
             transform: rotate(180deg);
         }
 
-        /* ====== CONTENIDO ====== */
         .module-content {
             max-height: 0;
             overflow: hidden;
@@ -92,6 +89,11 @@
         .module-content a:hover {
             background: #e9e9e9;
         }
+
+        /* Ocultar módulos no permitidos */
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 
@@ -101,10 +103,8 @@
 
 <div class="dashboard-container">
 
-    <!-- ============================
-         MÓDULO: INVENTARIO
-    ============================= -->
-    <div class="module">
+    <!-- INVENTARIO (operador/admin) -->
+    <div class="module" data-role="operador,admin">
         <button class="module-btn">
             <span class="module-icon">📦</span>
             <span class="module-title">Inventario</span>
@@ -118,10 +118,8 @@
         </div>
     </div>
 
-    <!-- ============================
-         MÓDULO: CLIENTES
-    ============================= -->
-    <div class="module">
+    <!-- CLIENTES (operador/admin) -->
+    <div class="module" data-role="operador,admin">
         <button class="module-btn">
             <span class="module-icon">👥</span>
             <span class="module-title">Clientes</span>
@@ -134,10 +132,8 @@
         </div>
     </div>
 
-    <!-- ============================
-         MÓDULO: PROVEEDORES
-    ============================= -->
-    <div class="module">
+    <!-- PROVEEDORES (operador/admin) -->
+    <div class="module" data-role="operador,admin">
         <button class="module-btn">
             <span class="module-icon">🏭</span>
             <span class="module-title">Proveedores</span>
@@ -150,10 +146,8 @@
         </div>
     </div>
 
-    <!-- ============================
-         MÓDULO: VENTAS
-    ============================= -->
-    <div class="module">
+    <!-- VENTAS (operador/admin) -->
+    <div class="module" data-role="operador,admin">
         <button class="module-btn">
             <span class="module-icon">💰</span>
             <span class="module-title">Ventas</span>
@@ -166,10 +160,8 @@
         </div>
     </div>
 
-    <!-- ============================
-         MÓDULO: CONFIGURACIÓN
-    ============================= -->
-    <div class="module">
+    <!-- CONFIGURACIÓN (solo admin) -->
+    <div class="module" data-role="admin">
         <button class="module-btn">
             <span class="module-icon">⚙️</span>
             <span class="module-title">Configuración</span>
@@ -185,12 +177,26 @@
 
 </div>
 
-<!-- ============================
-     SCRIPT: LÓGICA DROPDOWN
-============================= -->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-    const modules = document.querySelectorAll(".module");
+
+    /* ============================
+       1. CONTROL DE ROLES
+    ============================ */
+    const userRole = localStorage.getItem("userRole"); 
+    // Ejemplo: "admin" o "operador"
+
+    document.querySelectorAll(".module").forEach(module => {
+        const allowed = module.dataset.role.split(",");
+        if (!allowed.includes(userRole)) {
+            module.classList.add("hidden");
+        }
+    });
+
+    /* ============================
+       2. LÓGICA DROPDOWN
+    ============================ */
+    const modules = document.querySelectorAll(".module:not(.hidden)");
 
     modules.forEach(module => {
         const btn = module.querySelector(".module-btn");
@@ -198,7 +204,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         btn.addEventListener("click", () => {
 
-            // Cerrar todos los demás módulos
             modules.forEach(other => {
                 if (other !== module) {
                     other.classList.remove("open");
@@ -207,7 +212,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
 
-            // Alternar el módulo actual
             if (content.style.maxHeight) {
                 module.classList.remove("open");
                 content.style.maxHeight = null;
@@ -217,6 +221,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     });
+
 });
 </script>
 
