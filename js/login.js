@@ -14,15 +14,27 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // Usamos el login centralizado del core
-        const acceso = login(usuario, clave);
+        // Buscar usuario en la base local
+        const usuarios = getData("usuarios");
+        const u = usuarios.find(x => x.usuario === usuario && x.password === clave);
 
-        if (!acceso) {
+        if (!u) {
             alert("Usuario o clave incorrectos");
             return;
         }
 
-        // Redirección al dashboard
+        if (!u.activo) {
+            alert("El usuario está inactivo");
+            return;
+        }
+
+        // Guardar usuario actual
+        localStorage.setItem("usuarioActual", JSON.stringify(u));
+
+        // Auditoría
+        registrarAuditoria("Login", "Acceso", `Usuario ${u.usuario} inició sesión`);
+
+        // Redirección
         window.location.href = "dashboard.html";
     });
 });
