@@ -2,6 +2,11 @@
    ESTILOS GENERALES
    ============================================================ */
 
+/* Forzar Comic Sans en todo el ERP */
+* {
+    font-family: "Comic Sans MS", "Comic Sans", cursive !important;
+}
+
 body {
     margin: 0;
     font-family: "Comic Sans MS", "Comic Sans", cursive;
@@ -302,5 +307,6 @@ tr:hover {
         width: 100%;
     }
 }
+
 
 
