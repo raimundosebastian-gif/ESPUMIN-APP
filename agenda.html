@@ -13,7 +13,6 @@
 
     <main class="modulo-container">
         <h1>Agenda</h1>
-        <button class="btn-volver" onclick="window.location.href='menu.html'">Volver al menú</button>
 
         <!-- Botón volver -->
         <button class="btn-volver" onclick="window.location.href='menu.html'">Volver al menú</button>
@@ -59,7 +58,7 @@
         </section>
     </main>
 
-    <script src="core.js"></script>
+    <script src="js/core.js"></script>
     <script>
         protegerModulo();
 
@@ -69,7 +68,7 @@
             .then(html => {
                 document.getElementById("menu-container").innerHTML = html;
 
-                const usuario = JSON.parse(localStorage.getItem("usuarioActivo"));
+                const usuario = JSON.parse(localStorage.getItem("usuarioActual"));
                 if (usuario) {
                     document.getElementById("usuarioActual").textContent = usuario.usuario;
                 } else {
