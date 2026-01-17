@@ -13,7 +13,7 @@ h1, h2, h3 {
     margin-top: 0;
 }
 
-/* Contenedor principal */
+/* Contenedor principal genérico */
 .modulo-container {
     max-width: 1100px;
     margin: 30px auto;
@@ -153,105 +153,6 @@ tr:hover {
 }
 
 /* ============================================================
-   DASHBOARD MODULAR PROFESIONAL
-   ============================================================ */
-
-.dashboard-grid {
-    padding: 20px;
-    display: grid;
-    gap: 30px;
-}
-
-.dash-group h2 {
-    margin-bottom: 10px;
-    color: #333;
-    font-size: 1.4rem;
-    border-left: 5px solid #1e88e5;
-    padding-left: 10px;
-}
-
-.dash-items {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-}
-
-/* Tarjetas del dashboard */
-.dash-card {
-    background: white;
-    padding: 18px 20px;
-    border-radius: 10px;
-    border: 1px solid #ddd;
-    min-width: 180px;
-    text-decoration: none;
-    color: #222;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    transition: 0.2s ease;
-}
-
-/* Íconos SVG */
-.dash-card svg {
-    width: 26px;
-    height: 26px;
-    fill: #1e88e5;
-}
-
-/* Hover profesional */
-.dash-card:hover {
-    background: #eaeaea;
-    border-color: #bbb;
-    transform: translateY(-2px);
-}
-
-/* ============================================================
-   LOGIN
-   ============================================================ */
-
-.login-container {
-    max-width: 400px;
-    margin: 80px auto;
-    text-align: center;
-}
-
-.btn-volver {
-    margin-top: 20px;
-    padding: 10px 20px;
-    background: #444;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    display: inline-block;
-}
-
-.btn-volver:hover {
-    background: #222;
-}
-
-/* ============================================================
-   RESPONSIVE
-   ============================================================ */
-
-@media (max-width: 600px) {
-    .menu-links {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .modulo-container {
-        margin: 10px;
-        padding: 15px;
-    }
-
-    .dash-card {
-        width: 100%;
-    }
-}
-
-/* ============================================================
    DASHBOARD MODULAR (NUEVO SISTEMA)
    ============================================================ */
 
@@ -327,6 +228,103 @@ tr:hover {
     background: #e9e9e9;
 }
 
+/* Ocultar módulos según rol */
 .hidden {
     display: none !important;
+}
+
+/* ============================================================
+   DASHBOARD MODULAR PROFESIONAL (VERSIÓN ANTERIOR)
+   ============================================================ */
+
+.dashboard-grid {
+    padding: 20px;
+    display: grid;
+    gap: 30px;
+}
+
+.dash-group h2 {
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 1.4rem;
+    border-left: 5px solid #1e88e5;
+    padding-left: 10px;
+}
+
+.dash-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.dash-card {
+    background: white;
+    padding: 18px 20px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    min-width: 180px;
+    text-decoration: none;
+    color: #222;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: 0.2s ease;
+}
+
+.dash-card svg {
+    width: 26px;
+    height: 26px;
+    fill: #1e88e5;
+}
+
+.dash-card:hover {
+    background: #eaeaea;
+    border-color: #bbb;
+    transform: translateY(-2px);
+}
+
+/* ============================================================
+   LOGIN
+   ============================================================ */
+
+.login-container {
+    max-width: 400px;
+    margin: 80px auto;
+    text-align: center;
+}
+
+.btn-volver {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background: #444;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.btn-volver:hover {
+    background: #222;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 600px) {
+    .menu-links {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .modulo-container {
+        margin: 10px;
+        padding: 15px;
+    }
+
+    .dash-card {
+        width: 100%;
+    }
 }
