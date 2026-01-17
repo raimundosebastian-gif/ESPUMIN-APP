@@ -4,7 +4,7 @@
 
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
+    font-family: "Comic Sans MS", "Comic Sans", cursive;
     background: #f4f4f4;
     color: #333;
 }
@@ -302,4 +302,5 @@ tr:hover {
         width: 100%;
     }
 }
+
 
