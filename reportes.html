@@ -12,34 +12,25 @@
     <div id="menu-container"></div>
 
     <main class="modulo-container">
-        <h1>Reportes del Sistema</h1>
+        <h1>Reportes e Informes</h1>
 
-        <!-- Selector -->
+        <!-- Filtros -->
         <section class="form-section">
-            <label>Seleccionar reporte</label>
-            <select id="tipoReporte">
-                <option value="ventas">Ventas</option>
-                <option value="compras">Compras</option>
-                <option value="produccion">Producción</option>
-                <option value="caja">Caja</option>
-                <option value="inventario">Inventario</option>
-                <option value="cuentasClientes">Cuentas Clientes</option>
-                <option value="cuentasProveedores">Cuentas Proveedores</option>
-            </select>
+            <label for="anio">Año</label>
+            <input type="number" id="anio" min="2020" max="2100" value="2025">
 
-            <button id="generarBtn">Generar</button>
+            <button id="generarBtn">Generar Reportes</button>
         </section>
 
-        <!-- Tabla -->
-        <section class="tabla-section">
-            <table>
-                <thead id="thead"></thead>
-                <tbody id="tbody"></tbody>
-            </table>
-        </section>
+        <!-- Resultados -->
+        <section id="resultados"></section>
+
+        <!-- Gráfico -->
+        <section id="graficoContainer" style="margin-top:20px;"></section>
+
     </main>
 
-    <script src="js/core.js"></script>
+    <script src="core.js"></script>
     <script>
         protegerModulo();
 
@@ -48,118 +39,177 @@
             .then(r => r.text())
             .then(html => document.getElementById("menu-container").innerHTML = html);
 
-        // Configuración de columnas por reporte
-        const columnas = {
-            ventas: ["Fecha", "Cliente", "Producto", "Cantidad", "Total"],
-            compras: ["Fecha", "Proveedor", "Producto", "Cantidad", "Total"],
-            produccion: ["Producto", "Cantidad", "Fecha", "Estado"],
-            caja: ["Fecha", "Tipo", "Monto", "Detalle"],
-            inventario: ["Producto", "Stock"],
-            cuentasClientes: ["Fecha", "Cliente", "Monto", "Detalle"],
-            cuentasProveedores: ["Fecha", "Proveedor", "Monto", "Detalle"]
-        };
-
-        // Generar reporte
-        document.getElementById("generarBtn").addEventListener("click", () => {
-            const tipo = document.getElementById("tipoReporte").value;
-            const data = getData(tipo);
-
-            cargarEncabezado(tipo);
-            cargarCuerpo(tipo, data);
-
-            registrarAuditoria("Reportes", "Consulta", `Generó reporte: ${tipo}`);
-        });
-
-        // Encabezado dinámico
-        function cargarEncabezado(tipo) {
-            const thead = document.getElementById("thead");
-            thead.innerHTML = "";
-
-            const tr = document.createElement("tr");
-            columnas[tipo].forEach(col => {
-                const th = document.createElement("th");
-                th.textContent = col;
-                tr.appendChild(th);
-            });
-
-            thead.appendChild(tr);
+        // Obtener parámetros
+        function getParametros() {
+            const p = getData("parametros")[0] || {};
+            return {
+                decimales: p.decimales ?? 2,
+                moneda: p.moneda ?? "$",
+                usarGraficos: p.usarGraficos ?? "No",
+                tipoGraficos: p.tipoGraficos ?? "barras",
+                stockMinimoGlobal: p.stockMinimoGlobal ?? 0
+            };
         }
 
-        // Cuerpo dinámico
-        function cargarCuerpo(tipo, data) {
-            const tbody = document.getElementById("tbody");
-            tbody.innerHTML = "";
+        // Formateo de moneda
+        function fmt(valor) {
+            const p = getParametros();
+            return p.moneda + " " + valor.toFixed(p.decimales);
+        }
 
-            data.forEach(item => {
-                const tr = document.createElement("tr");
+        // Generar reportes
+        document.getElementById("generarBtn").addEventListener("click", () => {
+            const anio = Number(document.getElementById("anio").value);
+            const ventas = getData("ventas");
+            const compras = getData("compras");
+            const inventario = getData("inventario");
+            const produccion = getData("produccion");
+            const cc = getData("cuentasClientes");
+            const cp = getData("cuentasProveedores");
+            const impuestos = getData("impuestos");
 
-                switch (tipo) {
-                    case "ventas":
-                        tr.innerHTML = `
-                            <td>${formatDate(item.fecha)}</td>
-                            <td>${item.cliente}</td>
-                            <td>${item.producto}</td>
-                            <td>${item.cantidad}</td>
-                            <td>$ ${item.total}</td>
-                        `;
-                        break;
+            const p = getParametros();
 
-                    case "compras":
-                        tr.innerHTML = `
-                            <td>${formatDate(item.fecha)}</td>
-                            <td>${item.proveedor}</td>
-                            <td>${item.producto}</td>
-                            <td>${item.cantidad}</td>
-                            <td>$ ${item.total}</td>
-                        `;
-                        break;
+            let html = "";
 
-                    case "produccion":
-                        tr.innerHTML = `
-                            <td>${item.producto}</td>
-                            <td>${item.cantidad}</td>
-                            <td>${formatDate(item.fecha)}</td>
-                            <td>${item.estado}</td>
-                        `;
-                        break;
-
-                    case "caja":
-                        tr.innerHTML = `
-                            <td>${formatDate(item.fecha)}</td>
-                            <td>${item.tipo}</td>
-                            <td>$ ${item.monto}</td>
-                            <td>${item.detalle}</td>
-                        `;
-                        break;
-
-                    case "inventario":
-                        tr.innerHTML = `
-                            <td>${item.producto}</td>
-                            <td>${item.stock}</td>
-                        `;
-                        break;
-
-                    case "cuentasClientes":
-                        tr.innerHTML = `
-                            <td>${formatDate(item.fecha)}</td>
-                            <td>${item.cliente}</td>
-                            <td>$ ${item.monto}</td>
-                            <td>${item.detalle}</td>
-                        `;
-                        break;
-
-                    case "cuentasProveedores":
-                        tr.innerHTML = `
-                            <td>${formatDate(item.fecha)}</td>
-                            <td>${item.proveedor}</td>
-                            <td>$ ${item.monto}</td>
-                            <td>${item.detalle}</td>
-                        `;
-                        break;
+            /* ============================================================
+               VENTAS POR MES
+            ============================================================ */
+            const ventasMes = Array(12).fill(0);
+            ventas.forEach(v => {
+                const f = new Date(v.fecha);
+                if (f.getFullYear() === anio) {
+                    ventasMes[f.getMonth()] += Number(v.total || 0);
                 }
-
-                tbody.appendChild(tr);
             });
+
+            html += `<h2>Ventas por mes (${anio})</h2>`;
+            html += `<table><thead><tr><th>Mes</th><th>Total</th></tr></thead><tbody>`;
+            ventasMes.forEach((v, i) => {
+                html += `<tr><td>${i+1}</td><td>${fmt(v)}</td></tr>`;
+            });
+            html += `</tbody></table>`;
+
+            /* ============================================================
+               COMPRAS POR MES
+            ============================================================ */
+            const comprasMes = Array(12).fill(0);
+            compras.forEach(c => {
+                const f = new Date(c.fecha);
+                if (f.getFullYear() === anio) {
+                    comprasMes[f.getMonth()] += Number(c.total || 0);
+                }
+            });
+
+            html += `<h2>Compras por mes (${anio})</h2>`;
+            html += `<table><thead><tr><th>Mes</th><th>Total</th></tr></thead><tbody>`;
+            comprasMes.forEach((v, i) => {
+                html += `<tr><td>${i+1}</td><td>${fmt(v)}</td></tr>`;
+            });
+            html += `</tbody></table>`;
+
+            /* ============================================================
+               RENTABILIDAD
+            ============================================================ */
+            const totalVentas = ventasMes.reduce((a,b)=>a+b,0);
+            const totalCompras = comprasMes.reduce((a,b)=>a+b,0);
+            const rentabilidad = totalVentas - totalCompras;
+
+            html += `<h2>Rentabilidad</h2>`;
+            html += `<p><strong>Ventas:</strong> ${fmt(totalVentas)}</p>`;
+            html += `<p><strong>Compras:</strong> ${fmt(totalCompras)}</p>`;
+            html += `<p><strong>Rentabilidad:</strong> ${fmt(rentabilidad)}</p>`;
+
+            /* ============================================================
+               STOCK CRÍTICO
+            ============================================================ */
+            html += `<h2>Stock Crítico</h2>`;
+            html += `<table><thead><tr><th>Producto</th><th>Stock</th></tr></thead><tbody>`;
+
+            inventario
+                .filter(i => i.stock <= p.stockMinimoGlobal)
+                .forEach(i => {
+                    html += `<tr><td>${i.producto}</td><td>${i.stock}</td></tr>`;
+                });
+
+            html += `</tbody></table>`;
+
+            /* ============================================================
+               PRODUCCIÓN FINALIZADA
+            ============================================================ */
+            const prodFinal = produccion.filter(p => p.estado === "Finalizado");
+
+            html += `<h2>Producción Finalizada</h2>`;
+            html += `<table><thead><tr><th>Producto</th><th>Cantidad</th><th>Fecha</th></tr></thead><tbody>`;
+
+            prodFinal.forEach(p => {
+                html += `<tr><td>${p.producto}</td><td>${p.cantidad}</td><td>${formatDate(p.fecha)}</td></tr>`;
+            });
+
+            html += `</tbody></table>`;
+
+            /* ============================================================
+               CUENTAS CORRIENTES
+            ============================================================ */
+            const deudaClientes = cc.reduce((a,b)=>a + Number(b.saldo || 0), 0);
+            const deudaProveedores = cp.reduce((a,b)=>a + Number(b.saldo || 0), 0);
+
+            html += `<h2>Cuentas Corrientes</h2>`;
+            html += `<p><strong>Clientes deben:</strong> ${fmt(deudaClientes)}</p>`;
+            html += `<p><strong>Proveedores se deben:</strong> ${fmt(deudaProveedores)}</p>`;
+
+            /* ============================================================
+               IMPUESTOS PRÓXIMOS A VENCER
+            ============================================================ */
+            const hoy = new Date();
+            const proximos = impuestos.filter(i => {
+                const f = new Date(i.vencimiento);
+                const diff = (f - hoy) / (1000*60*60*24);
+                return diff >= 0 && diff <= 30;
+            });
+
+            html += `<h2>Impuestos próximos a vencer (30 días)</h2>`;
+            html += `<table><thead><tr><th>Impuesto</th><th>Vencimiento</th></tr></thead><tbody>`;
+
+            proximos.forEach(i => {
+                html += `<tr><td>${i.nombre}</td><td>${formatDate(i.vencimiento)}</td></tr>`;
+            });
+
+            html += `</tbody></table>`;
+
+            document.getElementById("resultados").innerHTML = html;
+
+            /* ============================================================
+               GRÁFICO (opcional)
+            ============================================================ */
+            if (p.usarGraficos === "Si") {
+                generarGrafico(ventasMes, comprasMes, p.tipoGraficos);
+            }
+        });
+
+        // Gráfico simple sin librerías externas
+        function generarGrafico(ventas, compras, tipo) {
+            const cont = document.getElementById("graficoContainer");
+            cont.innerHTML = "<h2>Gráfico comparativo Ventas vs Compras</h2>";
+
+            let html = `<div class="grafico">`;
+
+            for (let i = 0; i < 12; i++) {
+                const v = ventas[i] / 100;
+                const c = compras[i] / 100;
+
+                html += `
+                    <div class="barra">
+                        <div class="ventas" style="height:${v}px"></div>
+                        <div class="compras" style="height:${c}px"></div>
+                        <span>${i+1}</span>
+                    </div>
+                `;
+            }
+
+            html += `</div>`;
+
+            cont.innerHTML += html;
         }
     </script>
 
