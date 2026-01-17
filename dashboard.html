@@ -1,36 +1,64 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESPUMIN - Dashboard</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+<main class="dashboard-grid">
 
-    <div id="menu-container"></div>
+    <!-- VENTAS -->
+    <section class="dash-group">
+        <h2>Ventas</h2>
+        <div class="dash-items">
+            <a href="clientes.html" class="dash-card">Clientes</a>
+            <a href="precios.html" class="dash-card">Precios</a>
+            <a href="ventas.html" class="dash-card">Ventas</a>
+            <a href="cuentas-clientes.html" class="dash-card">Cuentas Clientes</a>
+            <a href="agenda.html" class="dash-card">Agenda</a>
+        </div>
+    </section>
 
-    <main class="modulo-container">
-        <h1>Dashboard</h1>
-        <p>Acceso correcto. Usuario logueado y sesión válida.</p>
-    </main>
+    <!-- COMPRAS -->
+    <section class="dash-group">
+        <h2>Compras</h2>
+        <div class="dash-items">
+            <a href="proveedores.html" class="dash-card">Proveedores</a>
+            <a href="compras.html" class="dash-card">Compras</a>
+            <a href="cuentas-proveedores.html" class="dash-card">Cuentas Proveedores</a>
+        </div>
+    </section>
 
-    <script src="js/core.js"></script>
-    <script>
-        protegerModulo();
+    <!-- PRODUCCIÓN -->
+    <section class="dash-group">
+        <h2>Producción</h2>
+        <div class="dash-items">
+            <a href="productos.html" class="dash-card">Productos</a>
+            <a href="inventario.html" class="dash-card">Inventario</a>
+            <a href="produccion.html" class="dash-card">Producción</a>
+        </div>
+    </section>
 
-        fetch("menu-fragment.html")
-            .then(r => r.text())
-            .then(html => {
-                document.getElementById("menu-container").innerHTML = html;
+    <!-- LOGÍSTICA -->
+    <section class="dash-group">
+        <h2>Logística</h2>
+        <div class="dash-items">
+            <a href="logistica.html" class="dash-card">Logística</a>
+            <a href="notificaciones.html" class="dash-card">Notificaciones</a>
+        </div>
+    </section>
 
-                const usuario = JSON.parse(localStorage.getItem("usuarioActual"));
-                if (usuario) {
-                    document.getElementById("usuarioActual").textContent = usuario.usuario;
-                } else {
-                    window.location.href = "login.html";
-                }
-            });
-    </script>
-</body>
-</html>
+    <!-- CAJA -->
+    <section class="dash-group">
+        <h2>Caja</h2>
+        <div class="dash-items">
+            <a href="caja.html" class="dash-card">Caja</a>
+            <a href="impuestos.html" class="dash-card">Impuestos</a>
+        </div>
+    </section>
+
+    <!-- ADMINISTRACIÓN -->
+    <section class="dash-group">
+        <h2>Administración</h2>
+        <div class="dash-items">
+            <a href="usuarios.html" class="dash-card">Usuarios y Roles</a>
+            <a href="parametros.html" class="dash-card">Parámetros</a>
+            <a href="auditoria.html" class="dash-card">Auditoría</a>
+            <a href="backups.html" class="dash-card">Backups</a>
+        </div>
+    </section>
+
+</main>
