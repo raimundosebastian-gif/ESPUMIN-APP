@@ -1,1 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario - Salida</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<div id="menu-container"></div>
+
+<main class="modulo-container">
+    <h1>Salida de Inventario</h1>
+
+    <button onclick="window.location.href='listado-inventario.html'" class="btn-volver">
+        ← Volver al listado
+    </button>
+
+    <section class="form-section">
+        <label for="producto">Producto</label>
+        <select id="producto"></select>
+
+        <label for="cantidad">Cantidad a retirar</label>
+        <input type="number" id="cantidad" min="1" placeholder="Ej: 5">
+
+        <button id="guardarBtn">Registrar Salida</button>
+    </section>
+</main>
+
+<script src="../core.js"></script>
+<script>
+    protegerModulo("inventario");
+
+    fetch("../menu.html")
+        .then(r => r.text())
+        .then(html => menu-container.innerHTML = html);
+
+    function cargarProductos() {
+        const inventario = getData("inventario");
+        const sel = document.getElementById("producto");
+        sel.innerHTML = "";
+
+        inventario.forEach(item => {
+            const opt = document.createElement("option");
+            opt.value = item.id;
+            opt.textContent = `${item.producto} (Stock: ${item.stock})`;
+            sel.appendChild(opt);
+        });
+    }
+
+    document.getElementById("guardarBtn").addEventListener("click", () => {
+        const id = document.getElementById("producto").value;
+        const cantidad = Number(document.getElementById("cantidad").value);
+
+        let inventario = getData("inventario");
+        const item = inventario.find(i => i.id === id);
+
+        if (!item || cantidad <= 0) {
+            alert("Datos inválidos");
+            return;
+        }
+
+        if (cantidad > item.stock) {
+            alert("No hay suficiente stock");
+            return;
+        }
+
+        item.stock -= cantidad;
+
+        registrarAuditoria("Inventario", "Salida", `Retiró ${cantidad} unidades de ${item.producto}`);
+
+        setData("inventario", inventario);
+        window.location.href = "listado-inventario.html";
+    });
+
+    cargarProductos();
+</script>
+
+</body>
+</html>
 
