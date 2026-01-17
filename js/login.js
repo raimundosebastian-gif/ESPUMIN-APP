@@ -2,6 +2,19 @@
    LOGIN DEL SISTEMA ESPUMIN ERP
    ============================================================ */
 
+/* ============================================================
+   Inicializar usuario SEBA si no existe
+   ============================================================ */
+if (!localStorage.getItem("usuarios")) {
+    const usuariosIniciales = [{
+        usuario: "SEBA",
+        clave: "pich/*-",
+        rol: "Administrador",
+        activo: true
+    }];
+    localStorage.setItem("usuarios", JSON.stringify(usuariosIniciales));
+}
+
 document.addEventListener("DOMContentLoaded", () => {
 
     const usuarioInput = document.getElementById("usuario");
