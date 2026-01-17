@@ -207,3 +207,18 @@ tr:hover {
     margin: 80px auto;
     text-align: center;
 }
+
+.btn-volver {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background: #444;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.btn-volver:hover {
+    background: #222;
+}
