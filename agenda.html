@@ -14,6 +14,9 @@
     <main class="modulo-container">
         <h1>Agenda</h1>
 
+        <!-- Botón volver -->
+        <button class="btn-volver" onclick="window.location.href='menu.html'">Volver al menú</button>
+
         <!-- Formulario -->
         <section class="form-section">
             <input type="hidden" id="id">
@@ -59,10 +62,19 @@
     <script>
         protegerModulo();
 
-        // Cargar menú
-        fetch("menu.html")
+        // Cargar menú desde fragmento
+        fetch("menu-fragment.html")
             .then(r => r.text())
-            .then(html => document.getElementById("menu-container").innerHTML = html);
+            .then(html => {
+                document.getElementById("menu-container").innerHTML = html;
+
+                const usuario = JSON.parse(localStorage.getItem("usuarioActivo"));
+                if (usuario) {
+                    document.getElementById("usuarioActual").textContent = usuario.usuario;
+                } else {
+                    window.location.href = "login.html";
+                }
+            });
 
         // Renderizar tabla
         function cargarTabla() {
