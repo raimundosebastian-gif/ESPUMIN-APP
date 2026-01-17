@@ -1,40 +1,31 @@
-/* ============================================================
-   CORE DEL SISTEMA ESPUMIN ERP
-   ============================================================ */
+// ===============================
+//   CORE DEL ERP ESPUMIN
+// ===============================
 
-/* ------------------------------
-   UTILIDADES DE LOCALSTORAGE
-   ------------------------------ */
+// Obtener datos del localStorage
 function getData(key) {
-    const data = localStorage.getItem(key);
-    return data ? JSON.parse(data) : [];
+    return JSON.parse(localStorage.getItem(key)) || [];
 }
 
-function setData(key, value) {
-    localStorage.setItem(key, JSON.stringify(value));
+// Guardar datos
+function setData(key, data) {
+    localStorage.setItem(key, JSON.stringify(data));
 }
 
-/* ------------------------------
-   GENERAR ID ÚNICO
-   ------------------------------ */
+// Generar ID único
 function generarID() {
-    return crypto.randomUUID();
+    return "_" + Math.random().toString(36).substr(2, 9);
 }
 
-/* ------------------------------
-   FORMATO DE FECHA
-   ------------------------------ */
+// Formatear fecha
 function formatDate(fechaISO) {
-    if (!fechaISO) return "";
-    const fecha = new Date(fechaISO);
-    return fecha.toLocaleDateString("es-AR") + " " + fecha.toLocaleTimeString("es-AR");
+    const f = new Date(fechaISO);
+    return f.toLocaleDateString("es-AR");
 }
 
-/* ------------------------------
-   AUDITORÍA
-   ------------------------------ */
+// Registrar auditoría
 function registrarAuditoria(modulo, tipo, detalle) {
-    const auditoria = getData("auditoria");
+    let auditoria = getData("auditoria");
 
     auditoria.push({
         id: generarID(),
@@ -47,67 +38,60 @@ function registrarAuditoria(modulo, tipo, detalle) {
     setData("auditoria", auditoria);
 }
 
-/* ------------------------------
-   LOGIN Y SESIÓN
-   ------------------------------ */
-function login(usuario, clave) {
-    const usuarios = getData("usuarios");
+// ===============================
+//   ROLES Y PERMISOS
+// ===============================
 
-    const user = usuarios.find(u => u.usuario === usuario && u.clave === clave);
+// Qué rol puede acceder a qué módulo
+const permisos = {
+    "Dashboard": ["Administrador", "Ventas", "Compras", "Producción", "Logística", "Caja", "Auditoría"],
+    "Productos": ["Administrador", "Compras", "Producción"],
+    "Precios": ["Administrador", "Ventas"],
+    "Clientes": ["Administrador", "Ventas"],
+    "Proveedores": ["Administrador", "Compras"],
+    "Inventario": ["Administrador", "Producción", "Logística"],
+    "Compras": ["Administrador", "Compras"],
+    "Ventas": ["Administrador", "Ventas"],
+    "Logística": ["Administrador", "Logística"],
+    "Caja": ["Administrador", "Caja"],
+    "Cuentas Clientes": ["Administrador", "Ventas", "Caja"],
+    "Cuentas Proveedores": ["Administrador", "Compras", "Caja"],
+    "Impuestos": ["Administrador"],
+    "Agenda": ["Administrador", "Ventas", "Compras", "Producción", "Logística"],
+    "Notificaciones": ["Administrador"],
+    "Auditoría": ["Administrador", "Auditoría"],
+    "Configuración": ["Administrador"],
+    "Parámetros": ["Administrador"],
+    "Usuarios y Roles": ["Administrador"],
+    "Producción": ["Administrador", "Producción"],
+    "Backups": ["Administrador"]
+};
 
-    if (!user) return false;
-
-    localStorage.setItem("usuarioLogueado", JSON.stringify(user));
-
-    registrarAuditoria("Login", "Ingreso", `Usuario: ${user.usuario}`);
-
-    return true;
+// Validar acceso
+function tieneAcceso(modulo, rol) {
+    return permisos[modulo]?.includes(rol);
 }
 
-function logout() {
-    const user = JSON.parse(localStorage.getItem("usuarioLogueado"));
-    if (user) registrarAuditoria("Login", "Salida", `Usuario: ${user.usuario}`);
-
-    localStorage.removeItem("usuarioLogueado");
-    window.location.href = "index.html";
-}
-
-function getUsuarioActual() {
-    return JSON.parse(localStorage.getItem("usuarioLogueado"));
-}
-
-/* ------------------------------
-   PROTEGER MÓDULOS
-   ------------------------------ */
+// Proteger módulo
 function protegerModulo() {
-    const user = getUsuarioActual();
-    if (!user) {
-        window.location.href = "index.html";
+    const usuarioActual = JSON.parse(localStorage.getItem("usuarioActual"));
+
+    if (!usuarioActual) {
+        alert("Debe iniciar sesión");
+        window.location.href = "login.html";
         return;
     }
+
+    if (!usuarioActual.activo) {
+        alert("Usuario inactivo");
+        window.location.href = "login.html";
+        return;
+    }
+
+    const modulo = document.title.replace("ESPUMIN - ", "").trim();
+
+    if (!tieneAcceso(modulo, usuarioActual.rol)) {
+        alert("No tiene permiso para acceder a este módulo");
+        window.location.href = "dashboard.html";
+    }
 }
-
-/* ------------------------------
-   CARGAR MENÚ DINÁMICO
-   ------------------------------ */
-function cargarMenu() {
-    fetch("menu.html")
-        .then(r => r.text())
-        .then(html => {
-            document.getElementById("menu-container").innerHTML = html;
-
-            const user = getUsuarioActual();
-            if (user) {
-                const span = document.getElementById("usuarioActual");
-                if (span) span.textContent = user.usuario;
-            }
-        });
-}
-
-/* ------------------------------
-   INICIALIZACIÓN GLOBAL
-   ------------------------------ */
-document.addEventListener("DOMContentLoaded", () => {
-    const menu = document.getElementById("menu-container");
-    if (menu) cargarMenu();
-});
