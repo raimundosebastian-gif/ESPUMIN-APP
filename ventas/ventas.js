@@ -10,6 +10,7 @@
 
 const ID_SUCURSAL = "SUC-001"; // Cambiar en cada sucursal
 const SYNC_INTERVAL_VENTAS = 30000; // 30 segundos
+const STOCK_CRITICO_UMBRAL = 5;     // Umbral para tareas automáticas de stock crítico
 
 // -------------------- UTILIDADES GENERALES --------------------
 
@@ -29,7 +30,9 @@ function normalizarTexto(texto) {
 
 function lsGet(clave, defecto = []) {
     try {
-        return JSON.parse(localStorage.getItem(clave)) || defecto;
+        const valor = localStorage.getItem(clave);
+        if (!valor) return defecto;
+        return JSON.parse(valor);
     } catch {
         return defecto;
     }
@@ -43,11 +46,14 @@ function lsSet(clave, valor) {
 const KEY_VENTAS = "ventasLocal";
 const KEY_SYNC_QUEUE_VENTAS = "syncQueueVentas";
 
-// Inventario
 const KEY_INVENTARIO = "inventarioLocal";
 const KEY_MOVIMIENTOS_INVENTARIO = "movimientosInventario";
 
-// -------------------- SYNC QUEUE VENTAS --------------------
+const KEY_AGENDA = "agendaLocal";
+
+// =====================================================
+//  SYNC QUEUE VENTAS
+// =====================================================
 
 function getSyncQueueVentas() {
     return lsGet(KEY_SYNC_QUEUE_VENTAS, []);
@@ -70,7 +76,9 @@ function agregarASyncQueueVentas(tipo, idRegistro) {
     setSyncQueueVentas(queue);
 }
 
-// -------------------- VENTAS --------------------
+// =====================================================
+//  VENTAS
+// =====================================================
 
 function getVentas() {
     return lsGet(KEY_VENTAS, []);
@@ -80,7 +88,9 @@ function setVentas(data) {
     lsSet(KEY_VENTAS, data);
 }
 
-// -------------------- INVENTARIO (INTEGRACIÓN) --------------------
+// =====================================================
+//  INVENTARIO (INTEGRACIÓN)
+// =====================================================
 
 function getInventario() {
     return lsGet(KEY_INVENTARIO, []);
@@ -96,6 +106,14 @@ function getMovimientosInventario() {
 
 function setMovimientosInventario(data) {
     lsSet(KEY_MOVIMIENTOS_INVENTARIO, data);
+}
+
+function buscarProductoEnInventarioPorItem(item) {
+    const inventario = getInventario();
+    return inventario.find(p =>
+        (p.idProducto && item.idProducto && p.idProducto === item.idProducto) ||
+        (normalizarTexto(p.producto) === normalizarTexto(item.producto))
+    );
 }
 
 function registrarMovimientoInventarioDesdeVenta(item, fechaVenta) {
@@ -133,7 +151,7 @@ function actualizarInventarioPorVenta(items, fechaVenta) {
         );
 
         if (!prod) {
-            // Si no existe, lo creamos con stock negativo (para auditoría)
+            // Si no existe, lo creamos (para auditoría, puede quedar en negativo)
             prod = {
                 idProducto: item.idProducto || generarIdUnico(),
                 idSucursal: ID_SUCURSAL,
@@ -166,7 +184,87 @@ function actualizarInventarioPorVenta(items, fechaVenta) {
     }
 }
 
-// -------------------- VALIDACIÓN DE STOCK --------------------
+// =====================================================
+//  AGENDA (TAREAS AUTOMÁTICAS)
+// =====================================================
+
+function getAgenda() {
+    return lsGet(KEY_AGENDA, []);
+}
+
+function setAgenda(data) {
+    lsSet(KEY_AGENDA, data);
+}
+
+function crearTareaAgenda(titulo, descripcion, fechaISO) {
+    const tareas = getAgenda();
+
+    const tarea = {
+        idTarea: generarIdUnico(),
+        idSucursal: ID_SUCURSAL,
+        titulo,
+        tituloNorm: normalizarTexto(titulo),
+        descripcion,
+        descripcionNorm: normalizarTexto(descripcion),
+        fecha: fechaISO || new Date().toISOString().slice(0, 16),
+        estado: "pendiente",
+        timestamp: ahoraTimestamp(),
+        version: 1,
+        estadoSync: "pendiente"
+    };
+
+    tareas.push(tarea);
+    setAgenda(tareas);
+}
+
+function crearTareasAutomaticasPorVenta(venta) {
+    const total = Number(venta.totalFinal || venta.total || 0);
+
+    // Venta grande
+    if (total >= 5000) {
+        crearTareaAgenda(
+            "Revisar venta grande",
+            `Venta ${venta.idVenta} por ${total} al cliente ${venta.cliente}`,
+            venta.fecha
+        );
+    }
+
+    // Cliente frecuente (ejemplo simple: nombre repetido en el día)
+    const ventas = getVentas().filter(v =>
+        (v.cliente === venta.cliente) &&
+        (v.fecha || "").substring(0, 10) === (venta.fecha || "").substring(0, 10)
+    );
+    if (ventas.length >= 3) {
+        crearTareaAgenda(
+            "Seguimiento cliente frecuente",
+            `El cliente ${venta.cliente} realizó ${ventas.length} compras en el día.`,
+            venta.fecha
+        );
+    }
+
+    // Stock crítico por producto
+    const inventario = getInventario();
+    venta.items.forEach(item => {
+        const prod = inventario.find(p =>
+            (p.idProducto && item.idProducto && p.idProducto === item.idProducto) ||
+            (normalizarTexto(p.producto) === normalizarTexto(item.producto))
+        );
+        if (!prod) return;
+
+        const stockActual = Number(prod.cantidad) || 0;
+        if (stockActual <= STOCK_CRITICO_UMBRAL) {
+            crearTareaAgenda(
+                "Stock crítico",
+                `Producto ${prod.producto} quedó con stock ${stockActual} unidades.`,
+                venta.fecha
+            );
+        }
+    });
+}
+
+// =====================================================
+//  VALIDACIÓN DE STOCK PARA VENTA
+// =====================================================
 
 function validarStockParaVenta(items) {
     const inventario = getInventario();
@@ -195,7 +293,9 @@ function validarStockParaVenta(items) {
     return errores;
 }
 
-// -------------------- CAJA (CÁLCULO DESDE VENTAS) --------------------
+// =====================================================
+//  CAJA (CÁLCULO DESDE VENTAS)
+// =====================================================
 
 function calcularCajaPorFecha(fechaISO) {
     const ventas = getVentas();
@@ -220,7 +320,9 @@ function calcularCajaPorFecha(fechaISO) {
     return { total, porMetodo };
 }
 
-// -------------------- LÓGICA DE NEGOCIO VENTAS --------------------
+// =====================================================
+//  LÓGICA DE NEGOCIO VENTAS
+// =====================================================
 
 function crearVenta(datosVenta) {
     const ventas = getVentas();
@@ -271,6 +373,7 @@ function crearVenta(datosVenta) {
     setVentas(ventas);
 
     actualizarInventarioPorVenta(venta.items, venta.fecha);
+    crearTareasAutomaticasPorVenta(venta);
     agregarASyncQueueVentas("venta", venta.idVenta);
 
     return venta;
@@ -283,8 +386,8 @@ function editarVenta(idVenta, nuevosDatos) {
 
     const venta = ventas[idx];
 
-    // Por simplicidad, no revertimos stock anterior aquí.
-    // En un ERP real, se haría un recalculo completo.
+    // Nota: no recalculamos stock histórico aquí (sería un módulo aparte).
+    // Solo actualizamos datos de cabecera e items.
 
     venta.cliente = nuevosDatos.cliente || venta.cliente;
     venta.vendedor = nuevosDatos.vendedor || venta.vendedor;
@@ -341,7 +444,9 @@ function eliminarVenta(idVenta) {
     agregarASyncQueueVentas("venta", idVenta);
 }
 
-// -------------------- LISTADO DE VENTAS --------------------
+// =====================================================
+//  LISTADO DE VENTAS
+// =====================================================
 
 function initVentasListado() {
     const tabla = document.getElementById("tablaVentas");
@@ -371,7 +476,9 @@ function initVentasListado() {
     });
 }
 
-// -------------------- NUEVA VENTA --------------------
+// =====================================================
+//  NUEVA VENTA
+// =====================================================
 
 function initVentasNueva() {
     const form = document.getElementById("formNuevaVenta");
@@ -439,7 +546,9 @@ function initVentasNueva() {
     });
 }
 
-// -------------------- DETALLE DE VENTA --------------------
+// =====================================================
+//  DETALLE DE VENTA
+// =====================================================
 
 function initVentasDetalle() {
     const cont = document.getElementById("detalleVenta");
@@ -497,7 +606,9 @@ function initVentasDetalle() {
     `;
 }
 
-// -------------------- EDITAR VENTA --------------------
+// =====================================================
+//  EDITAR VENTA
+// =====================================================
 
 function initVentasEditar() {
     const form = document.getElementById("formEditarVenta");
@@ -603,7 +714,9 @@ function initVentasEditar() {
     });
 }
 
-// -------------------- REPORTES DE VENTAS --------------------
+// =====================================================
+//  REPORTES DE VENTAS
+// =====================================================
 
 function generarReporteVentas() {
     const tabla = document.getElementById("tablaReporteVentas");
@@ -641,7 +754,9 @@ function generarReporteVentas() {
     });
 }
 
-// -------------------- CAJA DE VENTAS --------------------
+// =====================================================
+//  CAJA DE VENTAS
+// =====================================================
 
 function generarCaja() {
     const fechaCaja = document.getElementById("fechaCaja")?.value;
@@ -673,7 +788,9 @@ function generarCaja() {
     `;
 }
 
-// -------------------- SINCRONIZACIÓN CON CENTRAL (ESQUELETO) --------------------
+// =====================================================
+//  SINCRONIZACIÓN CON CENTRAL (ESQUELETO)
+// =====================================================
 
 async function sincronizarVentasConCentral() {
     const queue = getSyncQueueVentas();
@@ -688,35 +805,111 @@ async function sincronizarVentasConCentral() {
 }
 
 // =====================================================
-//  DATOS DE PRUEBA (solo si no hay ventas cargadas)
+//  DATOS DE PRUEBA AMPLIADOS — VENTAS
 // =====================================================
 
 function cargarDatosPruebaVentas() {
+
     const ventas = [
         {
             idVenta: generarIdUnico(),
             idSucursal: ID_SUCURSAL,
-            fecha: "2026-01-10T10:00",
+            fecha: "2026-01-12T10:00",
+            timestamp: ahoraTimestamp(),
+            cliente: "Juan Pérez",
+            vendedor: "TEST-USER",
+            items: [
+                { idProducto: "P-001", producto: "Yerba", categoria: "Alimentos", cantidad: 1, precioUnitario: 1500, subtotal: 1500 }
+            ],
+            descuento: 0,
+            recargo: 0,
+            total: 1500,
+            totalFinal: 1500,
+            metodoPago: "efectivo",
+            estado: "pagada",
+            nroComprobante: "A-0001-00000001",
+            version: 1,
+            estadoSync: "pendiente"
+        },
+        {
+            idVenta: generarIdUnico(),
+            idSucursal: ID_SUCURSAL,
+            fecha: "2026-01-12T11:00",
+            timestamp: ahoraTimestamp(),
+            cliente: "María López",
+            vendedor: "TEST-USER",
+            items: [
+                { idProducto: "P-002", producto: "Azúcar", categoria: "Alimentos", cantidad: 1, precioUnitario: 900, subtotal: 900 },
+                { idProducto: "P-004", producto: "Fideos", categoria: "Alimentos", cantidad: 2, precioUnitario: 700, subtotal: 1400 }
+            ],
+            descuento: 100,
+            recargo: 0,
+            total: 2300,
+            totalFinal: 2200,
+            metodoPago: "tarjeta",
+            estado: "pagada",
+            nroComprobante: "A-0001-00000002",
+            version: 1,
+            estadoSync: "pendiente"
+        },
+        {
+            idVenta: generarIdUnico(),
+            idSucursal: ID_SUCURSAL,
+            fecha: "2026-01-11T17:30",
+            timestamp: ahoraTimestamp(),
+            cliente: "Carlos Gómez",
+            vendedor: "TEST-USER",
+            items: [
+                { idProducto: "P-003", producto: "Detergente", categoria: "Limpieza", cantidad: 1, precioUnitario: 1200, subtotal: 1200 }
+            ],
+            descuento: 0,
+            recargo: 0,
+            total: 1200,
+            totalFinal: 1200,
+            metodoPago: "transferencia",
+            estado: "pagada",
+            nroComprobante: "A-0001-00000003",
+            version: 1,
+            estadoSync: "pendiente"
+        },
+        {
+            idVenta: generarIdUnico(),
+            idSucursal: ID_SUCURSAL,
+            fecha: "2026-01-10T15:00",
             timestamp: ahoraTimestamp(),
             cliente: "Cliente de Prueba",
             vendedor: "TEST-USER",
             items: [
-                {
-                    idProducto: "P-001",
-                    producto: "Yerba",
-                    categoria: "Alimentos",
-                    cantidad: 2,
-                    precioUnitario: 1500,
-                    subtotal: 3000
-                }
+                { idProducto: "P-004", producto: "Fideos", categoria: "Alimentos", cantidad: 3, precioUnitario: 700, subtotal: 2100 }
+            ],
+            descuento: 0,
+            recargo: 200,
+            total: 2100,
+            totalFinal: 2300,
+            metodoPago: "QR",
+            estado: "pagada",
+            nroComprobante: "A-0001-00000004",
+            version: 1,
+            estadoSync: "pendiente"
+        },
+        {
+            idVenta: generarIdUnico(),
+            idSucursal: ID_SUCURSAL,
+            fecha: "2026-01-12T12:00",
+            timestamp: ahoraTimestamp(),
+            cliente: "Ana Torres",
+            vendedor: "TEST-USER",
+            items: [
+                { idProducto: "P-001", producto: "Yerba", categoria: "Alimentos", cantidad: 1, precioUnitario: 1500, subtotal: 1500 },
+                { idProducto: "P-002", producto: "Azúcar", categoria: "Alimentos", cantidad: 1, precioUnitario: 900, subtotal: 900 }
             ],
             descuento: 0,
             recargo: 0,
-            total: 3000,
-            totalFinal: 3000,
+            total: 2400,
+            totalFinal: 2400,
             metodoPago: "efectivo",
-            estado: "pagada",
-            nroComprobante: "A-0001-00000001",
+            estado: "pendiente",
+            nroComprobante: "",
             version: 1,
             estadoSync: "pendiente"
         }
@@ -729,7 +922,9 @@ if (lsGet(KEY_VENTAS, []).length === 0) {
     cargarDatosPruebaVentas();
 }
 
-// -------------------- INICIALIZACIÓN AUTOMÁTICA --------------------
+// =====================================================
+//  INICIALIZACIÓN AUTOMÁTICA
+// =====================================================
 
 document.addEventListener("DOMContentLoaded", () => {
     initVentasListado();
