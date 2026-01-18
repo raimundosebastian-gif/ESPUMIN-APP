@@ -2,16 +2,14 @@
 //  MÓDULO ÚNICO DE INVENTARIO (MULTISUCURSAL)
 //  - Compatible GitHub Pages y carpeta local
 //  - Sin dependencias externas
+//  - Integrado con Ventas, Kardex y Reportes
 //  - Preparado para sucursales + módulo central (Git)
-//  - Molde para el resto de los módulos del ERP
 // =====================================================
 
 // -------------------- CONFIGURACIÓN SUCURSAL --------------------
 
 const ID_SUCURSAL = "SUC-001"; // Cambiar en cada sucursal
-
-// Intervalo de sincronización (ms)
-const SYNC_INTERVAL = 30000; // 30 segundos
+const SYNC_INTERVAL_INVENTARIO = 30000; // 30 segundos
 
 // -------------------- UTILIDADES GENERALES --------------------
 
@@ -42,34 +40,36 @@ function lsSet(clave, valor) {
 }
 
 // Claves de almacenamiento
-const KEY_INVENTARIO = "inventario";
-const KEY_MOVIMIENTOS = "movimientosInventario";
-const KEY_SYNC_QUEUE = "syncQueueInventario";
+const KEY_INVENTARIO = "inventarioLocal";
+const KEY_MOVIMIENTOS_INVENTARIO = "movimientosInventario";
+const KEY_SYNC_QUEUE_INVENTARIO = "syncQueueInventario";
 
-// -------------------- SYNC QUEUE --------------------
+// -------------------- SYNC QUEUE INVENTARIO --------------------
 
-function getSyncQueue() {
-    return lsGet(KEY_SYNC_QUEUE, []);
+function getSyncQueueInventario() {
+    return lsGet(KEY_SYNC_QUEUE_INVENTARIO, []);
 }
 
-function setSyncQueue(queue) {
-    lsSet(KEY_SYNC_QUEUE, queue);
+function setSyncQueueInventario(queue) {
+    lsSet(KEY_SYNC_QUEUE_INVENTARIO, queue);
 }
 
-function agregarASyncQueue(tipo, idRegistro) {
-    const queue = getSyncQueue();
+function agregarASyncQueueInventario(tipo, idRegistro) {
+    const queue = getSyncQueueInventario();
     queue.push({
         idSync: generarIdUnico(),
-        tipo,              // ej: "movimientoInventario", "inventario"
+        tipo,              // ej: "producto", "movimiento"
         idRegistro,
         idSucursal: ID_SUCURSAL,
         timestamp: ahoraTimestamp(),
         estado: "pendiente"
     });
-    setSyncQueue(queue);
+    setSyncQueueInventario(queue);
 }
 
-// -------------------- INVENTARIO --------------------
+// =====================================================
+//  INVENTARIO (PRODUCTOS)
+// =====================================================
 
 function getInventario() {
     return lsGet(KEY_INVENTARIO, []);
@@ -79,340 +79,425 @@ function setInventario(data) {
     lsSet(KEY_INVENTARIO, data);
 }
 
-function getMovimientos() {
-    return lsGet(KEY_MOVIMIENTOS, []);
-}
-
-function setMovimientos(data) {
-    lsSet(KEY_MOVIMIENTOS, data);
-}
-
-// -------------------- LÓGICA DE NEGOCIO --------------------
-
-function buscarItemInventario(producto, categoria) {
-    const inventario = getInventario();
-    const prodNorm = normalizarTexto(producto);
-    const catNorm = normalizarTexto(categoria);
-
-    return inventario.find(
-        x =>
-            normalizarTexto(x.producto) === prodNorm &&
-            normalizarTexto(x.categoria) === catNorm
+function buscarProductoEnInventarioPorNombreONId(inventario, item) {
+    return inventario.find(p =>
+        (p.idProducto && item.idProducto && p.idProducto === item.idProducto) ||
+        (normalizarTexto(p.producto) === normalizarTexto(item.producto))
     );
 }
 
-function registrarIngreso(producto, categoria, cantidad) {
-    const inventario = getInventario();
-    const movimientos = getMovimientos();
+function crearProductoBaseDesdeItem(item, fechaMovimiento) {
+    return {
+        idProducto: item.idProducto || generarIdUnico(),
+        idSucursal: ID_SUCURSAL,
+        producto: item.producto,
+        productoNorm: normalizarTexto(item.producto),
+        categoria: item.categoria || "",
+        categoriaNorm: normalizarTexto(item.categoria || ""),
+        cantidad: 0,
+        fechaUltimoMovimiento: fechaMovimiento,
+        timestamp: ahoraTimestamp(),
+        version: 1,
+        estadoSync: "pendiente"
+    };
+}
 
-    const prodNorm = normalizarTexto(producto);
-    const catNorm = normalizarTexto(categoria);
+// tipo: "INGRESO" | "SALIDA"
+function actualizarInventario(item, tipo, fechaMovimiento) {
+    let inventario = getInventario();
+    let prod = buscarProductoEnInventarioPorNombreONId(inventario, item);
 
-    let item = buscarItemInventario(producto, categoria);
-
-    if (!item) {
-        item = {
-            idProducto: generarIdUnico(),
-            idSucursal: ID_SUCURSAL,
-            producto,              // como lo escribió el usuario
-            productoNorm: prodNorm,
-            categoria,
-            categoriaNorm: catNorm,
-            cantidad: 0,
-            fechaUltimoMovimiento: "",
-            timestamp: ahoraTimestamp(),
-            version: 1,
-            estadoSync: "pendiente"
-        };
-        inventario.push(item);
-    } else {
-        item.version = (item.version || 1) + 1;
-        item.timestamp = ahoraTimestamp();
-        item.estadoSync = "pendiente";
+    if (!prod) {
+        prod = crearProductoBaseDesdeItem(item, fechaMovimiento);
+        inventario.push(prod);
     }
 
-    item.cantidad += cantidad;
-    item.fechaUltimoMovimiento = new Date().toLocaleString();
+    const cantidadMovimiento = Number(item.cantidad) || 0;
+    if (tipo === "INGRESO") {
+        prod.cantidad = Number(prod.cantidad || 0) + cantidadMovimiento;
+    } else if (tipo === "SALIDA") {
+        prod.cantidad = Number(prod.cantidad || 0) - cantidadMovimiento;
+    }
+
+    prod.fechaUltimoMovimiento = fechaMovimiento;
+    prod.timestamp = ahoraTimestamp();
+    prod.version = (prod.version || 1) + 1;
+    prod.estadoSync = "pendiente";
+
+    setInventario(inventario);
+    agregarASyncQueueInventario("producto", prod.idProducto);
+}
+
+// =====================================================
+//  MOVIMIENTOS DE INVENTARIO (KARDEX)
+// =====================================================
+
+function getMovimientosInventario() {
+    return lsGet(KEY_MOVIMIENTOS_INVENTARIO, []);
+}
+
+function setMovimientosInventario(data) {
+    lsSet(KEY_MOVIMIENTOS_INVENTARIO, data);
+}
+
+function registrarMovimientoInventario(item, tipo, fechaMovimiento) {
+    const movimientos = getMovimientosInventario();
 
     const movimiento = {
         idMovimiento: generarIdUnico(),
-        idProducto: item.idProducto,
+        idProducto: item.idProducto || item.producto,
         idSucursal: ID_SUCURSAL,
         producto: item.producto,
-        productoNorm: item.productoNorm,
-        categoria: item.categoria,
-        categoriaNorm: item.categoriaNorm,
-        tipo: "INGRESO",
-        cantidad,
-        fecha: item.fechaUltimoMovimiento,
+        categoria: item.categoria || "",
+        tipo: tipo, // "INGRESO" | "SALIDA"
+        cantidad: Number(item.cantidad) || 0,
+        fecha: fechaMovimiento,
         timestamp: ahoraTimestamp(),
         version: 1,
         estadoSync: "pendiente"
     };
 
     movimientos.push(movimiento);
-    setInventario(inventario);
-    setMovimientos(movimientos);
-
-    // Agregar a cola de sincronización
-    agregarASyncQueue("inventario", item.idProducto);
-    agregarASyncQueue("movimientoInventario", movimiento.idMovimiento);
+    setMovimientosInventario(movimientos);
+    agregarASyncQueueInventario("movimiento", movimiento.idMovimiento);
 }
 
-function registrarSalida(producto, categoria, cantidad) {
-    const inventario = getInventario();
-    const movimientos = getMovimientos();
+// =====================================================
+//  VALIDACIONES
+// =====================================================
 
-    const item = buscarItemInventario(producto, categoria);
+function validarMovimientoInventario(item, tipo) {
+    const errores = [];
 
-    if (!item) {
-        throw new Error("El producto no existe en el inventario.");
+    if (!item.producto || !item.producto.toString().trim()) {
+        errores.push("El producto es obligatorio.");
     }
 
-    if (item.cantidad < cantidad) {
-        throw new Error("No hay suficiente stock para retirar.");
+    const cantidad = Number(item.cantidad);
+    if (!cantidad || cantidad <= 0) {
+        errores.push("La cantidad debe ser mayor a cero.");
     }
 
-    item.cantidad -= cantidad;
-    item.fechaUltimoMovimiento = new Date().toLocaleString();
-    item.version = (item.version || 1) + 1;
-    item.timestamp = ahoraTimestamp();
-    item.estadoSync = "pendiente";
+    if (tipo !== "INGRESO" && tipo !== "SALIDA") {
+        errores.push("Tipo de movimiento inválido.");
+    }
 
-    const movimiento = {
-        idMovimiento: generarIdUnico(),
-        idProducto: item.idProducto,
-        idSucursal: ID_SUCURSAL,
-        producto: item.producto,
-        productoNorm: item.productoNorm,
-        categoria: item.categoria,
-        categoriaNorm: item.categoriaNorm,
-        tipo: "SALIDA",
-        cantidad,
-        fecha: item.fechaUltimoMovimiento,
-        timestamp: ahoraTimestamp(),
-        version: 1,
-        estadoSync: "pendiente"
-    };
+    if (tipo === "SALIDA") {
+        const inventario = getInventario();
+        const prod = buscarProductoEnInventarioPorNombreONId(inventario, item);
+        if (!prod) {
+            errores.push(`Producto no encontrado en inventario: ${item.producto}`);
+        } else {
+            const stockActual = Number(prod.cantidad) || 0;
+            if (stockActual < cantidad) {
+                errores.push(`Stock insuficiente para ${item.producto}. Stock: ${stockActual}, solicitado: ${cantidad}`);
+            }
+        }
+    }
 
-    movimientos.push(movimiento);
-    setInventario(inventario);
-    setMovimientos(movimientos);
-
-    // Agregar a cola de sincronización
-    agregarASyncQueue("inventario", item.idProducto);
-    agregarASyncQueue("movimientoInventario", movimiento.idMovimiento);
+    return errores;
 }
 
-// -------------------- LISTADO DE INVENTARIO --------------------
+// =====================================================
+//  LISTADO DE INVENTARIO
+// =====================================================
 
 function initListadoInventario() {
     const tabla = document.getElementById("tablaInventario");
     if (!tabla) return;
 
-    function cargarInventario() {
-        tabla.innerHTML = `
-            <tr><td colspan="5" class="sin-datos">Cargando...</td></tr>
-        `;
+    let inventario = getInventario();
 
-        try {
-            let inventario = getInventario();
-
-            if (inventario.length === 0) {
-                tabla.innerHTML = `
-                    <tr><td colspan="5" class="sin-datos">No hay productos registrados</td></tr>
-                `;
-                return;
-            }
-
-            // Ordenar por producto
-            inventario = inventario.sort((a, b) =>
-                a.producto.localeCompare(b.producto, "es")
-            );
-
-            tabla.innerHTML = "";
-            inventario.forEach(item => {
-                const fila = document.createElement("tr");
-                fila.innerHTML = `
-                    <td>${item.idProducto}</td>
-                    <td>${item.producto}</td>
-                    <td>${item.categoria}</td>
-                    <td>${item.cantidad}</td>
-                    <td>${item.fechaUltimoMovimiento || ""}</td>
-                `;
-                tabla.appendChild(fila);
-            });
-        } catch {
-            tabla.innerHTML = `
-                <tr><td colspan="5" class="sin-datos">Error al cargar inventario</td></tr>
-            `;
-        }
-    }
-
-    window.cargarInventario = cargarInventario;
-    cargarInventario();
-}
-
-// -------------------- INGRESO DE INVENTARIO --------------------
-
-function initIngresoInventario() {
-    const form = document.getElementById("formIngreso");
-    if (!form) return;
-
-    form.addEventListener("submit", function (e) {
-        e.preventDefault();
-
-        const producto = document.getElementById("producto").value.trim();
-        const categoria = document.getElementById("categoria").value.trim();
-        const cantidad = parseInt(document.getElementById("cantidad").value);
-
-        if (!producto || !categoria || isNaN(cantidad) || cantidad <= 0) {
-            alert("Por favor complete todos los campos correctamente.");
-            return;
-        }
-
-        try {
-            registrarIngreso(producto, categoria, cantidad);
-            alert("Ingreso registrado correctamente.");
-            form.reset();
-        } catch (error) {
-            alert(error.message || "Error al registrar ingreso.");
-        }
-    });
-}
-
-// -------------------- SALIDA DE INVENTARIO --------------------
-
-function initSalidaInventario() {
-    const form = document.getElementById("formSalida");
-    if (!form) return;
-
-    form.addEventListener("submit", function (e) {
-        e.preventDefault();
-
-        const producto = document.getElementById("producto").value.trim();
-        const categoria = document.getElementById("categoria").value.trim();
-        const cantidad = parseInt(document.getElementById("cantidad").value);
-
-        if (!producto || !categoria || isNaN(cantidad) || cantidad <= 0) {
-            alert("Por favor complete todos los campos correctamente.");
-            return;
-        }
-
-        try {
-            registrarSalida(producto, categoria, cantidad);
-            alert("Salida registrada correctamente.");
-            form.reset();
-        } catch (error) {
-            alert(error.message || "Error al registrar salida.");
-        }
-    });
-}
-
-// -------------------- LISTADO DE MOVIMIENTOS --------------------
-
-function initListadoMovimientos() {
-    const tabla = document.getElementById("tablaMovimientos");
-    if (!tabla) return;
-
-    let movimientos = getMovimientos();
-
-    if (movimientos.length === 0) {
-        tabla.innerHTML = `<tr><td colspan="5" class="sin-datos">No hay movimientos registrados</td></tr>`;
+    if (!inventario.length) {
+        tabla.innerHTML = `<tr><td colspan="5" class="sin-datos">No hay productos en inventario</td></tr>`;
         return;
     }
 
-    // Ordenar por fecha (timestamp)
-    movimientos = movimientos.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+    inventario = inventario.sort((a, b) => normalizarTexto(a.producto).localeCompare(normalizarTexto(b.producto)));
 
     tabla.innerHTML = "";
-    movimientos.forEach(m => {
+    inventario.forEach(p => {
         const fila = document.createElement("tr");
         fila.innerHTML = `
-            <td>${m.fecha}</td>
-            <td>${m.producto}</td>
-            <td>${m.categoria}</td>
-            <td>${m.tipo}</td>
-            <td>${m.cantidad}</td>
+            <td>${p.producto}</td>
+            <td>${p.categoria || ""}</td>
+            <td>${p.cantidad}</td>
+            <td>${(p.fechaUltimoMovimiento || "").replace("T", " ")}</td>
+            <td>${p.idProducto}</td>
         `;
         tabla.appendChild(fila);
     });
 }
 
-// -------------------- KARDEX --------------------
+// =====================================================
+//  INGRESO DE INVENTARIO
+// =====================================================
 
-function initKardex() {
-    const select = document.getElementById("productoSelect");
-    const tabla = document.getElementById("tablaKardex");
-    if (!select || !tabla) return;
+function initIngresoInventario() {
+    const form = document.getElementById("formIngresoInventario");
+    if (!form) return;
 
-    const movimientos = getMovimientos();
-    const productos = [...new Set(movimientos.map(m => m.producto))];
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
 
-    productos.forEach(p => {
-        const option = document.createElement("option");
-        option.value = p;
-        option.textContent = p;
-        select.appendChild(option);
-    });
+        const producto = document.getElementById("producto")?.value.trim();
+        const categoria = document.getElementById("categoria")?.value.trim();
+        const cantidad = document.getElementById("cantidad")?.value;
+        const fecha = document.getElementById("fecha")?.value;
 
-    window.generarKardex = function () {
-        const producto = select.value;
-        const todosMovimientos = getMovimientos();
-        let filtrados = todosMovimientos.filter(m => m.producto === producto);
-
-        if (!producto || filtrados.length === 0) {
-            tabla.innerHTML = `<tr><td colspan="5" class="sin-datos">No hay movimientos para este producto</td></tr>`;
+        if (!fecha) {
+            alert("Complete la fecha.");
             return;
         }
 
-        // Ordenar por timestamp
-        filtrados = filtrados.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+        const item = {
+            producto,
+            categoria,
+            cantidad: Number(cantidad)
+        };
+
+        const errores = validarMovimientoInventario(item, "INGRESO");
+        if (errores.length) {
+            alert("Errores:\n" + errores.join("\n"));
+            return;
+        }
+
+        registrarMovimientoInventario(item, "INGRESO", fecha);
+        actualizarInventario(item, "INGRESO", fecha);
+
+        alert("Ingreso registrado correctamente.");
+        form.reset();
+    });
+}
+
+// =====================================================
+//  SALIDA DE INVENTARIO
+// =====================================================
+
+function initSalidaInventario() {
+    const form = document.getElementById("formSalidaInventario");
+    if (!form) return;
+
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const producto = document.getElementById("producto")?.value.trim();
+        const categoria = document.getElementById("categoria")?.value.trim();
+        const cantidad = document.getElementById("cantidad")?.value;
+        const fecha = document.getElementById("fecha")?.value;
+
+        if (!fecha) {
+            alert("Complete la fecha.");
+            return;
+        }
+
+        const item = {
+            producto,
+            categoria,
+            cantidad: Number(cantidad)
+        };
+
+        const errores = validarMovimientoInventario(item, "SALIDA");
+        if (errores.length) {
+            alert("Errores:\n" + errores.join("\n"));
+            return;
+        }
+
+        registrarMovimientoInventario(item, "SALIDA", fecha);
+        actualizarInventario(item, "SALIDA", fecha);
+
+        alert("Salida registrada correctamente.");
+        form.reset();
+    });
+}
+
+// =====================================================
+//  LISTADO DE MOVIMIENTOS (KARDEX SIMPLE)
+// =====================================================
+
+function initListadoMovimientos() {
+    const tabla = document.getElementById("tablaMovimientos");
+    if (!tabla) return;
+
+    let movimientos = getMovimientosInventario();
+
+    if (!movimientos.length) {
+        tabla.innerHTML = `<tr><td colspan="6" class="sin-datos">No hay movimientos registrados</td></tr>`;
+        return;
+    }
+
+    movimientos = movimientos.sort((a, b) => (a.fecha || "").localeCompare(b.fecha || ""));
+
+    tabla.innerHTML = "";
+    movimientos.forEach(m => {
+        const fila = document.createElement("tr");
+        fila.innerHTML = `
+            <td>${(m.fecha || "").replace("T", " ")}</td>
+            <td>${m.producto}</td>
+            <td>${m.categoria || ""}</td>
+            <td>${m.tipo}</td>
+            <td>${m.cantidad}</td>
+            <td>${m.idMovimiento}</td>
+        `;
+        tabla.appendChild(fila);
+    });
+}
+
+// =====================================================
+//  KARDEX POR PRODUCTO (BÁSICO)
+// =====================================================
+
+function initKardex() {
+    const tabla = document.getElementById("tablaKardex");
+    const inputProducto = document.getElementById("productoKardex");
+    if (!tabla || !inputProducto) return;
+
+    function renderKardex() {
+        const filtro = normalizarTexto(inputProducto.value);
+        let movimientos = getMovimientosInventario();
+
+        if (filtro) {
+            movimientos = movimientos.filter(m =>
+                normalizarTexto(m.producto).includes(filtro) ||
+                (m.idProducto && m.idProducto.toString().includes(filtro))
+            );
+        }
+
+        if (!movimientos.length) {
+            tabla.innerHTML = `<tr><td colspan="6" class="sin-datos">No hay movimientos para el filtro aplicado</td></tr>`;
+            return;
+        }
+
+        movimientos = movimientos.sort((a, b) => (a.fecha || "").localeCompare(b.fecha || ""));
 
         tabla.innerHTML = "";
-        let saldo = 0;
-
-        filtrados.forEach(m => {
-            if (m.tipo === "INGRESO") saldo += m.cantidad;
-            if (m.tipo === "SALIDA") saldo -= m.cantidad;
-
+        movimientos.forEach(m => {
             const fila = document.createElement("tr");
             fila.innerHTML = `
-                <td>${m.fecha}</td>
+                <td>${(m.fecha || "").replace("T", " ")}</td>
+                <td>${m.producto}</td>
+                <td>${m.categoria || ""}</td>
                 <td>${m.tipo}</td>
-                <td>${m.tipo === "INGRESO" ? m.cantidad : "-"}</td>
-                <td>${m.tipo === "SALIDA" ? m.cantidad : "-"}</td>
-                <td>${saldo}</td>
+                <td>${m.cantidad}</td>
+                <td>${m.idMovimiento}</td>
             `;
             tabla.appendChild(fila);
         });
-    };
+    }
+
+    inputProducto.addEventListener("input", renderKardex);
+    renderKardex();
 }
 
-// -------------------- SINCRONIZACIÓN CON CENTRAL (ESQUELETO) --------------------
-// Nota: acá solo dejamos el esqueleto. La implementación concreta de GitHub API
-// se define cuando fijemos el repo central y el mecanismo de autenticación.
+// =====================================================
+//  SINCRONIZACIÓN CON CENTRAL (ESQUELETO)
+// =====================================================
 
-async function sincronizarConCentral() {
-    const queue = getSyncQueue();
+async function sincronizarInventarioConCentral() {
+    const queue = getSyncQueueInventario();
     if (!queue.length) return;
 
-    // En esta versión dejamos el esqueleto preparado.
-    // Más adelante se implementa el fetch hacia la API central.
-    // Por ahora, simplemente marcamos como "simulado".
     const nuevaQueue = queue.map(item => ({
         ...item,
         estado: "simulado"
     }));
 
-    setSyncQueue(nuevaQueue);
-    // Cuando se implemente la API real:
-    // - enviar registros pendientes
-    // - marcar confirmados
-    // - traer actualizaciones
+    setSyncQueueInventario(nuevaQueue);
 }
 
-// -------------------- INICIALIZACIÓN AUTOMÁTICA --------------------
+// =====================================================
+//  DATOS DE PRUEBA AMPLIADOS — INVENTARIO
+//  Solo se cargan si no hay inventario cargado
+// =====================================================
+
+function cargarDatosPruebaInventario() {
+
+    const inventario = [
+        {
+            idProducto: "P-001",
+            idSucursal: ID_SUCURSAL,
+            producto: "Yerba",
+            productoNorm: "yerba",
+            categoria: "Alimentos",
+            categoriaNorm: "alimentos",
+            cantidad: 48,
+            fechaUltimoMovimiento: "2026-01-12T10:00",
+            timestamp: ahoraTimestamp(),
+            version: 3,
+            estadoSync: "pendiente"
+        },
+        {
+            idProducto: "P-002",
+            idSucursal: ID_SUCURSAL,
+            producto: "Azúcar",
+            productoNorm: "azucar",
+            categoria: "Alimentos",
+            categoriaNorm: "alimentos",
+            cantidad: 30,
+            fechaUltimoMovimiento: "2026-01-12T09:30",
+            timestamp: ahoraTimestamp(),
+            version: 2,
+            estadoSync: "pendiente"
+        },
+        {
+            idProducto: "P-003",
+            idSucursal: ID_SUCURSAL,
+            producto: "Detergente",
+            productoNorm: "detergente",
+            categoria: "Limpieza",
+            categoriaNorm: "limpieza",
+            cantidad: 15,
+            fechaUltimoMovimiento: "2026-01-11T17:00",
+            timestamp: ahoraTimestamp(),
+            version: 1,
+            estadoSync: "pendiente"
+        },
+        {
+            idProducto: "P-004",
+            idSucursal: ID_SUCURSAL,
+            producto: "Fideos",
+            productoNorm: "fideos",
+            categoria: "Alimentos",
+            categoriaNorm: "alimentos",
+            cantidad: 60,
+            fechaUltimoMovimiento: "2026-01-10T14:00",
+            timestamp: ahoraTimestamp(),
+            version: 1,
+            estadoSync: "pendiente"
+        }
+    ];
+
+    const movimientos = [
+        // Yerba
+        { idMovimiento: generarIdUnico(), idProducto: "P-001", idSucursal: ID_SUCURSAL, producto: "Yerba", categoria: "Alimentos", tipo: "INGRESO", cantidad: 50, fecha: "2026-01-10T09:00", timestamp: ahoraTimestamp(), version: 1, estadoSync: "pendiente" },
+        { idMovimiento: generarIdUnico(), idProducto: "P-001", idSucursal: ID_SUCURSAL, producto: "Yerba", categoria: "Alimentos", tipo: "SALIDA", cantidad: 2, fecha: "2026-01-12T10:00", timestamp: ahoraTimestamp(), version: 1, estadoSync: "pendiente" },
+
+        // Azúcar
+        { idMovimiento: generarIdUnico(), idProducto: "P-002", idSucursal: ID_SUCURSAL, producto: "Azúcar", categoria: "Alimentos", tipo: "INGRESO", cantidad: 30, fecha: "2026-01-11T08:00", timestamp: ahoraTimestamp(), version: 1, estadoSync: "pendiente" },
+
+        // Detergente
+        { idMovimiento: generarIdUnico(), idProducto: "P-003", idSucursal: ID_SUCURSAL, producto: "Detergente", categoria: "Limpieza", tipo: "INGRESO", cantidad: 15, fecha: "2026-01-11T17:00", timestamp: ahoraTimestamp(), version: 1, estadoSync: "pendiente" },
+
+        // Fideos
+        { idMovimiento: generarIdUnico(), idProducto: "P-004", idSucursal: ID_SUCURSAL, producto: "Fideos", categoria: "Alimentos", tipo: "INGRESO", cantidad: 60, fecha: "2026-01-10T14:00", timestamp: ahoraTimestamp(), version: 1, estadoSync: "pendiente" },
+
+        // Movimientos adicionales para probar listados
+        { idMovimiento: generarIdUnico(), idProducto: "P-001", idSucursal: ID_SUCURSAL, producto: "Yerba", categoria: "Alimentos", tipo: "SALIDA", cantidad: 1, fecha: "2026-01-12T11:00", timestamp: ahoraTimestamp(), version: 1, estadoSync: "pendiente" },
+        { idMovimiento: generarIdUnico(), idProducto: "P-002", idSucursal: ID_SUCURSAL, producto: "Azúcar", categoria: "Alimentos", tipo: "SALIDA", cantidad: 1, fecha: "2026-01-12T11:30", timestamp: ahoraTimestamp(), version: 1, estadoSync: "pendiente" },
+        { idMovimiento: generarIdUnico(), idProducto: "P-003", idSucursal: ID_SUCURSAL, producto: "Detergente", categoria: "Limpieza", tipo: "SALIDA", cantidad: 1, fecha: "2026-01-12T12:00", timestamp: ahoraTimestamp(), version: 1, estadoSync: "pendiente" }
+    ];
+
+    lsSet(KEY_INVENTARIO, inventario);
+    lsSet(KEY_MOVIMIENTOS_INVENTARIO, movimientos);
+}
+
+if (lsGet(KEY_INVENTARIO, []).length === 0) {
+    cargarDatosPruebaInventario();
+}
+
+// =====================================================
+//  INICIALIZACIÓN AUTOMÁTICA
+// =====================================================
 
 document.addEventListener("DOMContentLoaded", () => {
     initListadoInventario();
@@ -421,6 +506,5 @@ document.addEventListener("DOMContentLoaded", () => {
     initListadoMovimientos();
     initKardex();
 
-    // Sincronización periódica (esqueleto)
-    setInterval(sincronizarConCentral, SYNC_INTERVAL);
+    setInterval(sincronizarInventarioConCentral, SYNC_INTERVAL_INVENTARIO);
 });
