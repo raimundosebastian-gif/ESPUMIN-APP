@@ -686,3 +686,207 @@ function renderizarWidgetsAgenda(contenedor) {
         contenedor.appendChild(div);
     });
 }
+
+/* ============================================================
+   BLOQUE 6 — INICIALIZADORES DE PANTALLAS DEL MÓDULO AGENDA
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1) DASHBOARD DE AGENDA
+   ------------------------------------------------------------ */
+
+function initDashboardAgenda() {
+    const elSucursal = document.getElementById("infoSucursalAgenda");
+    const elPendientes = document.getElementById("metricasPendientes");
+    const elCompletadas = document.getElementById("metricasCompletadas");
+    const elCriticas = document.getElementById("metricasCriticas");
+    const elPorModulo = document.getElementById("metricasPorModulo");
+    const elPorSucursal = document.getElementById("metricasPorSucursal");
+    const elWidgets = document.getElementById("widgetsAgenda");
+
+    if (!elSucursal) return;
+
+    // Mostrar sucursal
+    elSucursal.textContent = `${sucursalID} — ${nombreSucursal}`;
+
+    // Obtener métricas
+    const m = obtenerMetricasAgenda();
+
+    elPendientes.textContent = m.pendientes;
+    elCompletadas.textContent = m.completadas;
+    elCriticas.textContent = m.criticas;
+
+    // Métricas por módulo
+    elPorModulo.innerHTML = "";
+    for (const mod in m.porModulo) {
+        const li = document.createElement("li");
+        li.textContent = `${mod}: ${m.porModulo[mod]}`;
+        elPorModulo.appendChild(li);
+    }
+
+    // Métricas por sucursal (solo en central)
+    if (sucursalID === "central") {
+        elPorSucursal.innerHTML = "";
+        for (const s in m.porSucursal) {
+            const li = document.createElement("li");
+            li.textContent = `${s}: ${m.porSucursal[s]}`;
+            elPorSucursal.appendChild(li);
+        }
+    }
+
+    // Render widgets
+    if (elWidgets) {
+        renderizarWidgetsAgenda(elWidgets);
+    }
+}
+
+
+/* ------------------------------------------------------------
+   2) LISTADO DE AGENDA
+   ------------------------------------------------------------ */
+
+function initListadoAgenda() {
+    const tabla = document.getElementById("tablaAgenda");
+    if (!tabla) return;
+
+    const lista = ordenarTareasPorFecha(Agenda.tareas);
+
+    tabla.innerHTML = "";
+
+    lista.forEach(t => {
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+            <td>${t.fecha}</td>
+            <td>${t.titulo}</td>
+            <td>${t.moduloOrigen}</td>
+            <td>${t.categoria}</td>
+            <td>${t.prioridad}</td>
+            <td>${t.estado}</td>
+            <td>${t.sucursal}</td>
+            <td>
+                <a href="detalle-agenda.html?id=${t.id}">Ver</a> |
+                <a href="editar-agenda.html?id=${t.id}">Editar</a>
+            </td>
+        `;
+
+        tabla.appendChild(tr);
+    });
+}
+
+
+/* ------------------------------------------------------------
+   3) NUEVA TAREA
+   ------------------------------------------------------------ */
+
+function initNuevaAgenda() {
+    const form = document.getElementById("formNuevaAgenda");
+    if (!form) return;
+
+    form.addEventListener("submit", e => {
+        e.preventDefault();
+
+        const titulo = form.titulo.value.trim();
+        const descripcion = form.descripcion.value.trim();
+        const fecha = form.fecha.value;
+        const moduloOrigen = form.moduloOrigen.value;
+        const categoria = form.categoria.value;
+        const tipo = form.tipo.value;
+
+        crearEventoAgenda({
+            titulo,
+            descripcion,
+            fecha,
+            moduloOrigen,
+            categoria,
+            tipo
+        });
+
+        alert("Tarea creada correctamente");
+        location.href = "listado-agenda.html";
+    });
+}
+
+
+/* ------------------------------------------------------------
+   4) EDITAR TAREA
+   ------------------------------------------------------------ */
+
+function initEditarAgenda() {
+    const form = document.getElementById("formEditarAgenda");
+    if (!form) return;
+
+    const params = new URLSearchParams(location.search);
+    const id = params.get("id");
+
+    const tarea = obtenerTareaAgenda(id);
+    if (!tarea) {
+        alert("Tarea no encontrada");
+        return;
+    }
+
+    // Cargar datos en el formulario
+    form.titulo.value = tarea.titulo;
+    form.descripcion.value = tarea.descripcion;
+    form.fecha.value = tarea.fecha;
+    form.moduloOrigen.value = tarea.moduloOrigen;
+    form.categoria.value = tarea.categoria;
+    form.tipo.value = tarea.tipo;
+
+    form.addEventListener("submit", e => {
+        e.preventDefault();
+
+        editarTareaAgenda(id, {
+            titulo: form.titulo.value.trim(),
+            descripcion: form.descripcion.value.trim(),
+            fecha: form.fecha.value,
+            moduloOrigen: form.moduloOrigen.value,
+            categoria: form.categoria.value,
+            tipo: form.tipo.value
+        });
+
+        alert("Tarea actualizada");
+        location.href = "detalle-agenda.html?id=" + id;
+    });
+}
+
+
+/* ------------------------------------------------------------
+   5) DETALLE DE TAREA
+   ------------------------------------------------------------ */
+
+function initDetalleAgenda() {
+    const cont = document.getElementById("detalleAgenda");
+    if (!cont) return;
+
+    const params = new URLSearchParams(location.search);
+    const id = params.get("id");
+
+    const t = obtenerTareaAgenda(id);
+    if (!t) {
+        cont.innerHTML = "<p>Tarea no encontrada</p>";
+        return;
+    }
+
+    cont.innerHTML = `
+        <h2>${t.titulo}</h2>
+        <p><strong>Descripción:</strong> ${t.descripcion}</p>
+        <p><strong>Fecha:</strong> ${t.fecha}</p>
+        <p><strong>Estado:</strong> ${t.estado}</p>
+        <p><strong>Módulo origen:</strong> ${t.moduloOrigen}</p>
+        <p><strong>Categoría:</strong> ${t.categoria}</p>
+        <p><strong>Tipo:</strong> ${t.tipo}</p>
+        <p><strong>Prioridad:</strong> ${t.prioridad}</p>
+        <p><strong>Sucursal:</strong> ${t.sucursal} — ${nombreSucursal}</p>
+        <p><strong>Creado:</strong> ${t.fechaCreacion}</p>
+        <p><strong>Actualizado:</strong> ${t.fechaActualizacion}</p>
+
+        <button onclick="completarTareaAgenda('${t.id}'); location.reload();">
+            Marcar como completada
+        </button>
+
+        <button onclick="eliminarTareaAgenda('${t.id}'); location.href='listado-agenda.html';">
+            Eliminar
+        </button>
+    `;
+}
