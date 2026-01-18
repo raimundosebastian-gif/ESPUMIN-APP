@@ -382,3 +382,157 @@ function generarDatosPruebaAgenda() {
 
 generarDatosPruebaAgenda();
 
+/* ============================================================
+   BLOQUE 4 — CRUD COMPLETO + SYNC QUEUE + API INTERNA
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1) AGREGAR TAREA / EVENTO / ALERTA
+   ------------------------------------------------------------ */
+
+function agregarTareaAgenda(objetoTarea) {
+    // Actualizar versión y fecha
+    objetoTarea.version = VERSION_AGENDA;
+    objetoTarea.fechaActualizacion = new Date().toISOString();
+
+    // Guardar en memoria
+    Agenda.tareas.push(objetoTarea);
+
+    // Guardar en storage
+    guardarAgenda();
+
+    // Agregar a cola de sincronización si no es central
+    if (sucursalID !== "central") {
+        Agenda.syncQueue.push({
+            accion: "crear",
+            data: objetoTarea
+        });
+        guardarSyncQueue();
+    }
+
+    return objetoTarea.id;
+}
+
+
+/* ------------------------------------------------------------
+   2) API INTERNA PARA OTROS MÓDULOS DEL ERP
+   ------------------------------------------------------------ */
+
+function crearEventoAgenda({
+    titulo,
+    descripcion,
+    fecha,
+    estado = "pendiente",
+    moduloOrigen = "agenda",
+    categoria = "general",
+    tipo = "tarea",
+    prioridad = null,
+    metadata = {}
+}) {
+    const objeto = crearObjetoAgenda({
+        titulo,
+        descripcion,
+        fecha,
+        estado,
+        moduloOrigen,
+        categoria,
+        tipo,
+        prioridad,
+        metadata,
+        sucursal: sucursalID
+    });
+
+    return agregarTareaAgenda(objeto);
+}
+
+
+/* ------------------------------------------------------------
+   3) EDITAR TAREA
+   ------------------------------------------------------------ */
+
+function editarTareaAgenda(id, cambios) {
+    const tarea = Agenda.tareas.find(t => t.id === id);
+    if (!tarea) return false;
+
+    // Aplicar cambios
+    Object.assign(tarea, cambios);
+
+    // Actualizar fecha y versión
+    tarea.fechaActualizacion = new Date().toISOString();
+    tarea.version = VERSION_AGENDA;
+
+    guardarAgenda();
+
+    // Registrar en cola de sync si no es central
+    if (sucursalID !== "central") {
+        Agenda.syncQueue.push({
+            accion: "editar",
+            id,
+            cambios
+        });
+        guardarSyncQueue();
+    }
+
+    return true;
+}
+
+
+/* ------------------------------------------------------------
+   4) COMPLETAR TAREA
+   ------------------------------------------------------------ */
+
+function completarTareaAgenda(id) {
+    return editarTareaAgenda(id, { estado: "completada" });
+}
+
+
+/* ------------------------------------------------------------
+   5) ELIMINAR TAREA (FÍSICO)
+   ------------------------------------------------------------ */
+
+function eliminarTareaAgenda(id) {
+    const index = Agenda.tareas.findIndex(t => t.id === id);
+    if (index === -1) return false;
+
+    const eliminada = Agenda.tareas.splice(index, 1)[0];
+
+    guardarAgenda();
+
+    // Registrar en cola de sync si no es central
+    if (sucursalID !== "central") {
+        Agenda.syncQueue.push({
+            accion: "eliminar",
+            id
+        });
+        guardarSyncQueue();
+    }
+
+    return true;
+}
+
+
+/* ------------------------------------------------------------
+   6) BUSCAR TAREA POR ID
+   ------------------------------------------------------------ */
+
+function obtenerTareaAgenda(id) {
+    return Agenda.tareas.find(t => t.id === id) || null;
+}
+
+
+/* ------------------------------------------------------------
+   7) LISTAR TAREAS POR SUCURSAL (MULTISUCURSAL REAL)
+   ------------------------------------------------------------ */
+
+function obtenerTareasPorSucursal(sucursal = sucursalID) {
+    return Agenda.tareas.filter(t => t.sucursal === sucursal);
+}
+
+
+/* ------------------------------------------------------------
+   8) LISTAR TODAS LAS TAREAS (CENTRAL)
+   ------------------------------------------------------------ */
+
+function obtenerTodasLasTareas() {
+    return Agenda.tareas;
+}
