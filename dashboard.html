@@ -1,236 +1,242 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard - ESPUMIN APP</title>
 
     <!-- Cargar estilos globales -->
-    <link rel="stylesheet" href="style.css">
-</head>
+    <link rel="stylesheet" href="style.css" />
+  </head>
 
-<body>
+  <body>
+    <!-- ============================
+     MENÚ SUPERIOR (FRAGMENTO)
+============================ -->
+    <div id="menu-container"></div>
 
-<h1>Dashboard</h1>
+    <script>
+      fetch("menu-fragment.html")
+        .then((response) => response.text())
+        .then((html) => {
+          document.getElementById("menu-container").innerHTML = html;
+        });
+    </script>
 
-<div class="dashboard-container">
+    <h1>Dashboard</h1>
 
-    <!-- INVENTARIO -->
-    <div class="module" data-role="operador,admin">
+    <div class="dashboard-container">
+      <!-- INVENTARIO -->
+      <div class="module" data-role="operador,admin">
         <button class="module-btn">
-            <span class="module-icon">📦</span>
-            <span class="module-title">Inventario</span>
-            <span class="module-arrow">▾</span>
+          <span class="module-icon">📦</span>
+          <span class="module-title">Inventario</span>
+          <span class="module-arrow">▾</span>
         </button>
         <div class="module-content">
-            <a href="inventario/listado.html">Listado</a>
-            <a href="inventario/ingreso.html">Ingreso</a>
-            <a href="inventario/salida.html">Salida</a>
+          <a href="inventario/listado.html">Listado</a>
+          <a href="inventario/ingreso.html">Ingreso</a>
+          <a href="inventario/salida.html">Salida</a>
         </div>
-    </div>
+      </div>
 
-    <!-- CLIENTES -->
-    <div class="module" data-role="operador,admin">
+      <!-- CLIENTES -->
+      <div class="module" data-role="operador,admin">
         <button class="module-btn">
-            <span class="module-icon">👥</span>
-            <span class="module-title">Clientes</span>
-            <span class="module-arrow">▾</span>
+          <span class="module-icon">👥</span>
+          <span class="module-title">Clientes</span>
+          <span class="module-arrow">▾</span>
         </button>
         <div class="module-content">
-            <a href="clientes/listado.html">Listado</a>
-            <a href="clientes/nuevo.html">Nuevo Cliente</a>
-            <a href="clientes/cuentas.html">Cuentas Corrientes</a>
+          <a href="clientes/listado.html">Listado</a>
+          <a href="clientes/nuevo.html">Nuevo Cliente</a>
+          <a href="clientes/cuentas.html">Cuentas Corrientes</a>
         </div>
-    </div>
+      </div>
 
-    <!-- PROVEEDORES -->
-    <div class="module" data-role="operador,admin">
+      <!-- PROVEEDORES -->
+      <div class="module" data-role="operador,admin">
         <button class="module-btn">
-            <span class="module-icon">🏭</span>
-            <span class="module-title">Proveedores</span>
-            <span class="module-arrow">▾</span>
+          <span class="module-icon">🏭</span>
+          <span class="module-title">Proveedores</span>
+          <span class="module-arrow">▾</span>
         </button>
         <div class="module-content">
-            <a href="proveedores/listado.html">Listado</a>
-            <a href="proveedores/nuevo.html">Nuevo Proveedor</a>
-            <a href="proveedores/cuentas.html">Cuentas Corrientes</a>
+          <a href="proveedores/listado.html">Listado</a>
+          <a href="proveedores/nuevo.html">Nuevo Proveedor</a>
+          <a href="proveedores/cuentas.html">Cuentas Corrientes</a>
         </div>
-    </div>
+      </div>
 
-    <!-- VENTAS -->
-    <div class="module" data-role="operador,admin">
+      <!-- VENTAS -->
+      <div class="module" data-role="operador,admin">
         <button class="module-btn">
-            <span class="module-icon">💰</span>
-            <span class="module-title">Ventas</span>
-            <span class="module-arrow">▾</span>
+          <span class="module-icon">💰</span>
+          <span class="module-title">Ventas</span>
+          <span class="module-arrow">▾</span>
         </button>
         <div class="module-content">
-            <a href="ventas/nueva.html">Nueva Venta</a>
-            <a href="ventas/historial.html">Historial</a>
-            <a href="caja/index.html">Caja</a>
+          <a href="ventas/nueva.html">Nueva Venta</a>
+          <a href="ventas/historial.html">Historial</a>
+          <a href="caja/index.html">Caja</a>
         </div>
-    </div>
+      </div>
 
-    <!-- COMPRAS -->
-    <div class="module" data-role="operador,admin">
+      <!-- COMPRAS -->
+      <div class="module" data-role="operador,admin">
         <button class="module-btn">
-            <span class="module-icon">🛒</span>
-            <span class="module-title">Compras</span>
-            <span class="module-arrow">▾</span>
+          <span class="module-icon">🛒</span>
+          <span class="module-title">Compras</span>
+          <span class="module-arrow">▾</span>
         </button>
         <div class="module-content">
-            <a href="compras/listado.html">Listado</a>
-            <a href="compras/nueva.html">Nueva Compra</a>
+          <a href="compras/listado.html">Listado</a>
+          <a href="compras/nueva.html">Nueva Compra</a>
         </div>
-    </div>
+      </div>
 
-    <!-- PRODUCCIÓN -->
-    <div class="module" data-role="operador,admin">
+      <!-- PRODUCCIÓN -->
+      <div class="module" data-role="operador,admin">
         <button class="module-btn">
-            <span class="module-icon">⚙️</span>
-            <span class="module-title">Producción</span>
-            <span class="module-arrow">▾</span>
+          <span class="module-icon">⚙️</span>
+          <span class="module-title">Producción</span>
+          <span class="module-arrow">▾</span>
         </button>
         <div class="module-content">
-            <a href="produccion/ordenes.html">Órdenes</a>
-            <a href="produccion/planificacion.html">Planificación</a>
+          <a href="produccion/ordenes.html">Órdenes</a>
+          <a href="produccion/planificacion.html">Planificación</a>
         </div>
-    </div>
+      </div>
 
-    <!-- LOGÍSTICA -->
-    <div class="module" data-role="operador,admin">
+      <!-- LOGÍSTICA -->
+      <div class="module" data-role="operador,admin">
         <button class="module-btn">
-            <span class="module-icon">🚚</span>
-            <span class="module-title">Logística</span>
-            <span class="module-arrow">▾</span>
+          <span class="module-icon">🚚</span>
+          <span class="module-title">Logística</span>
+          <span class="module-arrow">▾</span>
         </button>
         <div class="module-content">
-            <a href="logistica/despachos.html">Despachos</a>
-            <a href="logistica/rutas.html">Rutas</a>
+          <a href="logistica/despachos.html">Despachos</a>
+          <a href="logistica/rutas.html">Rutas</a>
         </div>
-    </div>
+      </div>
 
-    <!-- AGENDA -->
-    <div class="module" data-role="operador,admin">
+      <!-- AGENDA -->
+      <div class="module" data-role="operador,admin">
         <button class="module-btn">
-            <span class="module-icon">📅</span>
-            <span class="module-title">Agenda</span>
-            <span class="module-arrow">▾</span>
+          <span class="module-icon">📅</span>
+          <span class="module-title">Agenda</span>
+          <span class="module-arrow">▾</span>
         </button>
         <div class="module-content">
-            <a href="agenda/general.html">Agenda General</a>
+          <a href="agenda/general.html">Agenda General</a>
         </div>
-    </div>
+      </div>
 
-    <!-- NOTIFICACIONES -->
-    <div class="module" data-role="admin">
+      <!-- NOTIFICACIONES -->
+      <div class="module" data-role="admin">
         <button class="module-btn">
-            <span class="module-icon">🔔</span>
-            <span class="module-title">Notificaciones</span>
-            <span class="module-arrow">▾</span>
+          <span class="module-icon">🔔</span>
+          <span class="module-title">Notificaciones</span>
+          <span class="module-arrow">▾</span>
         </button>
         <div class="module-content">
-            <a href="notificaciones/index.html">Centro de Alertas</a>
+          <a href="notificaciones/index.html">Centro de Alertas</a>
         </div>
-    </div>
+      </div>
 
-    <!-- AUDITORÍA -->
-    <div class="module" data-role="admin">
+      <!-- AUDITORÍA -->
+      <div class="module" data-role="admin">
         <button class="module-btn">
-            <span class="module-icon">📝</span>
-            <span class="module-title">Auditoría</span>
-            <span class="module-arrow">▾</span>
+          <span class="module-icon">📝</span>
+          <span class="module-title">Auditoría</span>
+          <span class="module-arrow">▾</span>
         </button>
         <div class="module-content">
-            <a href="auditoria/index.html">Registro de Auditoría</a>
+          <a href="auditoria/index.html">Registro de Auditoría</a>
         </div>
-    </div>
+      </div>
 
-    <!-- USUARIOS Y ROLES -->
-    <div class="module" data-role="admin">
+      <!-- USUARIOS Y ROLES -->
+      <div class="module" data-role="admin">
         <button class="module-btn">
-            <span class="module-icon">🔐</span>
-            <span class="module-title">Usuarios y Roles</span>
-            <span class="module-arrow">▾</span>
+          <span class="module-icon">🔐</span>
+          <span class="module-title">Usuarios y Roles</span>
+          <span class="module-arrow">▾</span>
         </button>
         <div class="module-content">
-            <a href="configuracion/usuarios.html">Usuarios</a>
-            <a href="configuracion/roles.html">Roles</a>
+          <a href="configuracion/usuarios.html">Usuarios</a>
+          <a href="configuracion/roles.html">Roles</a>
         </div>
-    </div>
+      </div>
 
-    <!-- PARÁMETROS -->
-    <div class="module" data-role="admin">
+      <!-- PARÁMETROS -->
+      <div class="module" data-role="admin">
         <button class="module-btn">
-            <span class="module-icon">⚙️</span>
-            <span class="module-title">Parámetros</span>
-            <span class="module-arrow">▾</span>
+          <span class="module-icon">⚙️</span>
+          <span class="module-title">Parámetros</span>
+          <span class="module-arrow">▾</span>
         </button>
         <div class="module-content">
-            <a href="parametros/index.html">Configuración General</a>
+          <a href="parametros/index.html">Configuración General</a>
         </div>
-    </div>
+      </div>
 
-    <!-- BACKUPS -->
-    <div class="module" data-role="admin">
+      <!-- BACKUPS -->
+      <div class="module" data-role="admin">
         <button class="module-btn">
-            <span class="module-icon">💾</span>
-            <span class="module-title">Backups</span>
-            <span class="module-arrow">▾</span>
+          <span class="module-icon">💾</span>
+          <span class="module-title">Backups</span>
+          <span class="module-arrow">▾</span>
         </button>
         <div class="module-content">
-            <a href="backups/index.html">Gestión de Backups</a>
+          <a href="backups/index.html">Gestión de Backups</a>
         </div>
+      </div>
     </div>
 
-</div>
-
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-
-    /* ============================
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        /* ============================
        1. CONTROL DE ROLES
     ============================ */
-    const userRole = localStorage.getItem("userRole");
+        const userRole = localStorage.getItem("userRole");
 
-    document.querySelectorAll(".module").forEach(module => {
-        const allowed = module.dataset.role.split(",");
-        if (!allowed.includes(userRole)) {
+        document.querySelectorAll(".module").forEach((module) => {
+          const allowed = module.dataset.role.split(",");
+          if (!allowed.includes(userRole)) {
             module.classList.add("hidden");
-        }
-    });
+          }
+        });
 
-    /* ============================
+        /* ============================
        2. LÓGICA DROPDOWN
     ============================ */
-    const modules = document.querySelectorAll(".module:not(.hidden)");
+        const modules = document.querySelectorAll(".module:not(.hidden)");
 
-    modules.forEach(module => {
-        const btn = module.querySelector(".module-btn");
-        const content = module.querySelector(".module-content");
+        modules.forEach((module) => {
+          const btn = module.querySelector(".module-btn");
+          const content = module.querySelector(".module-content");
 
-        btn.addEventListener("click", () => {
-
-            modules.forEach(other => {
-                if (other !== module) {
-                    other.classList.remove("open");
-                    const otherContent = other.querySelector(".module-content");
-                    otherContent.style.maxHeight = null;
-                }
+          btn.addEventListener("click", () => {
+            modules.forEach((other) => {
+              if (other !== module) {
+                other.classList.remove("open");
+                const otherContent = other.querySelector(".module-content");
+                otherContent.style.maxHeight = null;
+              }
             });
 
             if (content.style.maxHeight) {
-                module.classList.remove("open");
-                content.style.maxHeight = null;
+              module.classList.remove("open");
+              content.style.maxHeight = null;
             } else {
-                module.classList.add("open");
-                content.style.maxHeight = content.scrollHeight + "px";
+              module.classList.add("open");
+              content.style.maxHeight = content.scrollHeight + "px";
             }
+          });
         });
-    });
-
-});
-</script>
-
-</body>
+      });
+    </script>
+  </body>
 </html>
