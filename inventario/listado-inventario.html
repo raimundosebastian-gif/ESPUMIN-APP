@@ -8,9 +8,18 @@
 </head>
 <body>
 
-    <div class="container">
-        <h1>Listado de Inventario</h1>
+<div class="container">
+    <h1>Inventario</h1>
 
+    <div class="acciones-superiores">
+        <button class="btn-primario" onclick="window.location.href='ingreso-inventario.html'">Ingreso</button>
+        <button class="btn-primario" onclick="window.location.href='salida-inventario.html'">Salida</button>
+        <button class="btn-primario" onclick="window.location.href='listado-movimientos.html'">Movimientos</button>
+        <button class="btn-primario" onclick="window.location.href='kardex.html'">Kardex</button>
+        <button class="btn-volver" onclick="window.location.href='../menu.html'">Volver</button>
+    </div>
+
+    <div class="tabla-wrapper">
         <table class="tabla-inventario">
             <thead>
                 <tr>
@@ -18,17 +27,16 @@
                     <th>Producto</th>
                     <th>Categoría</th>
                     <th>Cantidad</th>
-                    <th>Última actualización</th>
+                    <th>Último movimiento</th>
                 </tr>
             </thead>
             <tbody id="tablaInventario">
-                <!-- Filas generadas dinámicamente -->
+                <tr><td colspan="5" class="sin-datos">Cargando...</td></tr>
             </tbody>
         </table>
-
-        <button onclick="window.location.href='../menu.html'" class="btn-volver">Volver al menú</button>
     </div>
+</div>
 
-    <script src="listado.js"></script>
+<script src="inventario.js"></script>
 </body>
 </html>
