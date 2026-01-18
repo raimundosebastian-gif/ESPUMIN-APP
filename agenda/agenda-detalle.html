@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Tarea</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>Detalle de Tarea</h1>
+
+    <div id="detalleTarea">
+        Cargando...
+    </div>
+
+    <button class="btn-volver" onclick="window.location.href='agenda.html'">Volver</button>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const id = new URLSearchParams(window.location.search).get("id");
+    const agenda = JSON.parse(localStorage.getItem("agendaLocal")) || [];
+    const tarea = agenda.find(t => t.idTarea === id);
+
+    const cont = document.getElementById("detalleTarea");
+
+    if (!tarea) {
+        cont.innerHTML = "La tarea no existe.";
+        return;
+    }
+
+    cont.innerHTML = `
+        <p><strong>Título:</strong> ${tarea.titulo}</p>
+        <p><strong>Descripción:</strong> ${tarea.descripcion}</p>
+        <p><strong>Fecha:</strong> ${tarea.fecha}</p>
+        <p><strong>Estado:</strong> ${tarea.estado}</p>
+        <p><strong>ID:</strong> ${tarea.idTarea}</p>
+    `;
+});
+</script>
+
+<script src="agenda.js"></script>
+</body>
+</html>
