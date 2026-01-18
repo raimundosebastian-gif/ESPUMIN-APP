@@ -27,53 +27,53 @@
     // 🔧 CONFIGURACIÓN PRINCIPAL
     // Ajustá solo esta sección si cambia algún nombre de archivo
 
-    const modules = [
-      {
-        name: "Agenda",
-        pages: [
-          { label: "Listado agenda",   path: "listado-agenda.html" },
-          { label: "Nueva agenda",     path: "nueva-agenda.html" },
-          { label: "Editar agenda",    path: "editar-agenda.html" },
-          { label: "Detalle agenda",   path: "detalle-agenda.html" },
-          { label: "Dashboard agenda", path: "dashboard-agenda.html" } // si no existe, solo marcará error en esa línea
-        ],
-        requiredScripts: ["agenda.js"],
-        requiredSelectors: [
-          { desc: "Selector de sucursal", selector: "select[id*='sucursal'], select[name*='sucursal']" },
-          { desc: "Tabla principal", selector: "table" }
-        ]
-      },
-      {
-        name: "Inventario",
-        pages: [
-          { label: "Listado inventario",    path: "listado-inventario.html" },
-          { label: "Ingreso inventario",    path: "ingreso-inventario.html" },
-          { label: "Salida inventario",     path: "salida-inventario.html" },
-          { label: "Movimientos inventario",path: "movimientos-inventario.html" },
-          { label: "Kardex",                path: "kardex.html" }
-        ],
-        requiredScripts: ["inventario.js"],
-        requiredSelectors: [
-          { desc: "Selector de sucursal", selector: "select[id*='sucursal'], select[name*='sucursal']" },
-          { desc: "Tabla de movimientos / listado", selector: "table" }
-        ]
-      },
-      {
-        name: "Ventas",
-        pages: [
-          { label: "Listado ventas",   path: "listado-ventas.html" },
-          { label: "Nueva venta",      path: "nueva-venta.html" },
-          { label: "Editar venta",     path: "editar-venta.html" },
-          { label: "Detalle venta",    path: "detalle-venta.html" },
-          { label: "Dashboard ventas", path: "dashboard-ventas.html" } // idem: si no existe, solo marca error
-        ],
-        requiredScripts: ["ventas.js"],
-        requiredSelectors: [
-          { desc: "Selector de sucursal", selector: "select[id*='sucursal'], select[name*='sucursal']" },
-          { desc: "Tabla de ventas / movimientos", selector: "table" }
-        ]
-      }
-    ];
+const modules = [
+  {
+    name: "Agenda",
+    pages: [
+      { label: "Listado agenda",   path: "agenda/listado-agenda.html" },
+      { label: "Nueva agenda",     path: "agenda/nueva-agenda.html" },
+      { label: "Editar agenda",    path: "agenda/editar-agenda.html" },
+      { label: "Detalle agenda",   path: "agenda/detalle-agenda.html" },
+      { label: "Dashboard agenda", path: "agenda/dashboard-agenda.html" }
+    ],
+    requiredScripts: ["agenda/agenda.js"],
+    requiredSelectors: [
+      { desc: "Selector de sucursal", selector: "select[id*='sucursal'], select[name*='sucursal']" },
+      { desc: "Tabla principal", selector: "table" }
+    ]
+  },
+  {
+    name: "Inventario",
+    pages: [
+      { label: "Listado inventario",    path: "inventario/listado-inventario.html" },
+      { label: "Ingreso inventario",    path: "inventario/ingreso-inventario.html" },
+      { label: "Salida inventario",     path: "inventario/salida-inventario.html" },
+      { label: "Movimientos inventario",path: "inventario/movimientos-inventario.html" },
+      { label: "Kardex",                path: "inventario/kardex.html" }
+    ],
+    requiredScripts: ["inventario/inventario.js"],
+    requiredSelectors: [
+      { desc: "Selector de sucursal", selector: "select[id*='sucursal'], select[name*='sucursal']" },
+      { desc: "Tabla de movimientos / listado", selector: "table" }
+    ]
+  },
+  {
+    name: "Ventas",
+    pages: [
+      { label: "Listado ventas",   path: "ventas/listado-ventas.html" },
+      { label: "Nueva venta",      path: "ventas/nueva-venta.html" },
+      { label: "Editar venta",     path: "ventas/editar-venta.html" },
+      { label: "Detalle venta",    path: "ventas/detalle-venta.html" },
+      { label: "Dashboard ventas", path: "ventas/dashboard-ventas.html" }
+    ],
+    requiredScripts: ["ventas/ventas.js"],
+    requiredSelectors: [
+      { desc: "Selector de sucursal", selector: "select[id*='sucursal'], select[name*='sucursal']" },
+      { desc: "Tabla de ventas / movimientos", selector: "table" }
+    ]
+  }
+];
 
     const menuChecks = [
       {
