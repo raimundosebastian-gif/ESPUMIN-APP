@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kardex de Inventario</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>Kardex por producto</h1>
+
+    <label>Producto:</label>
+    <select id="productoSelect"></select>
+
+    <div class="acciones-superiores">
+        <button class="btn-primario" type="button" onclick="generarKardex()">Generar</button>
+        <button class="btn-volver" type="button" onclick="window.location.href='listado-inventario.html'">Volver</button>
+    </div>
+
+    <div class="tabla-wrapper">
+        <table class="tabla-inventario">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Tipo</th>
+                    <th>Entrada</th>
+                    <th>Salida</th>
+                    <th>Saldo</th>
+                </tr>
+            </thead>
+            <tbody id="tablaKardex">
+                <tr><td colspan="5" class="sin-datos">Seleccione un producto y genere el Kardex</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="inventario.js"></script>
+</body>
+</html>
