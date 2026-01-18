@@ -3,34 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Listado de Inventario</title>
+    <title>Movimientos de Inventario</title>
     <link rel="stylesheet" href="../style.css">
 </head>
 <body>
 
 <div class="container">
-    <h1>Inventario</h1>
+    <h1>Movimientos de Inventario</h1>
 
     <div class="acciones-superiores">
-        <button class="btn-primario" onclick="window.location.href='ingreso-inventario.html'">Ingreso</button>
-        <button class="btn-primario" onclick="window.location.href='salida-inventario.html'">Salida</button>
-        <button class="btn-primario" onclick="window.location.href='listado-movimientos.html'">Movimientos</button>
-        <button class="btn-primario" onclick="window.location.href='kardex.html'">Kardex</button>
-        <button class="btn-volver" onclick="window.location.href='../menu.html'">Volver</button>
+        <button class="btn-volver" onclick="window.location.href='listado-inventario.html'">Volver</button>
     </div>
 
     <div class="tabla-wrapper">
         <table class="tabla-inventario">
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>Fecha</th>
                     <th>Producto</th>
                     <th>Categoría</th>
+                    <th>Tipo</th>
                     <th>Cantidad</th>
-                    <th>Último movimiento</th>
                 </tr>
             </thead>
-            <tbody id="tablaInventario">
+            <tbody id="tablaMovimientos">
                 <tr><td colspan="5" class="sin-datos">Cargando...</td></tr>
             </tbody>
         </table>
