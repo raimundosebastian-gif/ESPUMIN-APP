@@ -2,14 +2,14 @@
 //  MÓDULO ÚNICO DE AGENDA (MULTISUCURSAL)
 //  - Compatible GitHub Pages y carpeta local
 //  - Sin dependencias externas
+//  - Integrado lógicamente con Ventas (tareas automáticas)
 //  - Preparado para sucursales + módulo central (Git)
-//  - Molde para el resto de los módulos del ERP
 // =====================================================
 
 // -------------------- CONFIGURACIÓN SUCURSAL --------------------
 
 const ID_SUCURSAL = "SUC-001"; // Cambiar en cada sucursal
-const SYNC_INTERVAL = 30000;   // 30 segundos
+const SYNC_INTERVAL_AGENDA = 30000; // 30 segundos
 
 // -------------------- UTILIDADES GENERALES --------------------
 
@@ -29,7 +29,9 @@ function normalizarTexto(texto) {
 
 function lsGet(clave, defecto = []) {
     try {
-        return JSON.parse(localStorage.getItem(clave)) || defecto;
+        const valor = localStorage.getItem(clave);
+        if (!valor) return defecto;
+        return JSON.parse(valor);
     } catch {
         return defecto;
     }
@@ -41,32 +43,36 @@ function lsSet(clave, valor) {
 
 // Claves de almacenamiento
 const KEY_AGENDA = "agendaLocal";
-const KEY_SYNC_QUEUE = "syncQueueAgenda";
+const KEY_SYNC_QUEUE_AGENDA = "syncQueueAgenda";
 
-// -------------------- SYNC QUEUE --------------------
+// =====================================================
+//  SYNC QUEUE AGENDA
+// =====================================================
 
-function getSyncQueue() {
-    return lsGet(KEY_SYNC_QUEUE, []);
+function getSyncQueueAgenda() {
+    return lsGet(KEY_SYNC_QUEUE_AGENDA, []);
 }
 
-function setSyncQueue(queue) {
-    lsSet(KEY_SYNC_QUEUE, queue);
+function setSyncQueueAgenda(queue) {
+    lsSet(KEY_SYNC_QUEUE_AGENDA, queue);
 }
 
-function agregarASyncQueue(tipo, idRegistro) {
-    const queue = getSyncQueue();
+function agregarASyncQueueAgenda(tipo, idRegistro) {
+    const queue = getSyncQueueAgenda();
     queue.push({
         idSync: generarIdUnico(),
-        tipo,              // ej: "tareaAgenda"
+        tipo,              // ej: "tarea"
         idRegistro,
         idSucursal: ID_SUCURSAL,
         timestamp: ahoraTimestamp(),
         estado: "pendiente"
     });
-    setSyncQueue(queue);
+    setSyncQueueAgenda(queue);
 }
 
-// -------------------- AGENDA --------------------
+// =====================================================
+//  AGENDA (TAREAS)
+// =====================================================
 
 function getAgenda() {
     return lsGet(KEY_AGENDA, []);
@@ -76,107 +82,144 @@ function setAgenda(data) {
     lsSet(KEY_AGENDA, data);
 }
 
-// -------------------- LÓGICA DE NEGOCIO --------------------
-
-function crearTarea(titulo, descripcion, fecha) {
-    const agenda = getAgenda();
+function crearTarea(datos) {
+    const tareas = getAgenda();
 
     const tarea = {
         idTarea: generarIdUnico(),
         idSucursal: ID_SUCURSAL,
-        titulo,
-        tituloNorm: normalizarTexto(titulo),
-        descripcion,
-        descripcionNorm: normalizarTexto(descripcion),
-        fecha,
-        estado: "pendiente",
+
+        titulo: datos.titulo || "Tarea sin título",
+        tituloNorm: normalizarTexto(datos.titulo || "Tarea sin título"),
+
+        descripcion: datos.descripcion || "",
+        descripcionNorm: normalizarTexto(datos.descripcion || ""),
+
+        fecha: datos.fecha || new Date().toISOString().slice(0, 16),
+        estado: datos.estado || "pendiente",
+
         timestamp: ahoraTimestamp(),
         version: 1,
         estadoSync: "pendiente"
     };
 
-    agenda.push(tarea);
-    setAgenda(agenda);
+    tareas.push(tarea);
+    setAgenda(tareas);
+    agregarASyncQueueAgenda("tarea", tarea.idTarea);
 
-    agregarASyncQueue("tareaAgenda", tarea.idTarea);
+    return tarea;
 }
 
 function editarTarea(idTarea, nuevosDatos) {
-    const agenda = getAgenda();
-    const tarea = agenda.find(t => t.idTarea === idTarea);
+    const tareas = getAgenda();
+    const idx = tareas.findIndex(t => t.idTarea === idTarea);
+    if (idx === -1) throw new Error("La tarea no existe.");
 
-    if (!tarea) throw new Error("La tarea no existe.");
+    const tarea = tareas[idx];
 
-    tarea.titulo = nuevosDatos.titulo || tarea.titulo;
-    tarea.descripcion = nuevosDatos.descripcion || tarea.descripcion;
-    tarea.fecha = nuevosDatos.fecha || tarea.fecha;
-    tarea.estado = nuevosDatos.estado || tarea.estado;
+    if (nuevosDatos.titulo !== undefined) {
+        tarea.titulo = nuevosDatos.titulo || "Tarea sin título";
+        tarea.tituloNorm = normalizarTexto(tarea.titulo);
+    }
 
-    tarea.tituloNorm = normalizarTexto(tarea.titulo);
-    tarea.descripcionNorm = normalizarTexto(tarea.descripcion);
+    if (nuevosDatos.descripcion !== undefined) {
+        tarea.descripcion = nuevosDatos.descripcion || "";
+        tarea.descripcionNorm = normalizarTexto(tarea.descripcion);
+    }
 
-    tarea.version++;
+    if (nuevosDatos.fecha !== undefined) {
+        tarea.fecha = nuevosDatos.fecha || tarea.fecha;
+    }
+
+    if (nuevosDatos.estado !== undefined) {
+        tarea.estado = nuevosDatos.estado || tarea.estado;
+    }
+
+    tarea.version = (tarea.version || 1) + 1;
     tarea.timestamp = ahoraTimestamp();
     tarea.estadoSync = "pendiente";
 
-    setAgenda(agenda);
-    agregarASyncQueue("tareaAgenda", tarea.idTarea);
+    tareas[idx] = tarea;
+    setAgenda(tareas);
+    agregarASyncQueueAgenda("tarea", tarea.idTarea);
 }
 
 function cambiarEstadoTarea(idTarea, nuevoEstado) {
-    const agenda = getAgenda();
-    const tarea = agenda.find(t => t.idTarea === idTarea);
-
+    const tareas = getAgenda();
+    const tarea = tareas.find(t => t.idTarea === idTarea);
     if (!tarea) throw new Error("La tarea no existe.");
 
     tarea.estado = nuevoEstado;
-    tarea.version++;
+    tarea.version = (tarea.version || 1) + 1;
     tarea.timestamp = ahoraTimestamp();
     tarea.estadoSync = "pendiente";
 
-    setAgenda(agenda);
-    agregarASyncQueue("tareaAgenda", tarea.idTarea);
+    setAgenda(tareas);
+    agregarASyncQueueAgenda("tarea", tarea.idTarea);
 }
 
 function eliminarTarea(idTarea) {
-    let agenda = getAgenda();
-    agenda = agenda.filter(t => t.idTarea !== idTarea);
-
-    setAgenda(agenda);
-    agregarASyncQueue("tareaAgenda", idTarea);
+    let tareas = getAgenda();
+    tareas = tareas.filter(t => t.idTarea !== idTarea);
+    setAgenda(tareas);
+    agregarASyncQueueAgenda("tarea", idTarea);
 }
 
-// -------------------- LISTADO DE AGENDA --------------------
+// =====================================================
+//  LISTADO DE TAREAS
+// =====================================================
 
 function initAgendaListado() {
     const tabla = document.getElementById("tablaAgenda");
     if (!tabla) return;
 
-    let agenda = getAgenda();
+    let tareas = getAgenda();
 
-    if (agenda.length === 0) {
-        tabla.innerHTML = `<tr><td colspan="5" class="sin-datos">No hay tareas registradas</td></tr>`;
+    if (!tareas.length) {
+        tabla.innerHTML = `<tr><td colspan="6" class="sin-datos">No hay tareas registradas</td></tr>`;
         return;
     }
 
-    // Ordenar por fecha
-    agenda = agenda.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+    tareas = tareas.sort((a, b) => (a.fecha || "").localeCompare(b.fecha || ""));
 
     tabla.innerHTML = "";
-    agenda.forEach(t => {
+    tareas.forEach(t => {
         const fila = document.createElement("tr");
         fila.innerHTML = `
-            <td>${t.fecha}</td>
+            <td>${(t.fecha || "").replace("T", " ")}</td>
             <td>${t.titulo}</td>
-            <td>${t.descripcion}</td>
+            <td>${t.descripcion || ""}</td>
             <td>${t.estado}</td>
             <td>${t.idTarea}</td>
+            <td>
+                <button type="button" class="btn-estado" data-id="${t.idTarea}" data-estado="${t.estado}">
+                    ${t.estado === "pendiente" ? "Completar" : "Reabrir"}
+                </button>
+            </td>
         `;
         tabla.appendChild(fila);
     });
+
+    tabla.addEventListener("click", function (e) {
+        const btn = e.target.closest(".btn-estado");
+        if (!btn) return;
+
+        const id = btn.getAttribute("data-id");
+        const estadoActual = btn.getAttribute("data-estado");
+        const nuevoEstado = estadoActual === "pendiente" ? "completada" : "pendiente";
+
+        try {
+            cambiarEstadoTarea(id, nuevoEstado);
+            initAgendaListado();
+        } catch (err) {
+            alert(err.message || "Error al cambiar el estado de la tarea.");
+        }
+    });
 }
 
-// -------------------- CREAR TAREA --------------------
+// =====================================================
+//  NUEVA TAREA
+// =====================================================
 
 function initAgendaNueva() {
     const form = document.getElementById("formNuevaTarea");
@@ -185,76 +228,228 @@ function initAgendaNueva() {
     form.addEventListener("submit", function (e) {
         e.preventDefault();
 
-        const titulo = document.getElementById("titulo").value.trim();
-        const descripcion = document.getElementById("descripcion").value.trim();
-        const fecha = document.getElementById("fecha").value;
+        const titulo = document.getElementById("titulo")?.value.trim();
+        const descripcion = document.getElementById("descripcion")?.value.trim();
+        const fecha = document.getElementById("fecha")?.value;
+        const estado = document.getElementById("estado")?.value || "pendiente";
 
-        if (!titulo || !descripcion || !fecha) {
-            alert("Complete todos los campos.");
+        if (!titulo) {
+            alert("El título es obligatorio.");
             return;
         }
 
-        crearTarea(titulo, descripcion, fecha);
-        alert("Tarea creada correctamente.");
-        form.reset();
+        try {
+            crearTarea({
+                titulo,
+                descripcion,
+                fecha,
+                estado
+            });
+            alert("Tarea creada correctamente.");
+            form.reset();
+        } catch (err) {
+            alert(err.message || "Error al crear la tarea.");
+        }
     });
 }
 
-// -------------------- EDITAR TAREA --------------------
+// =====================================================
+//  EDITAR TAREA
+// =====================================================
 
 function initAgendaEditar() {
     const form = document.getElementById("formEditarTarea");
     if (!form) return;
 
-    const idTarea = new URLSearchParams(window.location.search).get("id");
-    const agenda = getAgenda();
-    const tarea = agenda.find(t => t.idTarea === idTarea);
+    const id = new URLSearchParams(window.location.search).get("id");
+    const tareas = getAgenda();
+    const tarea = tareas.find(t => t.idTarea === id);
 
     if (!tarea) {
         alert("La tarea no existe.");
         return;
     }
 
-    document.getElementById("titulo").value = tarea.titulo;
-    document.getElementById("descripcion").value = tarea.descripcion;
-    document.getElementById("fecha").value = tarea.fecha;
-    document.getElementById("estado").value = tarea.estado;
+    const tituloInput = document.getElementById("titulo");
+    const descripcionInput = document.getElementById("descripcion");
+    const fechaInput = document.getElementById("fecha");
+    const estadoSelect = document.getElementById("estado");
+
+    if (tituloInput) tituloInput.value = tarea.titulo;
+    if (descripcionInput) descripcionInput.value = tarea.descripcion || "";
+    if (fechaInput) fechaInput.value = tarea.fecha;
+    if (estadoSelect) estadoSelect.value = tarea.estado;
 
     form.addEventListener("submit", function (e) {
         e.preventDefault();
 
-        editarTarea(idTarea, {
-            titulo: document.getElementById("titulo").value.trim(),
-            descripcion: document.getElementById("descripcion").value.trim(),
-            fecha: document.getElementById("fecha").value,
-            estado: document.getElementById("estado").value
-        });
+        const titulo = tituloInput?.value.trim();
+        const descripcion = descripcionInput?.value.trim();
+        const fecha = fechaInput?.value;
+        const estado = estadoSelect?.value || "pendiente";
 
-        alert("Tarea actualizada correctamente.");
+        if (!titulo) {
+            alert("El título es obligatorio.");
+            return;
+        }
+
+        try {
+            editarTarea(id, {
+                titulo,
+                descripcion,
+                fecha,
+                estado
+            });
+            alert("Tarea actualizada correctamente.");
+        } catch (err) {
+            alert(err.message || "Error al actualizar la tarea.");
+        }
     });
 }
 
-// -------------------- SINCRONIZACIÓN CON CENTRAL (ESQUELETO) --------------------
+// =====================================================
+//  FILTROS BÁSICOS DE AGENDA
+// =====================================================
+
+function filtrarAgendaPorEstado(estado) {
+    let tareas = getAgenda();
+    if (estado && estado !== "todas") {
+        tareas = tareas.filter(t => t.estado === estado);
+    }
+    return tareas;
+}
+
+function initAgendaFiltros() {
+    const selectEstado = document.getElementById("filtroEstado");
+    const tabla = document.getElementById("tablaAgenda");
+    if (!selectEstado || !tabla) return;
+
+    function render() {
+        let tareas = filtrarAgendaPorEstado(selectEstado.value);
+
+        if (!tareas.length) {
+            tabla.innerHTML = `<tr><td colspan="6" class="sin-datos">No hay tareas para el filtro seleccionado</td></tr>`;
+            return;
+        }
+
+        tareas = tareas.sort((a, b) => (a.fecha || "").localeCompare(b.fecha || ""));
+
+        tabla.innerHTML = "";
+        tareas.forEach(t => {
+            const fila = document.createElement("tr");
+            fila.innerHTML = `
+                <td>${(t.fecha || "").replace("T", " ")}</td>
+                <td>${t.titulo}</td>
+                <td>${t.descripcion || ""}</td>
+                <td>${t.estado}</td>
+                <td>${t.idTarea}</td>
+                <td>
+                    <button type="button" class="btn-estado" data-id="${t.idTarea}" data-estado="${t.estado}">
+                        ${t.estado === "pendiente" ? "Completar" : "Reabrir"}
+                    </button>
+                </td>
+            `;
+            tabla.appendChild(fila);
+        });
+    }
+
+    selectEstado.addEventListener("change", render);
+    render();
+}
+
+// =====================================================
+//  SINCRONIZACIÓN CON CENTRAL (ESQUELETO)
+// =====================================================
 
 async function sincronizarAgendaConCentral() {
-    const queue = getSyncQueue();
+    const queue = getSyncQueueAgenda();
     if (!queue.length) return;
 
-    // Esqueleto: se implementa cuando definamos el repo central
     const nuevaQueue = queue.map(item => ({
         ...item,
         estado: "simulado"
     }));
 
-    setSyncQueue(nuevaQueue);
+    setSyncQueueAgenda(nuevaQueue);
 }
 
-// -------------------- INICIALIZACIÓN AUTOMÁTICA --------------------
+// =====================================================
+//  DATOS DE PRUEBA AMPLIADOS — AGENDA
+// =====================================================
+
+function cargarDatosPruebaAgenda() {
+
+    const tareas = [
+        {
+            idTarea: generarIdUnico(),
+            idSucursal: ID_SUCURSAL,
+            titulo: "Llamar a proveedor",
+            tituloNorm: "llamar a proveedor",
+            descripcion: "Confirmar entrega de mercadería",
+            descripcionNorm: "confirmar entrega de mercadería",
+            fecha: "2026-01-12T12:00",
+            estado: "pendiente",
+            timestamp: ahoraTimestamp(),
+            version: 1,
+            estadoSync: "pendiente"
+        },
+        {
+            idTarea: generarIdUnico(),
+            idSucursal: ID_SUCURSAL,
+            titulo: "Revisar stock crítico",
+            tituloNorm: "revisar stock critico",
+            descripcion: "Producto Yerba por debajo del mínimo",
+            descripcionNorm: "producto yerba por debajo del minimo",
+            fecha: "2026-01-12T09:00",
+            estado: "pendiente",
+            timestamp: ahoraTimestamp(),
+            version: 1,
+            estadoSync: "pendiente"
+        },
+        {
+            idTarea: generarIdUnico(),
+            idSucursal: ID_SUCURSAL,
+            titulo: "Control de caja",
+            tituloNorm: "control de caja",
+            descripcion: "Verificar cierre del día anterior",
+            descripcionNorm: "verificar cierre del dia anterior",
+            fecha: "2026-01-11T18:00",
+            estado: "completada",
+            timestamp: ahoraTimestamp(),
+            version: 1,
+            estadoSync: "pendiente"
+        },
+        {
+            idTarea: generarIdUnico(),
+            idSucursal: ID_SUCURSAL,
+            titulo: "Seguimiento cliente frecuente",
+            tituloNorm: "seguimiento cliente frecuente",
+            descripcion: "Cliente Juan Pérez realizó 3 compras esta semana",
+            descripcionNorm: "cliente juan perez realizo 3 compras esta semana",
+            fecha: "2026-01-13T10:00",
+            estado: "pendiente",
+            timestamp: ahoraTimestamp(),
+            version: 1,
+            estadoSync: "pendiente"
+        }
+    ];
+
+    lsSet(KEY_AGENDA, tareas);
+}
+
+if (lsGet(KEY_AGENDA, []).length === 0) {
+    cargarDatosPruebaAgenda();
+}
+
+// =====================================================
+//  INICIALIZACIÓN AUTOMÁTICA
+// =====================================================
 
 document.addEventListener("DOMContentLoaded", () => {
     initAgendaListado();
     initAgendaNueva();
     initAgendaEditar();
+    initAgendaFiltros();
 
-    setInterval(sincronizarAgendaConCentral, SYNC_INTERVAL);
+    setInterval(sincronizarAgendaConCentral, SYNC_INTERVAL_AGENDA);
 });
