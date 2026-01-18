@@ -536,3 +536,153 @@ function obtenerTareasPorSucursal(sucursal = sucursalID) {
 function obtenerTodasLasTareas() {
     return Agenda.tareas;
 }
+
+/* ============================================================
+   BLOQUE 5 — FILTROS + NORMALIZACIÓN + MÉTRICAS + UTILIDADES
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1) NORMALIZAR TAREAS (asegura compatibilidad futura)
+   ------------------------------------------------------------ */
+
+function normalizarTarea(t) {
+    return {
+        id: t.id,
+        titulo: t.titulo || "",
+        descripcion: t.descripcion || "",
+        fecha: t.fecha || new Date().toISOString().split("T")[0],
+        estado: t.estado || "pendiente",
+        moduloOrigen: t.moduloOrigen || "agenda",
+        categoria: t.categoria || "general",
+        tipo: t.tipo || "tarea",
+        prioridad: t.prioridad || PRIORIDAD_POR_MODULO[t.moduloOrigen] || "media",
+        sucursal: t.sucursal || sucursalID,
+        metadata: t.metadata || {},
+        version: t.version || VERSION_AGENDA,
+        fechaCreacion: t.fechaCreacion || new Date().toISOString(),
+        fechaActualizacion: t.fechaActualizacion || new Date().toISOString()
+    };
+}
+
+
+/* ------------------------------------------------------------
+   2) FILTROS AVANZADOS
+   ------------------------------------------------------------ */
+
+function filtrarTareas({
+    estado = null,
+    fecha = null,
+    moduloOrigen = null,
+    categoria = null,
+    prioridad = null,
+    tipo = null,
+    sucursal = null
+} = {}) {
+
+    return Agenda.tareas.filter(t => {
+
+        if (estado && t.estado !== estado) return false;
+        if (fecha && t.fecha !== fecha) return false;
+        if (moduloOrigen && t.moduloOrigen !== moduloOrigen) return false;
+        if (categoria && t.categoria !== categoria) return false;
+        if (prioridad && t.prioridad !== prioridad) return false;
+        if (tipo && t.tipo !== tipo) return false;
+        if (sucursal && t.sucursal !== sucursal) return false;
+
+        return true;
+    });
+}
+
+
+/* ------------------------------------------------------------
+   3) FILTROS RÁPIDOS (ATAJOS PARA EL DASHBOARD)
+   ------------------------------------------------------------ */
+
+function obtenerPendientes() {
+    return filtrarTareas({ estado: "pendiente" });
+}
+
+function obtenerCompletadas() {
+    return filtrarTareas({ estado: "completada" });
+}
+
+function obtenerCriticas() {
+    return filtrarTareas({ prioridad: "alta", estado: "pendiente" });
+}
+
+function obtenerPorModulo(modulo) {
+    return filtrarTareas({ moduloOrigen: modulo });
+}
+
+function obtenerPorSucursal(suc) {
+    return filtrarTareas({ sucursal: suc });
+}
+
+
+/* ------------------------------------------------------------
+   4) MÉTRICAS PARA EL DASHBOARD
+   ------------------------------------------------------------ */
+
+function obtenerMetricasAgenda() {
+    const pendientes = obtenerPendientes().length;
+    const completadas = obtenerCompletadas().length;
+    const criticas = obtenerCriticas().length;
+
+    // Métricas por módulo
+    const porModulo = {};
+    for (const mod of MODULOS_ORIGEN) {
+        porModulo[mod] = obtenerPorModulo(mod).length;
+    }
+
+    // Métricas por sucursal (solo en central)
+    const porSucursal = {};
+    if (sucursalID === "central") {
+        const sucursales = ["central", "sucursal1", "sucursal2", "sucursal3"];
+        for (const s of sucursales) {
+            porSucursal[s] = obtenerPorSucursal(s).length;
+        }
+    }
+
+    return {
+        pendientes,
+        completadas,
+        criticas,
+        porModulo,
+        porSucursal
+    };
+}
+
+
+/* ------------------------------------------------------------
+   5) ORDENAMIENTO (para listados y dashboard)
+   ------------------------------------------------------------ */
+
+function ordenarTareasPorFecha(lista) {
+    return lista.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+}
+
+function ordenarTareasPorPrioridad(lista) {
+    const orden = { alta: 1, media: 2, baja: 3 };
+    return lista.sort((a, b) => orden[a.prioridad] - orden[b.prioridad]);
+}
+
+
+/* ------------------------------------------------------------
+   6) PREPARACIÓN PARA WIDGETS FUTUROS DEL DASHBOARD
+   ------------------------------------------------------------ */
+
+const widgetsAgenda = [];
+
+function registrarWidgetAgenda(nombre, callbackRender) {
+    widgetsAgenda.push({ nombre, callbackRender });
+}
+
+function renderizarWidgetsAgenda(contenedor) {
+    widgetsAgenda.forEach(w => {
+        const div = document.createElement("div");
+        div.className = "widget-agenda";
+        div.innerHTML = `<h3>${w.nombre}</h3>`;
+        div.appendChild(w.callbackRender());
+        contenedor.appendChild(div);
+    });
+}
