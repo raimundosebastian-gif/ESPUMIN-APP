@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Agenda – Nueva tarea</title>
+    <link rel="stylesheet" href="../style.css">
+    <script src="agenda.js" defer></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            initNuevaAgenda();
+        });
+    </script>
+</head>
+<body>
+    <header class="erp-header">
+        <h1>Nueva tarea / evento</h1>
+        <nav>
+            <a href="dashboard-agenda.html">Dashboard</a> |
+            <a href="listado-agenda.html">Listado</a> |
+            <a href="../dashboard.html">Dashboard general</a>
+        </nav>
+    </header>
+
+    <main class="erp-main">
+        <section class="erp-panel">
+            <h2>Crear nueva entrada en Agenda</h2>
+
+            <form id="formNuevaAgenda" class="erp-form">
+                <label>
+                    Título:
+                    <input type="text" name="titulo" required>
+                </label>
+
+                <label>
+                    Descripción:
+                    <textarea name="descripcion" required></textarea>
+                </label>
+
+                <label>
+                    Fecha:
+                    <input type="date" name="fecha" required>
+                </label>
+
+                <label>
+                    Módulo origen:
+                    <select name="moduloOrigen" required>
+                        <option value="agenda">Agenda</option>
+                        <option value="ventas">Ventas</option>
+                        <option value="inventario">Inventario</option>
+                        <option value="proveedores">Proveedores</option>
+                        <option value="compras">Compras</option>
+                        <option value="produccion">Producción</option>
+                        <option value="caja">Caja</option>
+                        <option value="auditoria">Auditoría</option>
+                    </select>
+                </label>
+
+                <label>
+                    Categoría:
+                    <select name="categoria" required>
+                        <option value="general">General</option>
+                        <option value="control">Control</option>
+                        <option value="seguimiento">Seguimiento</option>
+                        <option value="stock">Stock</option>
+                        <option value="cobranza">Cobranza</option>
+                        <option value="compra">Compra</option>
+                        <option value="auditoria">Auditoría</option>
+                        <option value="produccion">Producción</option>
+                        <option value="proveedor">Proveedor</option>
+                    </select>
+                </label>
+
+                <label>
+                    Tipo:
+                    <select name="tipo" required>
+                        <option value="tarea">Tarea</option>
+                        <option value="alerta">Alerta</option>
+                        <option value="evento">Evento</option>
+                        <option value="recordatorio">Recordatorio</option>
+                    </select>
+                </label>
+
+                <button type="submit" class="erp-btn">Crear</button>
+            </form>
+        </section>
+    </main>
+</body>
+</html>
