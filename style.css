@@ -20,6 +20,12 @@ h3 {
   margin-top: 0;
 }
 
+/* 🔥 Ajuste visual para separar el título del menú */
+h1 {
+  margin-top: 25px;
+  text-align: center;
+}
+
 /* Contenedor principal genérico */
 .modulo-container {
   max-width: 1100px;
@@ -62,12 +68,12 @@ h3 {
    ============================================================ */
 
 .menu-links {
-  background: #1976d2; /* Fondo propio */
-  padding: 10px 15px;
+  background: #1976d2;
+  padding: 12px 15px;
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  justify-content: center; /* Centrado */
+  justify-content: center;
 }
 
 .menu-links a {
@@ -177,7 +183,7 @@ tr:hover {
 
 .dashboard-container {
   max-width: 600px;
-  margin: 20px auto;
+  margin: 35px auto; /* 🔥 Más aire debajo del menú */
 }
 
 .module {
