@@ -10,18 +10,56 @@
   </head>
 
   <body>
-    <!-- ============================
-     MENÚ SUPERIOR (FRAGMENTO)
-============================ -->
-    <div id="menu-container"></div>
+    <!-- ============================================================
+         SIDEBAR OSCURO (REEMPLAZA AL MENÚ SUPERIOR)
+    ============================================================ -->
 
-    <script>
-      fetch("menu-fragment.html")
-        .then((response) => response.text())
-        .then((html) => {
-          document.getElementById("menu-container").innerHTML = html;
-        });
-    </script>
+    <!-- BOTÓN PARA ABRIR/CERRAR SIDEBAR -->
+    <button id="sidebarToggle" class="sidebar-toggle">☰</button>
+
+    <!-- SIDEBAR OSCURO -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">ESPUMIN ERP</span>
+        <button id="closeSidebar" class="close-btn">✕</button>
+      </div>
+
+      <nav class="sidebar-links">
+        <a href="dashboard.html">📊 Dashboard</a>
+        <a href="productos.html">📦 Productos</a>
+        <a href="precios.html">💲 Precios</a>
+
+        <a href="clientes.html">👥 Clientes</a>
+        <a href="proveedores.html">🏭 Proveedores</a>
+
+        <a href="inventario.html">📦 Inventario</a>
+        <a href="ventas.html">💰 Ventas</a>
+        <a href="compras.html">🛒 Compras</a>
+        <a href="logistica.html">🚚 Logística</a>
+
+        <a href="agenda.html">📅 Agenda</a>
+        <a href="caja.html">💵 Caja</a>
+
+        <a href="cuentas-clientes.html">📘 Ctas. Clientes</a>
+        <a href="cuentas-proveedores.html">📙 Ctas. Proveedores</a>
+
+        <a href="impuestos.html">📄 Impuestos</a>
+        <a href="reportes.html">📊 Reportes</a>
+        <a href="backups.html">💾 Backups</a>
+
+        <a href="configuracion.html">⚙️ Configuración</a>
+        <a href="usuarios.html">🔐 Usuarios</a>
+        <a href="notificaciones.html">🔔 Notificaciones</a>
+        <a href="auditoria.html">📝 Auditoría</a>
+      </nav>
+    </aside>
+
+    <!-- OVERLAY PARA CUANDO EL SIDEBAR ESTÁ ABIERTO -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <!-- ============================================================
+         CONTENIDO PRINCIPAL
+    ============================================================ -->
 
     <h1>Dashboard</h1>
 
@@ -195,11 +233,13 @@
       </div>
     </div>
 
+    <!-- ============================================================
+         SCRIPTS
+    ============================================================ -->
+
     <script>
       document.addEventListener("DOMContentLoaded", () => {
-        /* ============================
-       1. CONTROL DE ROLES
-    ============================ */
+        /* CONTROL DE ROLES */
         const userRole = localStorage.getItem("userRole");
 
         document.querySelectorAll(".module").forEach((module) => {
@@ -209,9 +249,7 @@
           }
         });
 
-        /* ============================
-       2. LÓGICA DROPDOWN
-    ============================ */
+        /* LÓGICA DROPDOWN */
         const modules = document.querySelectorAll(".module:not(.hidden)");
 
         modules.forEach((module) => {
@@ -238,6 +276,7 @@
         });
       });
     </script>
+
     <script src="sidebar.js"></script>
   </body>
 </html>
