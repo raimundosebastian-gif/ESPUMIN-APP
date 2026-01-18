@@ -226,3 +226,159 @@ function guardarAgenda() {
 function guardarSyncQueue() {
     localStorage.setItem(KEY_SYNC_AGENDA, JSON.stringify(Agenda.syncQueue));
 }
+
+/* ============================================================
+   BLOQUE 3 — DATOS DE PRUEBA (MULTISUCURSAL + MULTIMÓDULO)
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1) GENERAR DATOS DE PRUEBA SOLO SI NO EXISTEN
+   ------------------------------------------------------------ */
+
+function generarDatosPruebaAgenda() {
+    if (Agenda.tareas.length > 0) {
+        console.log("Agenda: datos existentes detectados, no se generan datos de prueba.");
+        return;
+    }
+
+    console.log("Agenda: generando datos de prueba...");
+
+    const hoy = new Date();
+    const mañana = new Date(Date.now() + 86400000);
+    const ayer = new Date(Date.now() - 86400000);
+
+    const fechaISO = (f) => f.toISOString().split("T")[0];
+
+    const datos = [
+
+        /* --------------------------------------------------------
+           TAREAS DE VENTAS (PRIORIDAD MEDIA)
+           -------------------------------------------------------- */
+        crearObjetoAgenda({
+            titulo: "Llamar a cliente por presupuesto pendiente",
+            descripcion: "Cliente solicitó actualización del presupuesto enviado ayer.",
+            fecha: fechaISO(mañana),
+            moduloOrigen: "ventas",
+            categoria: "seguimiento",
+            tipo: "tarea",
+            sucursal: sucursalID
+        }),
+
+        crearObjetoAgenda({
+            titulo: "Confirmar entrega de venta #1023",
+            descripcion: "Verificar disponibilidad de transporte.",
+            fecha: fechaISO(hoy),
+            moduloOrigen: "ventas",
+            categoria: "control",
+            tipo: "evento",
+            sucursal: sucursalID
+        }),
+
+        /* --------------------------------------------------------
+           ALERTAS DE INVENTARIO (PRIORIDAD MEDIA / ALTA)
+           -------------------------------------------------------- */
+        crearObjetoAgenda({
+            titulo: "Stock crítico: Espuma 250ml",
+            descripcion: "El inventario reporta menos de 10 unidades.",
+            fecha: fechaISO(hoy),
+            moduloOrigen: "inventario",
+            categoria: "stock",
+            tipo: "alerta",
+            sucursal: sucursalID
+        }),
+
+        crearObjetoAgenda({
+            titulo: "Revisión de lote vencido",
+            descripcion: "Control de vencimientos en depósito.",
+            fecha: fechaISO(ayer),
+            moduloOrigen: "inventario",
+            categoria: "control",
+            tipo: "tarea",
+            sucursal: sucursalID
+        }),
+
+        /* --------------------------------------------------------
+           PROVEEDORES (PRIORIDAD MEDIA)
+           -------------------------------------------------------- */
+        crearObjetoAgenda({
+            titulo: "Llamar a proveedor por demora",
+            descripcion: "Pedido #554 no llegó en fecha.",
+            fecha: fechaISO(mañana),
+            moduloOrigen: "proveedores",
+            categoria: "seguimiento",
+            tipo: "tarea",
+            sucursal: sucursalID
+        }),
+
+        /* --------------------------------------------------------
+           COMPRAS (PRIORIDAD MEDIA)
+           -------------------------------------------------------- */
+        crearObjetoAgenda({
+            titulo: "Aprobar orden de compra #889",
+            descripcion: "Revisión de precios y cantidades.",
+            fecha: fechaISO(hoy),
+            moduloOrigen: "compras",
+            categoria: "compra",
+            tipo: "evento",
+            sucursal: sucursalID
+        }),
+
+        /* --------------------------------------------------------
+           PRODUCCIÓN (PRIORIDAD ALTA)
+           -------------------------------------------------------- */
+        crearObjetoAgenda({
+            titulo: "Control de producción: lote 2201",
+            descripcion: "Verificar parámetros de calidad.",
+            fecha: fechaISO(hoy),
+            moduloOrigen: "produccion",
+            categoria: "produccion",
+            tipo: "tarea",
+            sucursal: sucursalID
+        }),
+
+        /* --------------------------------------------------------
+           CAJA (PRIORIDAD ALTA)
+           -------------------------------------------------------- */
+        crearObjetoAgenda({
+            titulo: "Conciliación diaria de caja",
+            descripcion: "Control de ingresos y egresos.",
+            fecha: fechaISO(hoy),
+            moduloOrigen: "caja",
+            categoria: "control",
+            tipo: "tarea",
+            sucursal: sucursalID
+        }),
+
+        /* --------------------------------------------------------
+           AUDITORÍA (PRIORIDAD ALTA)
+           -------------------------------------------------------- */
+        crearObjetoAgenda({
+            titulo: "Auditoría interna mensual",
+            descripcion: "Revisión de procesos y documentación.",
+            fecha: fechaISO(mañana),
+            moduloOrigen: "auditoria",
+            categoria: "auditoria",
+            tipo: "evento",
+            sucursal: sucursalID
+        }),
+
+        /* --------------------------------------------------------
+           TAREAS GENERALES (PRIORIDAD BAJA)
+           -------------------------------------------------------- */
+        crearObjetoAgenda({
+            titulo: "Reunión de equipo",
+            descripcion: "Planificación semanal.",
+            fecha: fechaISO(mañana),
+            moduloOrigen: "agenda",
+            categoria: "general",
+            tipo: "evento",
+            sucursal: sucursalID
+        })
+    ];
+
+    Agenda.tareas = datos;
+    guardarAgenda();
+}
+
+generarDatosPruebaAgenda();
+
