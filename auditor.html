@@ -24,12 +24,18 @@
   <div id="results"></div>
 
   <script>
-    // 🔧 CONFIGURACIÓN: ajustá rutas si algo cambia
+    // 🔧 CONFIGURACIÓN PRINCIPAL
+    // Ajustá solo esta sección si cambia algún nombre de archivo
+
     const modules = [
       {
         name: "Agenda",
         pages: [
-          { label: "Agenda principal", path: "agenda.html" }
+          { label: "Listado agenda",   path: "listado-agenda.html" },
+          { label: "Nueva agenda",     path: "nueva-agenda.html" },
+          { label: "Editar agenda",    path: "editar-agenda.html" },
+          { label: "Detalle agenda",   path: "detalle-agenda.html" },
+          { label: "Dashboard agenda", path: "dashboard-agenda.html" } // si no existe, solo marcará error en esa línea
         ],
         requiredScripts: ["agenda.js"],
         requiredSelectors: [
@@ -40,11 +46,11 @@
       {
         name: "Inventario",
         pages: [
-          { label: "Listado inventario", path: "listado-inventario.html" },
-          { label: "Ingreso inventario", path: "ingreso-inventario.html" },
-          { label: "Salida inventario", path: "salida-inventario.html" },
-          { label: "Movimientos inventario", path: "movimientos-inventario.html" },
-          { label: "Kardex", path: "kardex.html" }
+          { label: "Listado inventario",    path: "listado-inventario.html" },
+          { label: "Ingreso inventario",    path: "ingreso-inventario.html" },
+          { label: "Salida inventario",     path: "salida-inventario.html" },
+          { label: "Movimientos inventario",path: "movimientos-inventario.html" },
+          { label: "Kardex",                path: "kardex.html" }
         ],
         requiredScripts: ["inventario.js"],
         requiredSelectors: [
@@ -55,9 +61,11 @@
       {
         name: "Ventas",
         pages: [
-          { label: "Listado ventas", path: "listado-ventas.html" },
-          { label: "Nueva venta", path: "nueva-venta.html" },
-          { label: "Movimientos ventas", path: "movimientos-ventas.html" }
+          { label: "Listado ventas",   path: "listado-ventas.html" },
+          { label: "Nueva venta",      path: "nueva-venta.html" },
+          { label: "Editar venta",     path: "editar-venta.html" },
+          { label: "Detalle venta",    path: "detalle-venta.html" },
+          { label: "Dashboard ventas", path: "dashboard-ventas.html" } // idem: si no existe, solo marca error
         ],
         requiredScripts: ["ventas.js"],
         requiredSelectors: [
