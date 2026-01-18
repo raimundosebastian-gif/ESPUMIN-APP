@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Agenda – Dashboard</title>
+    <link rel="stylesheet" href="../style.css">
+    <script src="agenda.js" defer></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            initDashboardAgenda();
+
+            const formNombre = document.getElementById("formNombreSucursal");
+            if (formNombre) {
+                formNombre.nombreSucursal.value = nombreSucursal;
+                formNombre.addEventListener("submit", e => {
+                    e.preventDefault();
+                    setNombreSucursal(formNombre.nombreSucursal.value);
+                    alert("Nombre de sucursal actualizado");
+                    location.reload();
+                });
+            }
+        });
+    </script>
+</head>
+<body>
+    <header class="erp-header">
+        <h1>Agenda – Dashboard</h1>
+        <p id="infoSucursalAgenda" class="erp-subtitle"></p>
+        <nav>
+            <a href="../dashboard.html">Dashboard general</a> |
+            <a href="listado-agenda.html">Listado</a> |
+            <a href="nueva-agenda.html">Nueva tarea</a>
+        </nav>
+    </header>
+
+    <main class="erp-main">
+        <section class="erp-panel">
+            <h2>Métricas principales</h2>
+            <div class="erp-metricas">
+                <div class="erp-metrica">
+                    <span class="label">Pendientes</span>
+                    <span id="metricasPendientes" class="valor">0</span>
+                </div>
+                <div class="erp-metrica">
+                    <span class="label">Completadas</span>
+                    <span id="metricasCompletadas" class="valor">0</span>
+                </div>
+                <div class="erp-metrica">
+                    <span class="label">Críticas</span>
+                    <span id="metricasCriticas" class="valor">0</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="erp-panel">
+            <h2>Nombre visible de la sucursal</h2>
+            <form id="formNombreSucursal" class="erp-form-inline">
+                <label>
+                    Nombre visible:
+                    <input type="text" name="nombreSucursal" required>
+                </label>
+                <button type="submit">Guardar</button>
+            </form>
+            <p class="erp-hint">
+                Este nombre se usa en todo el ERP (informes, papelería, dashboards).
+            </p>
+        </section>
+
+        <section class="erp-panel">
+            <h2>Métricas por módulo</h2>
+            <ul id="metricasPorModulo" class="erp-lista-simple"></ul>
+        </section>
+
+        <section class="erp-panel" id="panelPorSucursal">
+            <h2>Métricas por sucursal (solo central)</h2>
+            <ul id="metricasPorSucursal" class="erp-lista-simple"></ul>
+        </section>
+
+        <section class="erp-panel">
+            <h2>Widgets de Agenda</h2>
+            <div id="widgetsAgenda" class="erp-widgets"></div>
+        </section>
+    </main>
+</body>
+</html>
