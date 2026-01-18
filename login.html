@@ -1,39 +1,48 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ESPUMIN - Login</title>
-    <link rel="stylesheet" href="style.css">
-</head>
+    <link rel="stylesheet" href="style.css" />
+  </head>
 
-<body class="login-body">
-
+  <body class="login-body">
     <main class="login-container">
-        <h1>ESPUMIN ERP</h1>
-        <h2>Iniciar Sesión</h2>
+      <h1 class="login-title">ESPUMIN ERP</h1>
+      <h2 class="login-subtitle">Iniciar Sesión</h2>
 
-        <section class="form-section">
+      <section class="form-section">
+        <label for="usuario">Usuario</label>
+        <input
+          type="text"
+          id="usuario"
+          placeholder="Ingrese su usuario"
+          autocomplete="username"
+        />
 
-            <label for="usuario">Usuario</label>
-            <input type="text" id="usuario" placeholder="Ingrese su usuario">
+        <label for="clave">Contraseña</label>
+        <div class="clave-wrapper">
+          <input
+            type="password"
+            id="clave"
+            placeholder="Ingrese su contraseña"
+            autocomplete="current-password"
+          />
+          <button type="button" id="toggleClave" class="btn-secundario">
+            👁
+          </button>
+        </div>
 
-            <label for="clave">Contraseña</label>
-            <div class="clave-wrapper">
-                <input type="password" id="clave" placeholder="Ingrese su contraseña">
-                <button type="button" id="toggleClave" class="btn-secundario">Mostrar</button>
-            </div>
+        <label class="recordar-label">
+          <input type="checkbox" id="recordar" /> Recordar usuario
+        </label>
 
-            <label class="recordar-label">
-                <input type="checkbox" id="recordar"> Recordar usuario
-            </label>
-
-            <button id="loginBtn">Ingresar</button>
-        </section>
+        <button id="loginBtn" class="btn-principal">Ingresar</button>
+      </section>
     </main>
 
     <script src="js/core.js"></script>
     <script src="js/login.js"></script>
-
-</body>
+  </body>
 </html>

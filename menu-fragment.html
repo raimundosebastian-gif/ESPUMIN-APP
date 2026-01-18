@@ -1,7 +1,7 @@
 <!-- BOTÓN PARA ABRIR/CERRAR SIDEBAR -->
 <button id="sidebarToggle" class="sidebar-toggle">☰</button>
 
-<!-- SIDEBAR OSCURO -->
+<!-- SIDEBAR OSCURO UNIFICADO -->
 <aside id="sidebar" class="sidebar">
   <div class="sidebar-header">
     <span class="sidebar-title">ESPUMIN ERP</span>
@@ -9,34 +9,59 @@
   </div>
 
   <nav class="sidebar-links">
-    <a href="dashboard.html">📊 Dashboard</a>
-    <a href="productos.html">📦 Productos</a>
-    <a href="precios.html">💲 Precios</a>
+    <!-- PANEL PRINCIPAL -->
+    <div class="sidebar-group">
+      <button class="group-btn">📊 Panel Principal ▾</button>
+      <div class="group-content">
+        <a href="dashboard.html">📊 Dashboard</a>
+      </div>
+    </div>
 
-    <a href="clientes.html">👥 Clientes</a>
-    <a href="proveedores.html">🏭 Proveedores</a>
+    <!-- OPERACIONES -->
+    <div class="sidebar-group">
+      <button class="group-btn">⚙️ Operaciones ▾</button>
+      <div class="group-content">
+        <a href="inventario.html">📦 Inventario</a>
+        <a href="ventas.html">💰 Ventas</a>
+        <a href="compras.html">🛒 Compras</a>
+        <a href="logistica.html">🚚 Logística</a>
+        <a href="produccion.html">🏭 Producción</a>
+      </div>
+    </div>
 
-    <a href="inventario.html">📦 Inventario</a>
-    <a href="ventas.html">💰 Ventas</a>
-    <a href="compras.html">🛒 Compras</a>
-    <a href="logistica.html">🚚 Logística</a>
+    <!-- PERSONAS -->
+    <div class="sidebar-group">
+      <button class="group-btn">👥 Personas ▾</button>
+      <div class="group-content">
+        <a href="clientes.html">👥 Clientes</a>
+        <a href="proveedores.html">🏭 Proveedores</a>
+        <a href="usuarios.html">🔐 Usuarios</a>
+      </div>
+    </div>
 
-    <a href="agenda.html">📅 Agenda</a>
-    <a href="caja.html">💵 Caja</a>
+    <!-- FINANZAS -->
+    <div class="sidebar-group">
+      <button class="group-btn">💵 Finanzas ▾</button>
+      <div class="group-content">
+        <a href="caja.html">💵 Caja</a>
+        <a href="cuentas-clientes.html">📘 Ctas. Clientes</a>
+        <a href="cuentas-proveedores.html">📙 Ctas. Proveedores</a>
+        <a href="impuestos.html">📄 Impuestos</a>
+      </div>
+    </div>
 
-    <a href="cuentas-clientes.html">📘 Ctas. Clientes</a>
-    <a href="cuentas-proveedores.html">📙 Ctas. Proveedores</a>
-
-    <a href="impuestos.html">📄 Impuestos</a>
-    <a href="reportes.html">📊 Reportes</a>
-    <a href="backups.html">💾 Backups</a>
-
-    <a href="configuracion.html">⚙️ Configuración</a>
-    <a href="usuarios.html">🔐 Usuarios</a>
-    <a href="notificaciones.html">🔔 Notificaciones</a>
-    <a href="auditoria.html">📝 Auditoría</a>
+    <!-- SISTEMA -->
+    <div class="sidebar-group">
+      <button class="group-btn">🖥️ Sistema ▾</button>
+      <div class="group-content">
+        <a href="configuracion.html">⚙️ Configuración</a>
+        <a href="backups.html">💾 Backups</a>
+        <a href="notificaciones.html">🔔 Notificaciones</a>
+        <a href="auditoria.html">📝 Auditoría</a>
+      </div>
+    </div>
   </nav>
 </aside>
 
-<!-- OVERLAY PARA CUANDO EL SIDEBAR ESTÁ ABIERTO -->
+<!-- OVERLAY -->
 <div id="sidebarOverlay" class="sidebar-overlay"></div>
