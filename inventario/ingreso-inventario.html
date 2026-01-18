@@ -8,25 +8,24 @@
 </head>
 <body>
 
-    <div class="container">
-        <h1>Ingreso de Inventario</h1>
+<div class="container">
+    <h1>Ingreso de Inventario</h1>
 
-        <form id="formIngreso">
-            <label>Producto:</label>
-            <input type="text" id="producto" required>
+    <form id="formIngreso">
+        <label>Producto:</label>
+        <input type="text" id="producto" required>
 
-            <label>Categoría:</label>
-            <input type="text" id="categoria" required>
+        <label>Categoría:</label>
+        <input type="text" id="categoria" required>
 
-            <label>Cantidad ingresada:</label>
-            <input type="number" id="cantidad" required>
+        <label>Cantidad:</label>
+        <input type="number" id="cantidad" min="1" required>
 
-            <button type="submit" class="btn-primario">Registrar ingreso</button>
-        </form>
+        <button class="btn-primario" type="submit">Registrar ingreso</button>
+        <button class="btn-volver" type="button" onclick="window.location.href='listado-inventario.html'">Volver</button>
+    </form>
+</div>
 
-        <button onclick="window.location.href='../menu.html'" class="btn-volver">Volver al menú</button>
-    </div>
-
-    <script src="ingreso.js"></script>
+<script src="inventario.js"></script>
 </body>
 </html>
