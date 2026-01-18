@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Agenda – Listado</title>
+    <link rel="stylesheet" href="../style.css">
+    <script src="agenda.js" defer></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            initListadoAgenda();
+        });
+    </script>
+</head>
+<body>
+    <header class="erp-header">
+        <h1>Agenda – Listado</h1>
+        <nav>
+            <a href="dashboard-agenda.html">Dashboard</a> |
+            <a href="nueva-agenda.html">Nueva tarea</a> |
+            <a href="../dashboard.html">Dashboard general</a>
+        </nav>
+    </header>
+
+    <main class="erp-main">
+        <section class="erp-panel">
+            <h2>Todas las tareas</h2>
+
+            <table class="erp-tabla" id="tablaAgenda">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Título</th>
+                        <th>Módulo</th>
+                        <th>Categoría</th>
+                        <th>Prioridad</th>
+                        <th>Estado</th>
+                        <th>Sucursal</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- initListadoAgenda() llena esta tabla -->
+                </tbody>
+            </table>
+        </section>
+    </main>
+</body>
+</html>
