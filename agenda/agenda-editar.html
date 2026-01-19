@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Editar Turno - Agenda</title>
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+
+  <body>
+    <button id="sidebarToggle" class="sidebar-toggle">☰</button>
+    <aside id="sidebar" class="sidebar"></aside>
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <header class="top-header">
+      <div class="header-left">
+        <span id="headerGreeting">Hola</span>,
+        <span id="headerUser" class="header-user"></span>
+      </div>
+      <div class="header-right">
+        <div class="user-avatar" id="userAvatar">U</div>
+      </div>
+    </header>
+
+    <h1 class="dashboard-title">Editar Turno</h1>
+
+    <div class="module-container">
+      <form class="form-grid">
+        <label>Fecha</label>
+        <input type="date" value="2025-03-12" required />
+
+        <label>Hora</label>
+        <input type="time" value="10:00" required />
+
+        <label>Sucursal</label>
+        <select required>
+          <option selected>Pergamino</option>
+          <option>Rosario</option>
+          <option>Buenos Aires</option>
+        </select>
+
+        <label>Cliente</label>
+        <input type="text" value="Juan Pérez" required />
+
+        <label>Teléfono</label>
+        <input type="text" value="2477-123456" />
+
+        <label>Responsable</label>
+        <select>
+          <option selected>María</option>
+          <option>Carlos</option>
+          <option>Lucía</option>
+        </select>
+
+        <label>Tipo de turno</label>
+        <select>
+          <option selected>Visita</option>
+          <option>Entrega</option>
+          <option>Reunión</option>
+          <option>Servicio</option>
+        </select>
+
+        <label>Estado</label>
+        <select>
+          <option>Pendiente</option>
+          <option selected>Confirmado</option>
+          <option>Cancelado</option>
+        </select>
+
+        <label>Notas</label>
+        <textarea rows="4">
+Cliente solicitó confirmación por WhatsApp.</textarea
+        >
+
+        <button class="btn-primary">Guardar Cambios</button>
+      </form>
+    </div>
+
+    <script src="../sidebar.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const user = localStorage.getItem("usuario") || "Usuario";
+        const hour = new Date().getHours();
+        let greeting =
+          hour < 12
+            ? "Buenos días"
+            : hour < 19
+              ? "Buenas tardes"
+              : "Buenas noches";
+        document.getElementById("headerGreeting").textContent = greeting;
+        document.getElementById("headerUser").textContent = user;
+        document.getElementById("userAvatar").textContent = user
+          .charAt(0)
+          .toUpperCase();
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Listado - Logística</title>
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+
+  <body>
+    <button id="sidebarToggle" class="sidebar-toggle">☰</button>
+    <aside id="sidebar" class="sidebar"></aside>
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <header class="top-header">
+      <div class="header-left">
+        <span id="headerGreeting">Hola</span>,
+        <span id="headerUser" class="header-user"></span>
+      </div>
+      <div class="header-right">
+        <div class="user-avatar" id="userAvatar">U</div>
+      </div>
+    </header>
+
+    <h1 class="dashboard-title">Movimientos Logísticos</h1>
+
+    <div class="module-container">
+      <!-- FILTROS -->
+      <div class="filters">
+        <input type="date" />
+
+        <select>
+          <option value="">Tipo</option>
+          <option>Envío</option>
+          <option>Recepción</option>
+          <option>Traslado</option>
+        </select>
+
+        <select>
+          <option value="">Estado</option>
+          <option>Pendiente</option>
+          <option>En tránsito</option>
+          <option>Entregado</option>
+          <option>Demorado</option>
+          <option>Cancelado</option>
+        </select>
+
+        <input type="text" placeholder="Buscar chofer..." />
+
+        <button class="btn-primary">Filtrar</button>
+      </div>
+
+      <!-- TABLA -->
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Tipo</th>
+            <th>Origen</th>
+            <th>Destino</th>
+            <th>Chofer</th>
+            <th>Vehículo</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td>2025-03-10</td>
+            <td><span class="badge badge-blue">Envío</span></td>
+            <td>Pergamino</td>
+            <td>Rosario</td>
+            <td>Martín López</td>
+            <td>Camión 312</td>
+            <td><span class="badge badge-yellow">En tránsito</span></td>
+            <td>
+              <a href="logistica-editar.html" class="table-btn">✏️</a>
+            </td>
+          </tr>
+
+          <tr>
+            <td>2025-03-11</td>
+            <td><span class="badge badge-green">Recepción</span></td>
+            <td>Buenos Aires</td>
+            <td>Pergamino</td>
+            <td>Lucía Torres</td>
+            <td>Furgón 22</td>
+            <td><span class="badge badge-green">Entregado</span></td>
+            <td>
+              <a href="logistica-editar.html" class="table-btn">✏️</a>
+            </td>
+          </tr>
+
+          <tr>
+            <td>2025-03-12</td>
+            <td><span class="badge badge-purple">Traslado</span></td>
+            <td>Pergamino</td>
+            <td>Buenos Aires</td>
+            <td>Carlos Méndez</td>
+            <td>Camioneta 18</td>
+            <td><span class="badge badge-red">Demorado</span></td>
+            <td>
+              <a href="logistica-editar.html" class="table-btn">✏️</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <script src="../sidebar.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const user = localStorage.getItem("usuario") || "Usuario";
+        const hour = new Date().getHours();
+        let greeting =
+          hour < 12
+            ? "Buenos días"
+            : hour < 19
+              ? "Buenas tardes"
+              : "Buenas noches";
+        document.getElementById("headerGreeting").textContent = greeting;
+        document.getElementById("headerUser").textContent = user;
+        document.getElementById("userAvatar").textContent = user
+          .charAt(0)
+          .toUpperCase();
+      });
+    </script>
+  </body>
+</html>

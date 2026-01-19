@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Clientes - ESPUMIN APP</title>
+
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+
+  <body>
+    <!-- ============================================================
+         SIDEBAR OSCURO (UNIFICADO)
+    ============================================================ -->
+    <button id="sidebarToggle" class="sidebar-toggle">☰</button>
+
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">ESPUMIN ERP</span>
+        <button id="closeSidebar" class="close-btn">✕</button>
+      </div>
+
+      <nav class="sidebar-links">
+        <!-- PANEL PRINCIPAL -->
+        <div class="sidebar-group">
+          <button class="group-btn">📊 Panel Principal ▾</button>
+          <div class="group-content">
+            <a href="../dashboard.html">📊 Dashboard</a>
+          </div>
+        </div>
+
+        <!-- OPERACIONES -->
+        <div class="sidebar-group">
+          <button class="group-btn">⚙️ Operaciones ▾</button>
+          <div class="group-content">
+            <a href="../inventario/inventario.html">📦 Inventario</a>
+            <a href="../ventas/ventas.html">💰 Ventas</a>
+            <a href="../compras/compras.html">🛒 Compras</a>
+            <a href="../logistica/logistica.html">🚚 Logística</a>
+            <a href="../produccion/produccion.html">🏭 Producción</a>
+          </div>
+        </div>
+
+        <!-- PERSONAS -->
+        <div class="sidebar-group">
+          <button class="group-btn">👥 Personas ▾</button>
+          <div class="group-content">
+            <a href="../clientes/clientes.html">👥 Clientes</a>
+            <a href="../proveedores/proveedores.html">🏭 Proveedores</a>
+            <a href="../usuarios/usuarios.html">🔐 Usuarios</a>
+          </div>
+        </div>
+
+        <!-- FINANZAS -->
+        <div class="sidebar-group">
+          <button class="group-btn">💵 Finanzas ▾</button>
+          <div class="group-content">
+            <a href="../caja/caja.html">💵 Caja</a>
+            <a href="../cuentas-clientes/index.html">📘 Ctas. Clientes</a>
+            <a href="../cuentas-proveedores/index.html">📙 Ctas. Proveedores</a>
+            <a href="../impuestos/index.html">📄 Impuestos</a>
+          </div>
+        </div>
+
+        <!-- SISTEMA -->
+        <div class="sidebar-group">
+          <button class="group-btn">🖥️ Sistema ▾</button>
+          <div class="group-content">
+            <a href="../configuracion/index.html">⚙️ Configuración</a>
+            <a href="../backups/index.html">💾 Backups</a>
+            <a href="../notificaciones/index.html">🔔 Notificaciones</a>
+            <a href="../auditoria/index.html">📝 Auditoría</a>
+          </div>
+        </div>
+      </nav>
+    </aside>
+
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <!-- ============================================================
+         HEADER SUPERIOR
+    ============================================================ -->
+    <header class="top-header">
+      <div class="header-left">
+        <span id="headerGreeting">Hola</span>,
+        <span id="headerUser" class="header-user"></span>
+      </div>
+
+      <div class="header-right">
+        <div class="user-avatar" id="userAvatar">U</div>
+      </div>
+    </header>
+
+    <!-- ============================================================
+         CONTENIDO PRINCIPAL
+    ============================================================ -->
+
+    <h1 class="dashboard-title">Clientes</h1>
+
+    <div class="cards-container">
+      <a href="listado.html" class="dash-card">
+        <div class="card-icon">📋</div>
+        <div class="card-title">Listado</div>
+        <div class="card-desc">Ver todos los clientes</div>
+      </a>
+
+      <a href="nuevo.html" class="dash-card">
+        <div class="card-icon">➕</div>
+        <div class="card-title">Nuevo Cliente</div>
+        <div class="card-desc">Registrar un nuevo cliente</div>
+      </a>
+
+      <a href="cuentas.html" class="dash-card">
+        <div class="card-icon">📘</div>
+        <div class="card-title">Cuentas Corrientes</div>
+        <div class="card-desc">Movimientos y saldos</div>
+      </a>
+    </div>
+
+    <!-- ============================================================
+         SCRIPTS
+    ============================================================ -->
+
+    <script src="../sidebar.js"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const user = localStorage.getItem("usuario") || "Usuario";
+        const hour = new Date().getHours();
+        let greeting = "Hola";
+        if (hour < 12) greeting = "Buenos días";
+        else if (hour < 19) greeting = "Buenas tardes";
+        else greeting = "Buenas noches";
+
+        document.getElementById("headerGreeting").textContent = greeting;
+        document.getElementById("headerUser").textContent = user;
+        document.getElementById("userAvatar").textContent = user
+          .charAt(0)
+          .toUpperCase();
+      });
+    </script>
+  </body>
+</html>

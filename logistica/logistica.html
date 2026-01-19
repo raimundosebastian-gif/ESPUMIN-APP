@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Logística - ESPUMIN APP</title>
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+
+  <body>
+    <button id="sidebarToggle" class="sidebar-toggle">☰</button>
+
+    <aside id="sidebar" class="sidebar"></aside>
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <header class="top-header">
+      <div class="header-left">
+        <span id="headerGreeting">Hola</span>,
+        <span id="headerUser" class="header-user"></span>
+      </div>
+      <div class="header-right">
+        <div class="user-avatar" id="userAvatar">U</div>
+      </div>
+    </header>
+
+    <h1 class="dashboard-title">Logística</h1>
+
+    <div class="cards-container">
+      <a href="logistica-listado.html" class="dash-card">
+        <div class="card-icon">🚚</div>
+        <div class="card-title">Envíos</div>
+        <div class="card-desc">Listado de movimientos logísticos</div>
+      </a>
+
+      <a href="logistica-nuevo.html" class="dash-card">
+        <div class="card-icon">➕</div>
+        <div class="card-title">Nuevo Envío</div>
+        <div class="card-desc">Crear movimiento logístico</div>
+      </a>
+
+      <a href="logistica-reportes.html" class="dash-card">
+        <div class="card-icon">📊</div>
+        <div class="card-title">Reportes</div>
+        <div class="card-desc">Análisis logístico</div>
+      </a>
+    </div>
+
+    <script src="../sidebar.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const user = localStorage.getItem("usuario") || "Usuario";
+        const hour = new Date().getHours();
+        let greeting =
+          hour < 12
+            ? "Buenos días"
+            : hour < 19
+              ? "Buenas tardes"
+              : "Buenas noches";
+        document.getElementById("headerGreeting").textContent = greeting;
+        document.getElementById("headerUser").textContent = user;
+        document.getElementById("userAvatar").textContent = user
+          .charAt(0)
+          .toUpperCase();
+      });
+    </script>
+  </body>
+</html>

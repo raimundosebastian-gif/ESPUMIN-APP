@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Listado - Inventario</title>
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+
+  <body>
+    <button id="sidebarToggle" class="sidebar-toggle">☰</button>
+    <aside id="sidebar" class="sidebar"></aside>
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <header class="top-header">
+      <div class="header-left">
+        <span id="headerGreeting">Hola</span>,
+        <span id="headerUser" class="header-user"></span>
+      </div>
+      <div class="header-right">
+        <div class="user-avatar" id="userAvatar">U</div>
+      </div>
+    </header>
+
+    <h1 class="dashboard-title">Listado de Productos</h1>
+
+    <div class="module-container">
+      <!-- FILTROS -->
+      <div class="filters">
+        <input type="text" placeholder="Buscar producto..." />
+
+        <select>
+          <option value="">Categoría</option>
+          <option>Insumos</option>
+          <option>Productos terminados</option>
+          <option>Servicios</option>
+        </select>
+
+        <select>
+          <option value="">Sucursal</option>
+          <option>Pergamino</option>
+          <option>Rosario</option>
+          <option>Buenos Aires</option>
+        </select>
+
+        <button class="btn-primary">Filtrar</button>
+      </div>
+
+      <!-- TABLA -->
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Producto</th>
+            <th>Categoría</th>
+            <th>Stock Pergamino</th>
+            <th>Stock Rosario</th>
+            <th>Stock Buenos Aires</th>
+            <th>Total</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td>PRD-001</td>
+            <td>Detergente Industrial</td>
+            <td>Insumos</td>
+            <td>120</td>
+            <td>80</td>
+            <td>40</td>
+            <td><strong>240</strong></td>
+            <td>
+              <a href="inventario-editar.html" class="table-btn">✏️</a>
+            </td>
+          </tr>
+
+          <tr>
+            <td>PRD-002</td>
+            <td>Espuma Activa Premium</td>
+            <td>Productos terminados</td>
+            <td>50</td>
+            <td>30</td>
+            <td>20</td>
+            <td><strong>100</strong></td>
+            <td>
+              <a href="inventario-editar.html" class="table-btn">✏️</a>
+            </td>
+          </tr>
+
+          <tr>
+            <td>PRD-003</td>
+            <td>Servicio de Lavado</td>
+            <td>Servicios</td>
+            <td>—</td>
+            <td>—</td>
+            <td>—</td>
+            <td><strong>N/A</strong></td>
+            <td>
+              <a href="inventario-editar.html" class="table-btn">✏️</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <script src="../sidebar.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const user = localStorage.getItem("usuario") || "Usuario";
+        const hour = new Date().getHours();
+        let greeting =
+          hour < 12
+            ? "Buenos días"
+            : hour < 19
+              ? "Buenas tardes"
+              : "Buenas noches";
+        document.getElementById("headerGreeting").textContent = greeting;
+        document.getElementById("headerUser").textContent = user;
+        document.getElementById("userAvatar").textContent = user
+          .charAt(0)
+          .toUpperCase();
+      });
+    </script>
+  </body>
+</html>

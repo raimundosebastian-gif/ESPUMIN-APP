@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Listado - Ventas</title>
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+
+  <body>
+    <button id="sidebarToggle" class="sidebar-toggle">☰</button>
+    <aside id="sidebar" class="sidebar"></aside>
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <header class="top-header">
+      <div class="header-left">
+        <span id="headerGreeting">Hola</span>,
+        <span id="headerUser" class="header-user"></span>
+      </div>
+      <div class="header-right">
+        <div class="user-avatar" id="userAvatar">U</div>
+      </div>
+    </header>
+
+    <h1 class="dashboard-title">Listado de Ventas</h1>
+
+    <div class="module-container">
+      <!-- FILTROS -->
+      <div class="filters">
+        <input type="date" />
+
+        <select>
+          <option value="">Sucursal</option>
+          <option>Pergamino</option>
+          <option>Rosario</option>
+          <option>Buenos Aires</option>
+        </select>
+
+        <select>
+          <option value="">Estado</option>
+          <option>Pendiente</option>
+          <option>Pagado</option>
+          <option>Anulado</option>
+        </select>
+
+        <input type="text" placeholder="Buscar cliente..." />
+
+        <button class="btn-primary">Filtrar</button>
+      </div>
+
+      <!-- TABLA -->
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Comprobante</th>
+            <th>Cliente</th>
+            <th>Sucursal</th>
+            <th>Total</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td>2025-03-10</td>
+            <td>Factura A #0001-00012345</td>
+            <td>Juan Pérez</td>
+            <td>Pergamino</td>
+            <td>$ 150.000</td>
+            <td><span class="badge badge-green">Pagado</span></td>
+            <td>
+              <a href="ventas-editar.html" class="table-btn">✏️</a>
+            </td>
+          </tr>
+
+          <tr>
+            <td>2025-03-11</td>
+            <td>Ticket #0002-00056789</td>
+            <td>Laura Gómez</td>
+            <td>Rosario</td>
+            <td>$ 32.500</td>
+            <td><span class="badge badge-yellow">Pendiente</span></td>
+            <td>
+              <a href="ventas-editar.html" class="table-btn">✏️</a>
+            </td>
+          </tr>
+
+          <tr>
+            <td>2025-03-12</td>
+            <td>Factura B #0003-00000012</td>
+            <td>Transportes El Norte</td>
+            <td>Buenos Aires</td>
+            <td>$ 280.000</td>
+            <td><span class="badge badge-red">Anulado</span></td>
+            <td>
+              <a href="ventas-editar.html" class="table-btn">✏️</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <script src="../sidebar.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const user = localStorage.getItem("usuario") || "Usuario";
+        const hour = new Date().getHours();
+        let greeting =
+          hour < 12
+            ? "Buenos días"
+            : hour < 19
+              ? "Buenas tardes"
+              : "Buenas noches";
+        document.getElementById("headerGreeting").textContent = greeting;
+        document.getElementById("headerUser").textContent = user;
+        document.getElementById("userAvatar").textContent = user
+          .charAt(0)
+          .toUpperCase();
+      });
+    </script>
+  </body>
+</html>

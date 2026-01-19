@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cuentas de Clientes - ESPUMIN APP</title>
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+
+  <body>
+    <button id="sidebarToggle" class="sidebar-toggle">☰</button>
+
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">ESPUMIN ERP</span>
+        <button id="closeSidebar" class="close-btn">✕</button>
+      </div>
+
+      <nav class="sidebar-links">
+        <div class="sidebar-group">
+          <button class="group-btn">📊 Panel Principal ▾</button>
+          <div class="group-content">
+            <a href="../dashboard.html">📊 Dashboard</a>
+          </div>
+        </div>
+
+        <div class="sidebar-group">
+          <button class="group-btn">⚙️ Operaciones ▾</button>
+          <div class="group-content">
+            <a href="../inventario/inventario.html">📦 Inventario</a>
+            <a href="../ventas/ventas.html">💰 Ventas</a>
+            <a href="../compras/compras.html">🛒 Compras</a>
+            <a href="../logistica/logistica.html">🚚 Logística</a>
+            <a href="../produccion/produccion.html">🏭 Producción</a>
+          </div>
+        </div>
+
+        <div class="sidebar-group">
+          <button class="group-btn">👥 Personas ▾</button>
+          <div class="group-content">
+            <a href="../clientes/clientes.html">👥 Clientes</a>
+            <a href="../proveedores/proveedores.html">🏭 Proveedores</a>
+            <a href="../usuarios/usuarios.html">🔐 Usuarios</a>
+          </div>
+        </div>
+
+        <div class="sidebar-group">
+          <button class="group-btn">💵 Finanzas ▾</button>
+          <div class="group-content">
+            <a href="../caja/caja.html">💵 Caja</a>
+            <a href="../cuentas-clientes/cuentas-clientes.html"
+              >📘 Ctas. Clientes</a
+            >
+            <a href="../cuentas-proveedores/cuentas-proveedores.html"
+              >📙 Ctas. Proveedores</a
+            >
+            <a href="../impuestos/impuestos.html">📄 Impuestos</a>
+          </div>
+        </div>
+
+        <div class="sidebar-group">
+          <button class="group-btn">🖥️ Sistema ▾</button>
+          <div class="group-content">
+            <a href="../configuracion/configuracion.html">⚙️ Configuración</a>
+            <a href="../backups/backups.html">💾 Backups</a>
+            <a href="../notificaciones/notificaciones.html"
+              >🔔 Notificaciones</a
+            >
+            <a href="../auditoria/auditoria.html">📝 Auditoría</a>
+          </div>
+        </div>
+      </nav>
+    </aside>
+
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <header class="top-header">
+      <div class="header-left">
+        <span id="headerGreeting">Hola</span>,
+        <span id="headerUser" class="header-user"></span>
+      </div>
+      <div class="header-right">
+        <div class="user-avatar" id="userAvatar">U</div>
+      </div>
+    </header>
+
+    <h1 class="dashboard-title">Cuentas de Clientes</h1>
+
+    <div class="cards-container">
+      <a href="cuentas-clientes-listado.html" class="dash-card">
+        <div class="card-icon">📋</div>
+        <div class="card-title">Listado</div>
+        <div class="card-desc">Movimientos por cliente</div>
+      </a>
+
+      <a href="cuentas-clientes-nuevo.html" class="dash-card">
+        <div class="card-icon">➕</div>
+        <div class="card-title">Nuevo Movimiento</div>
+        <div class="card-desc">Registrar crédito o débito</div>
+      </a>
+
+      <a href="cuentas-clientes-reportes.html" class="dash-card">
+        <div class="card-icon">📊</div>
+        <div class="card-title">Reportes</div>
+        <div class="card-desc">Análisis financiero</div>
+      </a>
+    </div>
+
+    <script src="../sidebar.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const user = localStorage.getItem("usuario") || "Usuario";
+        const hour = new Date().getHours();
+        let greeting =
+          hour < 12
+            ? "Buenos días"
+            : hour < 19
+              ? "Buenas tardes"
+              : "Buenas noches";
+        document.getElementById("headerGreeting").textContent = greeting;
+        document.getElementById("headerUser").textContent = user;
+        document.getElementById("userAvatar").textContent = user
+          .charAt(0)
+          .toUpperCase();
+      });
+    </script>
+  </body>
+</html>

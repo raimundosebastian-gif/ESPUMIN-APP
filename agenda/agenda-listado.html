@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Listado - Agenda</title>
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+
+  <body>
+    <button id="sidebarToggle" class="sidebar-toggle">☰</button>
+    <aside id="sidebar" class="sidebar"></aside>
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <header class="top-header">
+      <div class="header-left">
+        <span id="headerGreeting">Hola</span>,
+        <span id="headerUser" class="header-user"></span>
+      </div>
+      <div class="header-right">
+        <div class="user-avatar" id="userAvatar">U</div>
+      </div>
+    </header>
+
+    <h1 class="dashboard-title">Listado de Turnos</h1>
+
+    <div class="module-container">
+      <div class="filters">
+        <input type="date" />
+        <select>
+          <option value="">Sucursal</option>
+          <option>Pergamino</option>
+          <option>Rosario</option>
+          <option>Buenos Aires</option>
+        </select>
+        <select>
+          <option value="">Estado</option>
+          <option>Pendiente</option>
+          <option>Confirmado</option>
+          <option>Finalizado</option>
+          <option>Cancelado</option>
+        </select>
+        <button class="btn-primary">Filtrar</button>
+      </div>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Sucursal</th>
+            <th>Cliente</th>
+            <th>Responsable</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td>2025-03-12</td>
+            <td>10:00</td>
+            <td>Pergamino</td>
+            <td>Juan Pérez</td>
+            <td>María</td>
+            <td><span class="badge badge-green">Confirmado</span></td>
+            <td>
+              <a href="agenda-editar.html" class="table-btn">✏️</a>
+            </td>
+          </tr>
+
+          <tr>
+            <td>2025-03-12</td>
+            <td>14:00</td>
+            <td>Rosario</td>
+            <td>Laura Gómez</td>
+            <td>Carlos</td>
+            <td><span class="badge badge-yellow">Pendiente</span></td>
+            <td>
+              <a href="agenda-editar.html" class="table-btn">✏️</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <script src="../sidebar.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const user = localStorage.getItem("usuario") || "Usuario";
+        const hour = new Date().getHours();
+        let greeting =
+          hour < 12
+            ? "Buenos días"
+            : hour < 19
+              ? "Buenas tardes"
+              : "Buenas noches";
+        document.getElementById("headerGreeting").textContent = greeting;
+        document.getElementById("headerUser").textContent = user;
+        document.getElementById("userAvatar").textContent = user
+          .charAt(0)
+          .toUpperCase();
+      });
+    </script>
+  </body>
+</html>

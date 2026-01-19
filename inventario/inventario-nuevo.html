@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nuevo Producto - Inventario</title>
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+
+  <body>
+    <button id="sidebarToggle" class="sidebar-toggle">☰</button>
+    <aside id="sidebar" class="sidebar"></aside>
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <header class="top-header">
+      <div class="header-left">
+        <span id="headerGreeting">Hola</span>,
+        <span id="headerUser" class="header-user"></span>
+      </div>
+      <div class="header-right">
+        <div class="user-avatar" id="userAvatar">U</div>
+      </div>
+    </header>
+
+    <h1 class="dashboard-title">Nuevo Producto</h1>
+
+    <div class="module-container">
+      <form class="form-grid">
+        <!-- Código -->
+        <label>Código Interno</label>
+        <input type="text" placeholder="Ej: PRD-001" required />
+
+        <label>Código de Barras</label>
+        <input type="text" placeholder="EAN / UPC" />
+
+        <!-- Nombre -->
+        <label>Nombre del Producto</label>
+        <input type="text" placeholder="Nombre descriptivo" required />
+
+        <!-- Categoría -->
+        <label>Categoría</label>
+        <select required>
+          <option>Insumos</option>
+          <option>Productos terminados</option>
+          <option>Servicios</option>
+          <option>Otros</option>
+        </select>
+
+        <!-- Unidad -->
+        <label>Unidad</label>
+        <select required>
+          <option>Unidad</option>
+          <option>Kg</option>
+          <option>Litro</option>
+          <option>Caja</option>
+          <option>Pack</option>
+        </select>
+
+        <!-- Costos -->
+        <label>Costo</label>
+        <input type="number" step="0.01" placeholder="0.00" required />
+
+        <label>Precio</label>
+        <input type="number" step="0.01" placeholder="0.00" required />
+
+        <!-- Stock mínimo -->
+        <label>Stock Mínimo</label>
+        <input type="number" placeholder="Ej: 10" required />
+
+        <!-- Estado -->
+        <label>Estado</label>
+        <select>
+          <option>Activo</option>
+          <option>Inactivo</option>
+        </select>
+
+        <!-- Notas -->
+        <label>Notas</label>
+        <textarea rows="4" placeholder="Información adicional"></textarea>
+
+        <!-- Botón -->
+        <button class="btn-primary">Guardar Producto</button>
+      </form>
+    </div>
+
+    <script src="../sidebar.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const user = localStorage.getItem("usuario") || "Usuario";
+        const hour = new Date().getHours();
+        let greeting =
+          hour < 12
+            ? "Buenos días"
+            : hour < 19
+              ? "Buenas tardes"
+              : "Buenas noches";
+        document.getElementById("headerGreeting").textContent = greeting;
+        document.getElementById("headerUser").textContent = user;
+        document.getElementById("userAvatar").textContent = user
+          .charAt(0)
+          .toUpperCase();
+      });
+    </script>
+  </body>
+</html>
