@@ -1,0 +1,77 @@
+# Módulo Sistema — ESPUMIN ERP
+
+El módulo Sistema administra la configuración central del ERP: usuarios, permisos, sucursales y parámetros generales.  
+Es el núcleo administrativo que define cómo acceden y operan los distintos perfiles dentro de la plataforma.
+
+---
+
+## 📂 Estructura del módulo
+
+sistema/
+├── sistema-usuarios.html
+├── sistema-permisos.html
+├── sistema-sucursales.html
+├── sistema-configuracion.html
+└── readme-sistema.md
+
+---
+
+## 🧩 Submódulos incluidos
+
+### 1. Usuarios
+
+Gestión de cuentas, datos personales, estados y accesos.
+
+### 2. Permisos
+
+Control de roles, niveles de acceso y autorizaciones por módulo.
+
+### 3. Sucursales
+
+Administración de sedes, direcciones y parámetros operativos por ubicación.
+
+### 4. Configuración
+
+Ajustes generales del ERP: parámetros del sistema, preferencias globales y opciones administrativas.
+
+---
+
+## 🎨 Estándares visuales
+
+- Sidebar dinámico
+- Header con saludo y avatar
+- Estilos corporativos unificados
+- Formularios `.form` y `.form-group`
+- Tablas `.table`
+- Tarjetas `.report-card` cuando aplica
+
+---
+
+## 🔧 Estándares técnicos
+
+- HTML modular
+- Rutas relativas limpias
+- Independencia total del resto de módulos
+- Preparado para backend (IDs y estructura lista)
+- Sin dependencias cruzadas
+- Base para futuras integraciones de roles avanzados
+
+---
+
+## ✔️ Estado del módulo
+
+---
+
+## 📌 Notas de integración
+
+- Es el módulo que define permisos para todos los demás
+- Se relaciona conceptualmente con Agenda, Ventas, Producción y Compras
+- No depende técnicamente de ningún otro módulo
+- Es la base para futuras funciones de auditoría y seguridad
+
+---
+
+## 🏷 Versión
+
+Versión: 1.0  
+Autor: Meñarg SAS
