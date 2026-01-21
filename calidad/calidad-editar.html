@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calidad - Editar Control</title>
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h2>ESPUMIN ERP</h2>
+      <a href="../dashboard.html">Dashboard</a>
+      <a href="../calidad/calidad-listado.html" class="active">Calidad</a>
+      <a href="../calidad/calidad-no-conformidades.html">No Conformidades</a>
+      <a href="../calidad/calidad-acciones-correctivas.html"
+        >Acciones Correctivas</a
+      >
+      <a href="../calidad/calidad-reportes.html">Reportes</a>
+      <a href="../menu.html">Menú</a>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+      <!-- Header -->
+      <header>
+        <h1>Editar Control de Calidad</h1>
+        <div class="user-info">
+          <span>Hola, Meña</span>
+          <img src="../assets/avatar.png" alt="Avatar" />
+        </div>
+      </header>
+
+      <!-- Contenedor -->
+      <section class="content-section">
+        <!-- Datos precargados de ejemplo -->
+        <form class="form">
+          <div class="form-group">
+            <label for="id">ID de control</label>
+            <input type="text" id="id" value="CQ-001" disabled />
+          </div>
+
+          <div class="form-group">
+            <label for="lote">Lote</label>
+            <input type="text" id="lote" value="L-20260115-01" />
+          </div>
+
+          <div class="form-group">
+            <label for="producto">Producto</label>
+            <input type="text" id="producto" value="Espuma Clásica 500ml" />
+          </div>
+
+          <div class="form-group">
+            <label for="resultado">Resultado</label>
+            <select id="resultado">
+              <option selected>Aprobado</option>
+              <option>Rechazado</option>
+              <option>Observado</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="inspector">Inspector</label>
+            <input type="text" id="inspector" value="Laura Benítez" />
+          </div>
+
+          <div class="form-group">
+            <label for="fecha">Fecha</label>
+            <input type="date" id="fecha" value="2026-01-15" />
+          </div>
+
+          <div class="form-group">
+            <label for="observaciones">Observaciones</label>
+            <textarea id="observaciones">
+Control realizado sin desvíos. Producto dentro de parámetros.</textarea
+            >
+          </div>
+
+          <div class="actions">
+            <a href="calidad-listado.html" class="btn">Guardar Cambios</a>
+            <a href="calidad-listado.html" class="btn btn-secondary"
+              >Cancelar</a
+            >
+          </div>
+        </form>
+      </section>
+    </div>
+  </body>
+</html>

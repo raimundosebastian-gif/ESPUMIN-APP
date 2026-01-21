@@ -1,0 +1,85 @@
+/* ===========================
+   HEADER — ESTILO FINAL
+   =========================== */
+
+.erp-header {
+  width: 100%;
+  height: 60px;
+  background: #ffffff;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+.erp-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #333;
+}
+
+/* ===========================
+   AVATAR
+   =========================== */
+
+.user-avatar {
+  width: 38px;
+  height: 38px;
+  background: #2a2e33;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid #444;
+  font-size: 18px;
+  color: #fff;
+  background-size: cover;
+  background-position: center;
+}
+
+/* ===========================
+   USUARIO
+   =========================== */
+
+.header-user {
+  font-size: 15px;
+  font-weight: 500;
+  color: #444;
+}
+
+/* ===========================
+   BOTÓN SALIR
+   =========================== */
+
+.logout-btn {
+  background: #b32626;
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  transition:
+    background 0.25s ease,
+    transform 0.15s ease;
+}
+
+.logout-btn:hover {
+  background: #d63a3a;
+  transform: translateY(-2px);
+}
+
+/* ===========================
+   CONTENEDOR DERECHO
+   =========================== */
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}

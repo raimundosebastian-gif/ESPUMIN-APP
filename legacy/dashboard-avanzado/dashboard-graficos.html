@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Avanzado - Gráficos</title>
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+
+  <body>
+    <div class="sidebar">
+      <h2>ESPUMIN ERP</h2>
+      <a href="../dashboard.html">Dashboard básico</a>
+      <a href="../dashboard-avanzado/dashboard-kpis.html">KPIs</a>
+      <a href="../dashboard-avanzado/dashboard-graficos.html" class="active"
+        >Gráficos</a
+      >
+      <a href="../dashboard-avanzado/dashboard-reportes.html">Reportes</a>
+      <a href="../menu.html">Menú</a>
+    </div>
+
+    <div class="main-content">
+      <header>
+        <h1>Dashboard Avanzado — Gráficos</h1>
+        <div class="user-info">
+          <span>Hola, Meña</span>
+          <img src="../assets/avatar.png" alt="Avatar" />
+        </div>
+      </header>
+
+      <section class="content-section">
+        <div class="report-cards">
+          <div class="report-card">
+            <h3>Producción vs Ventas</h3>
+            <p>Curva mensual</p>
+            <small>Listo para gráfico de líneas</small>
+          </div>
+
+          <div class="report-card">
+            <h3>Rechazos por Motivo</h3>
+            <p>Distribución</p>
+            <small>Listo para gráfico de barras</small>
+          </div>
+
+          <div class="report-card">
+            <h3>Entregas a Tiempo</h3>
+            <p>Por cliente</p>
+            <small>Listo para gráfico de columnas</small>
+          </div>
+
+          <div class="report-card">
+            <h3>Flujo de Caja</h3>
+            <p>Ingresos vs Egresos</p>
+            <small>Listo para gráfico de área</small>
+          </div>
+        </div>
+
+        <h2>Detalle de series (mock)</h2>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Métrica</th>
+              <th>Enero</th>
+              <th>Febrero</th>
+              <th>Marzo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Producción (unidades)</td>
+              <td>15.200</td>
+              <td>16.800</td>
+              <td>18.500</td>
+            </tr>
+            <tr>
+              <td>Ventas (unidades)</td>
+              <td>14.900</td>
+              <td>16.200</td>
+              <td>17.900</td>
+            </tr>
+            <tr>
+              <td>Rechazos (%)</td>
+              <td>2,3%</td>
+              <td>2,0%</td>
+              <td>1,8%</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </body>
+</html>

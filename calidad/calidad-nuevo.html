@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Logística - Nueva Entrega</title>
+    <title>Calidad - Nuevo Control</title>
     <link rel="stylesheet" href="../style.css" />
   </head>
 
@@ -12,11 +12,12 @@
     <div class="sidebar">
       <h2>ESPUMIN ERP</h2>
       <a href="../dashboard.html">Dashboard</a>
-      <a href="../logistica/logistica-listado.html">Logística</a>
-      <a href="../logistica/logistica-rutas.html">Rutas</a>
-      <a href="../logistica/logistica-vehiculos.html">Vehículos</a>
-      <a href="../logistica/logistica-choferes.html">Choferes</a>
-      <a href="../logistica/logistica-reportes.html">Reportes</a>
+      <a href="../calidad/calidad-listado.html">Calidad</a>
+      <a href="../calidad/calidad-no-conformidades.html">No Conformidades</a>
+      <a href="../calidad/calidad-acciones-correctivas.html"
+        >Acciones Correctivas</a
+      >
+      <a href="../calidad/calidad-reportes.html">Reportes</a>
       <a href="../menu.html">Menú</a>
     </div>
 
@@ -24,7 +25,7 @@
     <div class="main-content">
       <!-- Header -->
       <header>
-        <h1>Nueva Entrega</h1>
+        <h1>Nuevo Control de Calidad</h1>
         <div class="user-info">
           <span>Hola, Meña</span>
           <img src="../assets/avatar.png" alt="Avatar" />
@@ -35,36 +36,36 @@
       <section class="content-section">
         <form class="form">
           <div class="form-group">
-            <label for="cliente">Cliente</label>
+            <label for="lote">Lote</label>
+            <input type="text" id="lote" placeholder="Ej: L-20260118-01" />
+          </div>
+
+          <div class="form-group">
+            <label for="producto">Producto</label>
             <input
               type="text"
-              id="cliente"
-              placeholder="Ej: Distribuidora San Jorge"
+              id="producto"
+              placeholder="Ej: Espuma Clásica 500ml"
             />
           </div>
 
           <div class="form-group">
-            <label for="direccion">Dirección de entrega</label>
-            <input
-              type="text"
-              id="direccion"
-              placeholder="Ej: Av. Rivadavia 2340"
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="fecha">Fecha de entrega</label>
-            <input type="date" id="fecha" value="2026-01-20" />
-          </div>
-
-          <div class="form-group">
-            <label for="estado">Estado inicial</label>
-            <select id="estado">
-              <option>Pendiente</option>
-              <option>En preparación</option>
-              <option>En camino</option>
-              <option>Entregado</option>
+            <label for="resultado">Resultado</label>
+            <select id="resultado">
+              <option>Aprobado</option>
+              <option>Rechazado</option>
+              <option>Observado</option>
             </select>
+          </div>
+
+          <div class="form-group">
+            <label for="inspector">Inspector</label>
+            <input type="text" id="inspector" placeholder="Ej: Laura Benítez" />
+          </div>
+
+          <div class="form-group">
+            <label for="fecha">Fecha</label>
+            <input type="date" id="fecha" value="2026-01-18" />
           </div>
 
           <div class="form-group">
@@ -76,8 +77,8 @@
           </div>
 
           <div class="actions">
-            <a href="logistica-listado.html" class="btn">Guardar</a>
-            <a href="logistica-listado.html" class="btn btn-secondary"
+            <a href="calidad-listado.html" class="btn">Guardar</a>
+            <a href="calidad-listado.html" class="btn btn-secondary"
               >Cancelar</a
             >
           </div>

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Administración - Usuarios</title>
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h2>ESPUMIN ERP</h2>
+      <a href="../dashboard.html">Dashboard</a>
+      <a href="../administracion/administracion-usuarios.html" class="active"
+        >Usuarios</a
+      >
+      <a href="../administracion/administracion-roles.html">Roles</a>
+      <a href="../administracion/administracion-permisos.html">Permisos</a>
+      <a href="../administracion/administracion-auditoria.html">Auditoría</a>
+      <a href="../menu.html">Menú</a>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+      <!-- Header -->
+      <header>
+        <h1>Usuarios del Sistema</h1>
+        <div class="user-info">
+          <span>Hola, Meña</span>
+          <img src="../assets/avatar.png" alt="Avatar" />
+        </div>
+      </header>
+
+      <!-- Contenedor -->
+      <section class="content-section">
+        <div class="actions">
+          <a href="#" class="btn">Nuevo Usuario</a>
+        </div>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Correo</th>
+              <th>Rol</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>U-001</td>
+              <td>Laura Benítez</td>
+              <td>laura.benitez@espumin.com</td>
+              <td>Administradora</td>
+              <td>Activo</td>
+              <td><a href="#" class="btn-small">Editar</a></td>
+            </tr>
+
+            <tr>
+              <td>U-002</td>
+              <td>Martín López</td>
+              <td>martin.lopez@espumin.com</td>
+              <td>Supervisor</td>
+              <td>Activo</td>
+              <td><a href="#" class="btn-small">Editar</a></td>
+            </tr>
+
+            <tr>
+              <td>U-003</td>
+              <td>Carla Gómez</td>
+              <td>carla.gomez@espumin.com</td>
+              <td>Calidad</td>
+              <td>Activo</td>
+              <td><a href="#" class="btn-small">Editar</a></td>
+            </tr>
+
+            <tr>
+              <td>U-004</td>
+              <td>Jorge Medina</td>
+              <td>jorge.medina@espumin.com</td>
+              <td>Logística</td>
+              <td>Inactivo</td>
+              <td><a href="#" class="btn-small">Editar</a></td>
+            </tr>
+
+            <tr>
+              <td>U-005</td>
+              <td>Lucía Fernández</td>
+              <td>lucia.fernandez@espumin.com</td>
+              <td>Producción</td>
+              <td>Activo</td>
+              <td><a href="#" class="btn-small">Editar</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calidad - No Conformidades</title>
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h2>ESPUMIN ERP</h2>
+      <a href="../dashboard.html">Dashboard</a>
+      <a href="../calidad/calidad-listado.html">Calidad</a>
+      <a href="../calidad/calidad-no-conformidades.html" class="active"
+        >No Conformidades</a
+      >
+      <a href="../calidad/calidad-acciones-correctivas.html"
+        >Acciones Correctivas</a
+      >
+      <a href="../calidad/calidad-reportes.html">Reportes</a>
+      <a href="../menu.html">Menú</a>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+      <!-- Header -->
+      <header>
+        <h1>No Conformidades</h1>
+        <div class="user-info">
+          <span>Hola, Meña</span>
+          <img src="../assets/avatar.png" alt="Avatar" />
+        </div>
+      </header>
+
+      <!-- Contenedor -->
+      <section class="content-section">
+        <div class="actions">
+          <a href="#" class="btn">Nueva No Conformidad</a>
+        </div>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Lote</th>
+              <th>Descripción</th>
+              <th>Causa</th>
+              <th>Responsable</th>
+              <th>Estado</th>
+              <th>Fecha</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>NC-001</td>
+              <td>L-20260115-02</td>
+              <td>Producto con viscosidad fuera de rango</td>
+              <td>Error en dosificación</td>
+              <td>Martín López</td>
+              <td>Abierta</td>
+              <td>2026-01-15</td>
+            </tr>
+
+            <tr>
+              <td>NC-002</td>
+              <td>L-20260116-01</td>
+              <td>Envase mal sellado</td>
+              <td>Falla en selladora</td>
+              <td>Carla Gómez</td>
+              <td>En análisis</td>
+              <td>2026-01-16</td>
+            </tr>
+
+            <tr>
+              <td>NC-003</td>
+              <td>L-20260116-02</td>
+              <td>Etiqueta desplazada</td>
+              <td>Ajuste incorrecto de etiquetadora</td>
+              <td>Jorge Medina</td>
+              <td>Cerrada</td>
+              <td>2026-01-16</td>
+            </tr>
+
+            <tr>
+              <td>NC-004</td>
+              <td>L-20260117-01</td>
+              <td>Color fuera de especificación</td>
+              <td>Materia prima contaminada</td>
+              <td>Lucía Fernández</td>
+              <td>Abierta</td>
+              <td>2026-01-17</td>
+            </tr>
+
+            <tr>
+              <td>NC-005</td>
+              <td>L-20260117-03</td>
+              <td>Espuma insuficiente</td>
+              <td>Tiempo de mezclado insuficiente</td>
+              <td>Laura Benítez</td>
+              <td>En análisis</td>
+              <td>2026-01-17</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </body>
+</html>

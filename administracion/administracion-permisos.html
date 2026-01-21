@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Administración - Permisos</title>
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h2>ESPUMIN ERP</h2>
+      <a href="../dashboard.html">Dashboard</a>
+      <a href="../administracion/administracion-usuarios.html">Usuarios</a>
+      <a href="../administracion/administracion-roles.html">Roles</a>
+      <a href="../administracion/administracion-permisos.html" class="active"
+        >Permisos</a
+      >
+      <a href="../administracion/administracion-auditoria.html">Auditoría</a>
+      <a href="../menu.html">Menú</a>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+      <!-- Header -->
+      <header>
+        <h1>Permisos del Sistema</h1>
+        <div class="user-info">
+          <span>Hola, Meña</span>
+          <img src="../assets/avatar.png" alt="Avatar" />
+        </div>
+      </header>
+
+      <!-- Contenedor -->
+      <section class="content-section">
+        <div class="actions">
+          <a href="#" class="btn">Nuevo Permiso</a>
+        </div>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Módulo</th>
+              <th>Permiso</th>
+              <th>Descripción</th>
+              <th>Nivel</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>P-001</td>
+              <td>Usuarios</td>
+              <td>Crear usuario</td>
+              <td>Permite registrar nuevos usuarios en el sistema.</td>
+              <td>Alto</td>
+              <td><a href="#" class="btn-small">Editar</a></td>
+            </tr>
+
+            <tr>
+              <td>P-002</td>
+              <td>Usuarios</td>
+              <td>Editar usuario</td>
+              <td>Permite modificar datos de usuarios existentes.</td>
+              <td>Medio-Alto</td>
+              <td><a href="#" class="btn-small">Editar</a></td>
+            </tr>
+
+            <tr>
+              <td>P-003</td>
+              <td>Roles</td>
+              <td>Asignar roles</td>
+              <td>Permite asignar o cambiar roles de usuarios.</td>
+              <td>Medio</td>
+              <td><a href="#" class="btn-small">Editar</a></td>
+            </tr>
+
+            <tr>
+              <td>P-004</td>
+              <td>Permisos</td>
+              <td>Modificar permisos</td>
+              <td>Permite editar permisos asociados a roles.</td>
+              <td>Alto</td>
+              <td><a href="#" class="btn-small">Editar</a></td>
+            </tr>
+
+            <tr>
+              <td>P-005</td>
+              <td>Auditoría</td>
+              <td>Ver auditoría</td>
+              <td>Permite acceder al historial de acciones del sistema.</td>
+              <td>Medio</td>
+              <td><a href="#" class="btn-small">Editar</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </body>
+</html>

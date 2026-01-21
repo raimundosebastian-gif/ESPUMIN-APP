@@ -1,0 +1,22 @@
+/* Estilos comunes para módulos internos */
+
+input,
+select,
+textarea {
+  background: #1f2327;
+  border: 1px solid #3a3f45;
+  color: #fff;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #7a7f86;
+  outline: none;
+}
+
+button {
+  cursor: pointer;
+}

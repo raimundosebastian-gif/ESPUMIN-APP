@@ -1,0 +1,103 @@
+/* ===========================
+   LAYOUT PRINCIPAL
+   =========================== */
+
+.main-content {
+  padding-bottom: 60px; /* espacio para que no tape el footer */
+}
+
+/* ===========================
+   TITULO DEL DASHBOARD
+   =========================== */
+
+.dashboard-title {
+  margin-top: 30px;
+  text-align: center;
+  font-size: 28px;
+  color: #fff;
+}
+
+/* ===========================
+   CARDS DEL DASHBOARD
+   =========================== */
+
+.cards-container {
+  margin-top: 30px;
+  padding: 0 var(--margen-derecho);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 25px;
+}
+
+.dash-card {
+  background: #2a2e33;
+  padding: 25px;
+  border-radius: 14px;
+  text-align: center;
+  color: #fff;
+  text-decoration: none;
+  border: 1px solid #3a3f45;
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease;
+}
+
+.dash-card:hover {
+  background: #32363c;
+  transform: translateY(-4px);
+}
+
+.card-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+
+.card-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.card-desc {
+  font-size: 14px;
+  color: #c7cacf;
+}
+
+/* ===========================
+   HEADER SUPERIOR — GRIS MEDIO
+   =========================== */
+
+.erp-header {
+  width: 100%;
+  height: 60px;
+  background: #d0d0d0; /* gris medio */
+  border-bottom: 1px solid #b5b5b5;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.erp-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #333;
+}
+
+/* ===========================
+   FOOTER INFERIOR — GRIS CLARO
+   =========================== */
+.erp-footer {
+  width: 100%;
+  height: 30px;
+  background: #d0d0d0; /* MISMO gris medio del header */
+  border-top: 1px solid #b5b5b5;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 900;
+}

@@ -3,211 +3,171 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard - ESPUMIN APP</title>
+    <title>Dashboard - ESPUMIN ERP</title>
 
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/header.css" />
+    <link rel="stylesheet" href="css/sidebar.css" />
+    <link rel="stylesheet" href="css/dashboard.css" />
+    <link rel="stylesheet" href="css/modules.css" />
   </head>
 
   <body>
-    <!-- ============================================================
-         SIDEBAR OSCURO (UNIFICADO)
-    ============================================================ -->
-    <button id="sidebarToggle" class="sidebar-toggle">☰</button>
-
-    <aside id="sidebar" class="sidebar">
-      <div class="sidebar-header">
-        <span class="sidebar-title">ESPUMIN ERP</span>
-        <button id="closeSidebar" class="close-btn">✕</button>
-      </div>
-
-      <nav class="sidebar-links">
-        <div class="sidebar-group">
-          <button class="group-btn">📊 Panel Principal ▾</button>
-          <div class="group-content">
-            <a href="dashboard.html">📊 Dashboard</a>
-          </div>
-        </div>
-
-        <div class="sidebar-group">
-          <button class="group-btn">⚙️ Operaciones ▾</button>
-          <div class="group-content">
-            <a href="inventario.html">📦 Inventario</a>
-            <a href="ventas.html">💰 Ventas</a>
-            <a href="compras.html">🛒 Compras</a>
-            <a href="logistica.html">🚚 Logística</a>
-            <a href="produccion.html">🏭 Producción</a>
-          </div>
-        </div>
-
-        <div class="sidebar-group">
-          <button class="group-btn">👥 Personas ▾</button>
-          <div class="group-content">
-            <a href="clientes.html">👥 Clientes</a>
-            <a href="proveedores.html">🏭 Proveedores</a>
-            <a href="usuarios.html">🔐 Usuarios</a>
-          </div>
-        </div>
-
-        <div class="sidebar-group">
-          <button class="group-btn">💵 Finanzas ▾</button>
-          <div class="group-content">
-            <a href="caja.html">💵 Caja</a>
-            <a href="cuentas-clientes.html">📘 Ctas. Clientes</a>
-            <a href="cuentas-proveedores.html">📙 Ctas. Proveedores</a>
-            <a href="impuestos.html">📄 Impuestos</a>
-          </div>
-        </div>
-
-        <div class="sidebar-group">
-          <button class="group-btn">🖥️ Sistema ▾</button>
-          <div class="group-content">
-            <a href="configuracion.html">⚙️ Configuración</a>
-            <a href="backups.html">💾 Backups</a>
-            <a href="notificaciones.html">🔔 Notificaciones</a>
-            <a href="auditoria.html">📝 Auditoría</a>
-          </div>
-        </div>
-      </nav>
-    </aside>
-
-    <div id="sidebarOverlay" class="sidebar-overlay"></div>
-
-    <!-- ============================================================
-         HEADER SUPERIOR
-    ============================================================ -->
-    <header class="top-header">
-      <div class="header-left">
-        <span id="headerGreeting">Hola</span>,
-        <span id="headerUser" class="header-user"></span>
-      </div>
-
-      <div class="header-right">
-        <div class="user-avatar" id="userAvatar">U</div>
-      </div>
+    <!-- HEADER SUPERIOR LIMPIO -->
+    <header class="erp-header">
+      <span class="erp-title">ESPUMIN ERP</span>
     </header>
 
-    <!-- ============================================================
-         DASHBOARD NUEVO — TARJETAS
-    ============================================================ -->
+    <!-- WRAPPER FLEXIBLE -->
+    <div class="layout">
+      <!-- SIDEBAR FIJO (DEBAJO DEL HEADER) -->
+      <div id="sidebar" class="sidebar">
+        <div class="sidebar-links">
+          <div class="sidebar-group">
+            <button class="group-btn">Inventario</button>
+            <div class="group-content">
+              <a href="inventario.html">Stock</a>
+              <a href="productos.html">Productos</a>
+              <a href="categorias.html">Categorías</a>
+            </div>
+          </div>
 
-    <h1 class="dashboard-title">Panel General</h1>
+          <div class="sidebar-group">
+            <button class="group-btn">Compras</button>
+            <div class="group-content">
+              <a href="proveedores.html">Proveedores</a>
+              <a href="ordenes-compra.html">Órdenes de Compra</a>
+            </div>
+          </div>
 
-    <div class="cards-container">
-      <a
-        href="inventario/listado.html"
-        class="dash-card"
-        data-role="operador,admin"
-      >
-        <div class="card-icon">📦</div>
-        <div class="card-title">Inventario</div>
-        <div class="card-desc">Movimientos, ingresos y salidas</div>
-      </a>
+          <div class="sidebar-group">
+            <button class="group-btn">Ventas</button>
+            <div class="group-content">
+              <a href="clientes.html">Clientes</a>
+              <a href="ventas.html">Ventas</a>
+            </div>
+          </div>
 
-      <a
-        href="clientes/listado.html"
-        class="dash-card"
-        data-role="operador,admin"
-      >
-        <div class="card-icon">👥</div>
-        <div class="card-title">Clientes</div>
-        <div class="card-desc">Gestión y cuentas corrientes</div>
-      </a>
+          <div class="sidebar-group">
+            <button class="group-btn">Producción</button>
+            <div class="group-content">
+              <a href="produccion.html">Órdenes de Producción</a>
+              <a href="recetas.html">Recetas</a>
+            </div>
+          </div>
 
-      <a
-        href="proveedores/listado.html"
-        class="dash-card"
-        data-role="operador,admin"
-      >
-        <div class="card-icon">🏭</div>
-        <div class="card-title">Proveedores</div>
-        <div class="card-desc">Altas, cuentas y movimientos</div>
-      </a>
+          <div class="sidebar-group">
+            <button class="group-btn">Logística</button>
+            <div class="group-content">
+              <a href="remitos.html">Remitos</a>
+              <a href="envios.html">Envíos</a>
+            </div>
+          </div>
 
-      <a href="ventas/nueva.html" class="dash-card" data-role="operador,admin">
-        <div class="card-icon">💰</div>
-        <div class="card-title">Ventas</div>
-        <div class="card-desc">Nueva venta y reportes</div>
-      </a>
+          <div class="sidebar-group">
+            <button class="group-btn">Agenda</button>
+            <div class="group-content">
+              <a href="agenda.html">Calendario</a>
+              <a href="turnos.html">Turnos</a>
+            </div>
+          </div>
 
-      <a
-        href="compras/listado.html"
-        class="dash-card"
-        data-role="operador,admin"
-      >
-        <div class="card-icon">🛒</div>
-        <div class="card-title">Compras</div>
-        <div class="card-desc">Historial y nuevas compras</div>
-      </a>
+          <div class="sidebar-group">
+            <button class="group-btn">Reportes</button>
+            <div class="group-content">
+              <a href="reportes.html">Reportes Generales</a>
+            </div>
+          </div>
 
-      <a
-        href="logistica/despachos.html"
-        class="dash-card"
-        data-role="operador,admin"
-      >
-        <div class="card-icon">🚚</div>
-        <div class="card-title">Logística</div>
-        <div class="card-desc">Despachos y rutas</div>
-      </a>
+          <div class="sidebar-group">
+            <button class="group-btn">Administración</button>
+            <div class="group-content">
+              <a href="administracion-usuarios.html">Usuarios</a>
+              <a href="administracion-roles.html">Roles</a>
+              <a href="config_roles.html">Permisos</a>
+              <a href="configuracion.html">Configuración General</a>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <a
-        href="agenda/general.html"
-        class="dash-card"
-        data-role="operador,admin"
-      >
-        <div class="card-icon">📅</div>
-        <div class="card-title">Agenda</div>
-        <div class="card-desc">Agenda general</div>
-      </a>
+      <!-- CONTENEDOR DE CONTENIDO -->
+      <div class="content-wrapper">
+        <div class="main-content">
+          <h1 class="dashboard-title">Panel Principal</h1>
 
-      <a href="auditoria/index.html" class="dash-card" data-role="admin">
-        <div class="card-icon">📝</div>
-        <div class="card-title">Auditoría</div>
-        <div class="card-desc">Registro de auditoría</div>
-      </a>
+          <div class="cards-container">
+            <a href="inventario.html" class="dash-card">
+              <div class="card-icon">📦</div>
+              <div class="card-title">Inventario</div>
+              <div class="card-desc">Stock y productos</div>
+            </a>
 
-      <a href="backups/index.html" class="dash-card" data-role="admin">
-        <div class="card-icon">💾</div>
-        <div class="card-title">Backups</div>
-        <div class="card-desc">Gestión de copias</div>
-      </a>
+            <a href="compras.html" class="dash-card">
+              <div class="card-icon">🛒</div>
+              <div class="card-title">Compras</div>
+              <div class="card-desc">Proveedores y órdenes</div>
+            </a>
 
-      <a href="configuracion/usuarios.html" class="dash-card" data-role="admin">
-        <div class="card-icon">🔐</div>
-        <div class="card-title">Usuarios</div>
-        <div class="card-desc">Gestión de roles</div>
-      </a>
+            <a href="ventas.html" class="dash-card">
+              <div class="card-icon">🧾</div>
+              <div class="card-title">Ventas</div>
+              <div class="card-desc">Clientes y facturación</div>
+            </a>
+
+            <a href="produccion.html" class="dash-card">
+              <div class="card-icon">🏭</div>
+              <div class="card-title">Producción</div>
+              <div class="card-desc">Órdenes y recetas</div>
+            </a>
+
+            <a href="logistica.html" class="dash-card">
+              <div class="card-icon">🚚</div>
+              <div class="card-title">Logística</div>
+              <div class="card-desc">Remitos y envíos</div>
+            </a>
+
+            <a href="agenda.html" class="dash-card">
+              <div class="card-icon">📅</div>
+              <div class="card-title">Agenda</div>
+              <div class="card-desc">Calendario y turnos</div>
+            </a>
+
+            <a href="reportes.html" class="dash-card">
+              <div class="card-icon">📊</div>
+              <div class="card-title">Reportes</div>
+              <div class="card-desc">Informes generales</div>
+            </a>
+
+            <a href="administracion-usuarios.html" class="dash-card">
+              <div class="card-icon">👤</div>
+              <div class="card-title">Administración</div>
+              <div class="card-desc">Usuarios, roles y permisos</div>
+            </a>
+          </div>
+        </div>
+
+        <footer class="erp-footer">
+          <footer class="erp-footer">
+            <div class="footer-left">
+              <button id="collapse-all" class="footer-btn">Cerrar todo</button>
+            </div>
+
+            <div class="footer-center">
+              <span class="user-name">Usuario: Meña</span>
+            </div>
+
+            <div class="footer-right">
+              <button class="footer-btn logout-btn">Salir</button>
+            </div>
+          </footer>
+        </footer>
+      </div>
     </div>
 
-    <!-- ============================================================
-         SCRIPTS
-    ============================================================ -->
-
-    <script src="sidebar.js"></script>
-
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const user = localStorage.getItem("usuario") || "Usuario";
-        const hour = new Date().getHours();
-        let greeting = "Hola";
-        if (hour < 12) greeting = "Buenos días";
-        else if (hour < 19) greeting = "Buenas tardes";
-        else greeting = "Buenas noches";
-
-        document.getElementById("headerGreeting").textContent = greeting;
-        document.getElementById("headerUser").textContent = user;
-        document.getElementById("userAvatar").textContent = user
-          .charAt(0)
-          .toUpperCase();
-
-        const userRole = localStorage.getItem("userRole");
-
-        document.querySelectorAll(".dash-card").forEach((card) => {
-          const allowed = card.dataset.role.split(",");
-          if (!allowed.includes(userRole)) {
-            card.style.display = "none";
-          }
-        });
-      });
-    </script>
+    <!-- SCRIPTS -->
+    <script type="module" src="js/ui/header.js"></script>
+    <script type="module" src="js/ui/sidebar.js"></script>
+    <script type="module" src="js/ui/dashboard.js"></script>
   </body>
 </html>

@@ -3,128 +3,120 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Listado - Logística</title>
+    <title>Logística - Listado</title>
     <link rel="stylesheet" href="../style.css" />
   </head>
 
   <body>
-    <button id="sidebarToggle" class="sidebar-toggle">☰</button>
-    <aside id="sidebar" class="sidebar"></aside>
-    <div id="sidebarOverlay" class="sidebar-overlay"></div>
-
-    <header class="top-header">
-      <div class="header-left">
-        <span id="headerGreeting">Hola</span>,
-        <span id="headerUser" class="header-user"></span>
-      </div>
-      <div class="header-right">
-        <div class="user-avatar" id="userAvatar">U</div>
-      </div>
-    </header>
-
-    <h1 class="dashboard-title">Movimientos Logísticos</h1>
-
-    <div class="module-container">
-      <!-- FILTROS -->
-      <div class="filters">
-        <input type="date" />
-
-        <select>
-          <option value="">Tipo</option>
-          <option>Envío</option>
-          <option>Recepción</option>
-          <option>Traslado</option>
-        </select>
-
-        <select>
-          <option value="">Estado</option>
-          <option>Pendiente</option>
-          <option>En tránsito</option>
-          <option>Entregado</option>
-          <option>Demorado</option>
-          <option>Cancelado</option>
-        </select>
-
-        <input type="text" placeholder="Buscar chofer..." />
-
-        <button class="btn-primary">Filtrar</button>
-      </div>
-
-      <!-- TABLA -->
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Fecha</th>
-            <th>Tipo</th>
-            <th>Origen</th>
-            <th>Destino</th>
-            <th>Chofer</th>
-            <th>Vehículo</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr>
-            <td>2025-03-10</td>
-            <td><span class="badge badge-blue">Envío</span></td>
-            <td>Pergamino</td>
-            <td>Rosario</td>
-            <td>Martín López</td>
-            <td>Camión 312</td>
-            <td><span class="badge badge-yellow">En tránsito</span></td>
-            <td>
-              <a href="logistica-editar.html" class="table-btn">✏️</a>
-            </td>
-          </tr>
-
-          <tr>
-            <td>2025-03-11</td>
-            <td><span class="badge badge-green">Recepción</span></td>
-            <td>Buenos Aires</td>
-            <td>Pergamino</td>
-            <td>Lucía Torres</td>
-            <td>Furgón 22</td>
-            <td><span class="badge badge-green">Entregado</span></td>
-            <td>
-              <a href="logistica-editar.html" class="table-btn">✏️</a>
-            </td>
-          </tr>
-
-          <tr>
-            <td>2025-03-12</td>
-            <td><span class="badge badge-purple">Traslado</span></td>
-            <td>Pergamino</td>
-            <td>Buenos Aires</td>
-            <td>Carlos Méndez</td>
-            <td>Camioneta 18</td>
-            <td><span class="badge badge-red">Demorado</span></td>
-            <td>
-              <a href="logistica-editar.html" class="table-btn">✏️</a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h2>ESPUMIN ERP</h2>
+      <a href="../dashboard.html">Dashboard</a>
+      <a href="../logistica/logistica-listado.html" class="active">Logística</a>
+      <a href="../logistica/logistica-rutas.html">Rutas</a>
+      <a href="../logistica/logistica-vehiculos.html">Vehículos</a>
+      <a href="../logistica/logistica-choferes.html">Choferes</a>
+      <a href="../logistica/logistica-reportes.html">Reportes</a>
+      <a href="../menu.html">Menú</a>
     </div>
 
-    <script src="../sidebar.js"></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const user = localStorage.getItem("usuario") || "Usuario";
-        const hour = new Date().getHours();
-        let greeting =
-          hour < 12
-            ? "Buenos días"
-            : hour < 19
-              ? "Buenas tardes"
-              : "Buenas noches";
-        document.getElementById("headerGreeting").textContent = greeting;
-        document.getElementById("headerUser").textContent = user;
-        document.getElementById("userAvatar").textContent = user
-          .charAt(0)
-          .toUpperCase();
-      });
-    </script>
+    <!-- Contenido principal -->
+    <div class="main-content">
+      <!-- Header -->
+      <header>
+        <h1>Listado de Entregas</h1>
+        <div class="user-info">
+          <span>Hola, Meña</span>
+          <img src="../assets/avatar.png" alt="Avatar" />
+        </div>
+      </header>
+
+      <!-- Contenedor -->
+      <section class="content-section">
+        <div class="actions">
+          <a href="logistica-nuevo.html" class="btn">Nueva Entrega</a>
+        </div>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Cliente</th>
+              <th>Dirección</th>
+              <th>Fecha</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>1001</td>
+              <td>Distribuidora San Jorge</td>
+              <td>Av. Rivadavia 2340</td>
+              <td>2026-01-18</td>
+              <td>En camino</td>
+              <td>
+                <a href="logistica-editar.html?id=1001" class="btn-small"
+                  >Editar</a
+                >
+              </td>
+            </tr>
+
+            <tr>
+              <td>1002</td>
+              <td>Supermercado La Plaza</td>
+              <td>Mitre 450</td>
+              <td>2026-01-19</td>
+              <td>Pendiente</td>
+              <td>
+                <a href="logistica-editar.html?id=1002" class="btn-small"
+                  >Editar</a
+                >
+              </td>
+            </tr>
+
+            <tr>
+              <td>1003</td>
+              <td>Mayorista El Sol</td>
+              <td>Ruta 8 Km 215</td>
+              <td>2026-01-19</td>
+              <td>Entregado</td>
+              <td>
+                <a href="logistica-editar.html?id=1003" class="btn-small"
+                  >Editar</a
+                >
+              </td>
+            </tr>
+
+            <tr>
+              <td>1004</td>
+              <td>Almacén Don Pepe</td>
+              <td>Belgrano 1200</td>
+              <td>2026-01-20</td>
+              <td>En preparación</td>
+              <td>
+                <a href="logistica-editar.html?id=1004" class="btn-small"
+                  >Editar</a
+                >
+              </td>
+            </tr>
+
+            <tr>
+              <td>1005</td>
+              <td>Farmacia Central</td>
+              <td>San Martín 980</td>
+              <td>2026-01-20</td>
+              <td>Pendiente</td>
+              <td>
+                <a href="logistica-editar.html?id=1005" class="btn-small"
+                  >Editar</a
+                >
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
   </body>
 </html>

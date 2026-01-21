@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calidad - Reportes</title>
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h2>ESPUMIN ERP</h2>
+      <a href="../dashboard.html">Dashboard</a>
+      <a href="../calidad/calidad-listado.html">Calidad</a>
+      <a href="../calidad/calidad-no-conformidades.html">No Conformidades</a>
+      <a href="../calidad/calidad-acciones-correctivas.html"
+        >Acciones Correctivas</a
+      >
+      <a href="../calidad/calidad-reportes.html" class="active">Reportes</a>
+      <a href="../menu.html">Menú</a>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+      <!-- Header -->
+      <header>
+        <h1>Reportes de Calidad</h1>
+        <div class="user-info">
+          <span>Hola, Meña</span>
+          <img src="../assets/avatar.png" alt="Avatar" />
+        </div>
+      </header>
+
+      <!-- Contenedor -->
+      <section class="content-section">
+        <!-- Tarjetas de métricas -->
+        <div class="report-cards">
+          <div class="report-card">
+            <h3>Controles del mes</h3>
+            <p>42</p>
+          </div>
+
+          <div class="report-card">
+            <h3>No conformidades</h3>
+            <p>5</p>
+          </div>
+
+          <div class="report-card">
+            <h3>Acciones correctivas activas</h3>
+            <p>3</p>
+          </div>
+
+          <div class="report-card">
+            <h3>Tasa de aprobación</h3>
+            <p>88%</p>
+          </div>
+        </div>
+
+        <!-- Tabla de controles recientes -->
+        <h2>Últimos controles realizados</h2>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Lote</th>
+              <th>Producto</th>
+              <th>Resultado</th>
+              <th>Inspector</th>
+              <th>Fecha</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>CQ-006</td>
+              <td>L-20260118-01</td>
+              <td>Espuma Clásica 500ml</td>
+              <td>Aprobado</td>
+              <td>Laura Benítez</td>
+              <td>2026-01-18</td>
+            </tr>
+
+            <tr>
+              <td>CQ-007</td>
+              <td>L-20260118-02</td>
+              <td>Espuma Premium 1L</td>
+              <td>Rechazado</td>
+              <td>Martín López</td>
+              <td>2026-01-18</td>
+            </tr>
+
+            <tr>
+              <td>CQ-008</td>
+              <td>L-20260119-01</td>
+              <td>Espuma Industrial 5L</td>
+              <td>Aprobado</td>
+              <td>Carla Gómez</td>
+              <td>2026-01-19</td>
+            </tr>
+
+            <tr>
+              <td>CQ-009</td>
+              <td>L-20260119-02</td>
+              <td>Espuma Clásica 500ml</td>
+              <td>Observado</td>
+              <td>Jorge Medina</td>
+              <td>2026-01-19</td>
+            </tr>
+
+            <tr>
+              <td>CQ-010</td>
+              <td>L-20260120-01</td>
+              <td>Espuma Premium 1L</td>
+              <td>Aprobado</td>
+              <td>Lucía Fernández</td>
+              <td>2026-01-20</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </body>
+</html>

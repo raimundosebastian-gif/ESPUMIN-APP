@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Administración - Auditoría</title>
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h2>ESPUMIN ERP</h2>
+      <a href="../dashboard.html">Dashboard</a>
+      <a href="../administracion/administracion-usuarios.html">Usuarios</a>
+      <a href="../administracion/administracion-roles.html">Roles</a>
+      <a href="../administracion/administracion-permisos.html">Permisos</a>
+      <a href="../administracion/administracion-auditoria.html" class="active"
+        >Auditoría</a
+      >
+      <a href="../menu.html">Menú</a>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+      <!-- Header -->
+      <header>
+        <h1>Auditoría del Sistema</h1>
+        <div class="user-info">
+          <span>Hola, Meña</span>
+          <img src="../assets/avatar.png" alt="Avatar" />
+        </div>
+      </header>
+
+      <!-- Contenedor -->
+      <section class="content-section">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Usuario</th>
+              <th>Acción</th>
+              <th>Módulo</th>
+              <th>Fecha</th>
+              <th>Detalle</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>AUD-001</td>
+              <td>Laura Benítez</td>
+              <td>Creación</td>
+              <td>Usuarios</td>
+              <td>2026-01-18 09:12</td>
+              <td>Alta de usuario U-006</td>
+            </tr>
+
+            <tr>
+              <td>AUD-002</td>
+              <td>Martín López</td>
+              <td>Edición</td>
+              <td>Producción</td>
+              <td>2026-01-18 10:45</td>
+              <td>Modificación de lote L-20260118-01</td>
+            </tr>
+
+            <tr>
+              <td>AUD-003</td>
+              <td>Carla Gómez</td>
+              <td>Revisión</td>
+              <td>Calidad</td>
+              <td>2026-01-18 11:20</td>
+              <td>Control CQ-006 verificado</td>
+            </tr>
+
+            <tr>
+              <td>AUD-004</td>
+              <td>Jorge Medina</td>
+              <td>Acceso</td>
+              <td>Logística</td>
+              <td>2026-01-18 12:05</td>
+              <td>Ingreso a módulo de rutas</td>
+            </tr>
+
+            <tr>
+              <td>AUD-005</td>
+              <td>Lucía Fernández</td>
+              <td>Edición</td>
+              <td>Inventario</td>
+              <td>2026-01-18 13:40</td>
+              <td>Ajuste de stock en producto I-014</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </body>
+</html>
