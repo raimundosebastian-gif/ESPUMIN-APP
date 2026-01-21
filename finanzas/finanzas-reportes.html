@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Finanzas - Reportes</title>
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h2>ESPUMIN ERP</h2>
+      <a href="../dashboard.html">Dashboard</a>
+      <a href="../finanzas/finanzas-cuentas-pagar.html">Cuentas por Pagar</a>
+      <a href="../finanzas/finanzas-cuentas-cobrar.html">Cuentas por Cobrar</a>
+      <a href="../finanzas/finanzas-caja.html">Caja</a>
+      <a href="../finanzas/finanzas-reportes.html" class="active">Reportes</a>
+      <a href="../menu.html">Menú</a>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+      <!-- Header -->
+      <header>
+        <h1>Reportes Financieros</h1>
+        <div class="user-info">
+          <span>Hola, Meña</span>
+          <img src="../assets/avatar.png" alt="Avatar" />
+        </div>
+      </header>
+
+      <!-- Contenido -->
+      <section class="content-section">
+        <!-- Tarjetas de KPIs -->
+        <div class="report-cards">
+          <div class="report-card">
+            <h3>Ingresos del Mes</h3>
+            <p>$ 4.850.000</p>
+          </div>
+
+          <div class="report-card">
+            <h3>Egresos del Mes</h3>
+            <p>$ 2.940.000</p>
+          </div>
+
+          <div class="report-card">
+            <h3>Resultado Neto</h3>
+            <p>$ 1.910.000</p>
+          </div>
+
+          <div class="report-card">
+            <h3>Cobranza Efectiva</h3>
+            <p>78%</p>
+          </div>
+        </div>
+
+        <h2>Movimientos del Mes</h2>
+
+        <!-- Tabla -->
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Tipo</th>
+              <th>Concepto</th>
+              <th>Monto</th>
+              <th>Fecha</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>FM-001</td>
+              <td>Ingreso</td>
+              <td>Cobro CC-003</td>
+              <td>$ 380.000</td>
+              <td>2026-01-05</td>
+            </tr>
+
+            <tr>
+              <td>FM-002</td>
+              <td>Egreso</td>
+              <td>Pago CP-002</td>
+              <td>$ 89.500</td>
+              <td>2026-01-06</td>
+            </tr>
+
+            <tr>
+              <td>FM-003</td>
+              <td>Ingreso</td>
+              <td>Cobro CC-001</td>
+              <td>$ 210.000</td>
+              <td>2026-01-08</td>
+            </tr>
+
+            <tr>
+              <td>FM-004</td>
+              <td>Egreso</td>
+              <td>Compra de insumos</td>
+              <td>$ 152.000</td>
+              <td>2026-01-10</td>
+            </tr>
+
+            <tr>
+              <td>FM-005</td>
+              <td>Ingreso</td>
+              <td>Cobro CC-005</td>
+              <td>$ 167.900</td>
+              <td>2026-01-12</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </body>
+</html>

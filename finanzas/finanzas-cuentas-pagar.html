@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Finanzas - Cuentas por Pagar</title>
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h2>ESPUMIN ERP</h2>
+      <a href="../dashboard.html">Dashboard</a>
+      <a href="../finanzas/finanzas-cuentas-pagar.html" class="active"
+        >Cuentas por Pagar</a
+      >
+      <a href="../finanzas/finanzas-cuentas-cobrar.html">Cuentas por Cobrar</a>
+      <a href="../finanzas/finanzas-caja.html">Caja</a>
+      <a href="../finanzas/finanzas-reportes.html">Reportes</a>
+      <a href="../menu.html">Menú</a>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+      <!-- Header -->
+      <header>
+        <h1>Cuentas por Pagar</h1>
+        <div class="user-info">
+          <span>Hola, Meña</span>
+          <img src="../assets/avatar.png" alt="Avatar" />
+        </div>
+      </header>
+
+      <!-- Contenedor -->
+      <section class="content-section">
+        <div class="actions">
+          <a href="#" class="btn">Nuevo Pago</a>
+        </div>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Proveedor</th>
+              <th>Concepto</th>
+              <th>Monto</th>
+              <th>Vencimiento</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>CP-001</td>
+              <td>Químicos del Sur</td>
+              <td>Materia prima A-32</td>
+              <td>$ 152.000</td>
+              <td>2026-01-25</td>
+              <td>Pendiente</td>
+              <td><a href="#" class="btn-small">Pagar</a></td>
+            </tr>
+
+            <tr>
+              <td>CP-002</td>
+              <td>Envases Argentinos</td>
+              <td>Botellas 500ml</td>
+              <td>$ 89.500</td>
+              <td>2026-01-20</td>
+              <td>Vencido</td>
+              <td><a href="#" class="btn-small">Pagar</a></td>
+            </tr>
+
+            <tr>
+              <td>CP-003</td>
+              <td>Transportes Ruta 8</td>
+              <td>Servicio de flete</td>
+              <td>$ 45.000</td>
+              <td>2026-01-30</td>
+              <td>Pendiente</td>
+              <td><a href="#" class="btn-small">Pagar</a></td>
+            </tr>
+
+            <tr>
+              <td>CP-004</td>
+              <td>Colorantes SA</td>
+              <td>Colorante azul lote 221</td>
+              <td>$ 63.200</td>
+              <td>2026-01-10</td>
+              <td>Pagado</td>
+              <td><a href="#" class="btn-small">Ver</a></td>
+            </tr>
+
+            <tr>
+              <td>CP-005</td>
+              <td>Lubricantes Delta</td>
+              <td>Aceite para maquinaria</td>
+              <td>$ 27.800</td>
+              <td>2026-01-22</td>
+              <td>Pendiente</td>
+              <td><a href="#" class="btn-small">Pagar</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </body>
+</html>

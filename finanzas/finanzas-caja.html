@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Finanzas - Caja</title>
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h2>ESPUMIN ERP</h2>
+      <a href="../dashboard.html">Dashboard</a>
+      <a href="../finanzas/finanzas-cuentas-pagar.html">Cuentas por Pagar</a>
+      <a href="../finanzas/finanzas-cuentas-cobrar.html">Cuentas por Cobrar</a>
+      <a href="../finanzas/finanzas-caja.html" class="active">Caja</a>
+      <a href="../finanzas/finanzas-reportes.html">Reportes</a>
+      <a href="../menu.html">Menú</a>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+      <!-- Header -->
+      <header>
+        <h1>Caja del Día</h1>
+        <div class="user-info">
+          <span>Hola, Meña</span>
+          <img src="../assets/avatar.png" alt="Avatar" />
+        </div>
+      </header>
+
+      <!-- Contenido -->
+      <section class="content-section">
+        <!-- Tarjetas resumen -->
+        <div class="report-cards">
+          <div class="report-card">
+            <h3>Ingresos</h3>
+            <p>$ 310.000</p>
+          </div>
+
+          <div class="report-card">
+            <h3>Egresos</h3>
+            <p>$ 128.500</p>
+          </div>
+
+          <div class="report-card">
+            <h3>Saldo del Día</h3>
+            <p>$ 181.500</p>
+          </div>
+        </div>
+
+        <div class="actions">
+          <a href="#" class="btn">Nuevo Movimiento</a>
+        </div>
+
+        <!-- Tabla de movimientos -->
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Tipo</th>
+              <th>Concepto</th>
+              <th>Monto</th>
+              <th>Hora</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>MC-001</td>
+              <td>Ingreso</td>
+              <td>Cobro CC-004</td>
+              <td>$ 98.700</td>
+              <td>09:15</td>
+              <td><a href="#" class="btn-small">Ver</a></td>
+            </tr>
+
+            <tr>
+              <td>MC-002</td>
+              <td>Egreso</td>
+              <td>Pago CP-004</td>
+              <td>$ 63.200</td>
+              <td>10:05</td>
+              <td><a href="#" class="btn-small">Ver</a></td>
+            </tr>
+
+            <tr>
+              <td>MC-003</td>
+              <td>Ingreso</td>
+              <td>Cobro CC-001</td>
+              <td>$ 210.000</td>
+              <td>11:40</td>
+              <td><a href="#" class="btn-small">Ver</a></td>
+            </tr>
+
+            <tr>
+              <td>MC-004</td>
+              <td>Egreso</td>
+              <td>Compra insumos menores</td>
+              <td>$ 12.300</td>
+              <td>12:55</td>
+              <td><a href="#" class="btn-small">Ver</a></td>
+            </tr>
+
+            <tr>
+              <td>MC-005</td>
+              <td>Egreso</td>
+              <td>Servicio de mensajería</td>
+              <td>$ 53.000</td>
+              <td>14:20</td>
+              <td><a href="#" class="btn-small">Ver</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </body>
+</html>

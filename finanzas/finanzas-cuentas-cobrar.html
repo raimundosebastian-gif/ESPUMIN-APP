@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Finanzas - Cuentas por Cobrar</title>
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h2>ESPUMIN ERP</h2>
+      <a href="../dashboard.html">Dashboard</a>
+      <a href="../finanzas/finanzas-cuentas-pagar.html">Cuentas por Pagar</a>
+      <a href="../finanzas/finanzas-cuentas-cobrar.html" class="active"
+        >Cuentas por Cobrar</a
+      >
+      <a href="../finanzas/finanzas-caja.html">Caja</a>
+      <a href="../finanzas/finanzas-reportes.html">Reportes</a>
+      <a href="../menu.html">Menú</a>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+      <!-- Header -->
+      <header>
+        <h1>Cuentas por Cobrar</h1>
+        <div class="user-info">
+          <span>Hola, Meña</span>
+          <img src="../assets/avatar.png" alt="Avatar" />
+        </div>
+      </header>
+
+      <!-- Contenido -->
+      <section class="content-section">
+        <div class="actions">
+          <a href="#" class="btn">Registrar Cobro</a>
+        </div>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Cliente</th>
+              <th>Concepto</th>
+              <th>Monto</th>
+              <th>Vencimiento</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>CC-001</td>
+              <td>Distribuidora Norte</td>
+              <td>Venta de espuma 500ml</td>
+              <td>$ 210.000</td>
+              <td>2026-01-22</td>
+              <td>Pendiente</td>
+              <td><a href="#" class="btn-small">Cobrar</a></td>
+            </tr>
+
+            <tr>
+              <td>CC-002</td>
+              <td>Mayorista El Sol</td>
+              <td>Venta de espuma 1L</td>
+              <td>$ 145.500</td>
+              <td>2026-01-18</td>
+              <td>Vencido</td>
+              <td><a href="#" class="btn-small">Cobrar</a></td>
+            </tr>
+
+            <tr>
+              <td>CC-003</td>
+              <td>Higiene Total SA</td>
+              <td>Venta de espuma industrial 5L</td>
+              <td>$ 380.000</td>
+              <td>2026-01-30</td>
+              <td>Pendiente</td>
+              <td><a href="#" class="btn-small">Cobrar</a></td>
+            </tr>
+
+            <tr>
+              <td>CC-004</td>
+              <td>Supermercado La Familia</td>
+              <td>Venta de espuma clásica</td>
+              <td>$ 98.700</td>
+              <td>2026-01-10</td>
+              <td>Cobrado</td>
+              <td><a href="#" class="btn-small">Ver</a></td>
+            </tr>
+
+            <tr>
+              <td>CC-005</td>
+              <td>Comercial San Martín</td>
+              <td>Venta de espuma premium</td>
+              <td>$ 167.900</td>
+              <td>2026-01-25</td>
+              <td>Pendiente</td>
+              <td><a href="#" class="btn-small">Cobrar</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </body>
+</html>
