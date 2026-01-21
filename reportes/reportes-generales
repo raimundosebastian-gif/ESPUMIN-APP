@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reportes Generales</title>
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+
+  <body>
+    <div class="sidebar">
+      <h2>ESPUMIN ERP</h2>
+      <a href="../dashboard.html">Dashboard</a>
+      <a href="../reportes/reportes-generales.html" class="active"
+        >Reportes Generales</a
+      >
+      <a href="../menu.html">Menú</a>
+    </div>
+
+    <div class="main-content">
+      <header>
+        <h1>Reportes Generales</h1>
+        <div class="user-info">
+          <span>Hola, Meña</span>
+          <img src="../assets/avatar.png" />
+        </div>
+      </header>
+
+      <section class="content-section">
+        <div class="report-cards">
+          <div class="report-card">
+            <h3>Producción</h3>
+            <p>18.500 unidades</p>
+          </div>
+
+          <div class="report-card">
+            <h3>Ventas</h3>
+            <p>320 pedidos</p>
+          </div>
+
+          <div class="report-card">
+            <h3>Finanzas</h3>
+            <p>$ 1.910.000 neto</p>
+          </div>
+
+          <div class="report-card">
+            <h3>RRHH</h3>
+            <p>3,2% ausentismo</p>
+          </div>
+        </div>
+
+        <h2>Resumen Global</h2>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Módulo</th>
+              <th>Indicador</th>
+              <th>Valor</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>Producción</td>
+              <td>Órdenes completadas</td>
+              <td>95%</td>
+            </tr>
+            <tr>
+              <td>Calidad</td>
+              <td>No conformidades</td>
+              <td>12</td>
+            </tr>
+            <tr>
+              <td>Logística</td>
+              <td>Entregas a tiempo</td>
+              <td>94%</td>
+            </tr>
+            <tr>
+              <td>Finanzas</td>
+              <td>Cobranza efectiva</td>
+              <td>78%</td>
+            </tr>
+            <tr>
+              <td>RRHH</td>
+              <td>Ausentismo</td>
+              <td>3,2%</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </body>
+</html>
